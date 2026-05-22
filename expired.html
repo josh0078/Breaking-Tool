@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link abgelaufen</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; text-align: center; }
+    .inner { max-width: 480px; margin: 0 auto; }
+    .exp-icon {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 32px;
+      box-shadow: 0 0 40px rgba(248,113,113,0.12);
+    }
+    h1 { font-size: 32px; color: var(--danger); margin-bottom: 14px; }
+    p  { font-size: 15px; color: var(--text-2); line-height: 1.7; }
+    .contact-hint {
+      margin-top: 32px;
+      padding: 20px 28px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .contact-hint strong { color: var(--purple); }
+  </style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+<div class="inner fade-up">
+  <div class="exp-icon">⏱</div>
+  <h1>Link abgelaufen</h1>
+  <p>Dieser Briefing-Link ist leider nicht mehr gültig. Der Link war 7 Werktage aktiv und hat diesen Zeitraum überschritten.</p>
+  <div class="contact-hint">
+    Bitte wende dich direkt an <strong>Joshua</strong>, um einen neuen Link zu erhalten. Er kann dir schnell einen frischen Link generieren.
+  </div>
+</div>
+</body>
+</html>

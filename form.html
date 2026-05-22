@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website-Briefing</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { padding-bottom: 80px; }
+
+    /* ── Hero header ── */
+    .form-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 60px 24px 50px;
+      text-align: center;
+    }
+    .form-hero::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, rgba(168,85,247,0.2) 0%, transparent 65%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .form-hero-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+    .form-greeting {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 16px;
+    }
+    .form-hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .form-hero p {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 24px;
+    }
+    .expires-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.25);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .expires-badge strong { color: var(--purple); }
+
+    /* ── Form body ── */
+    .form-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Section card ── */
+    .form-section {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 18px;
+      transition: border-color 0.2s;
+      animation: fadeUp 0.5s ease both;
+    }
+    .form-section:hover { border-color: var(--border-h); }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .section-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(168,85,247,0.3);
+    }
+    .section-title-wrap h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    /* ── Submit area ── */
+    .submit-area {
+      max-width: 760px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .submit-area p {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-top: 12px;
+    }
+    .submit-btn-wrap {
+      position: relative;
+      display: inline-block;
+    }
+    .submit-glow {
+      position: absolute;
+      inset: -4px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      filter: blur(12px);
+      opacity: 0.4;
+      z-index: 0;
+      animation: pulse-glow 3s ease infinite;
+    }
+    #submit-btn {
+      position: relative;
+      z-index: 1;
+      padding: 16px 48px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    #submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ── Success ── */
+    #success-screen {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .success-inner { max-width: 480px; margin: 0 auto; }
+    .success-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.1));
+      border: 1px solid rgba(74,222,128,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 30px rgba(74,222,128,0.2);
+    }
+    .success-inner h2 { font-size: 28px; margin-bottom: 12px; }
+    .success-inner p  { color: var(--text-2); font-size: 15px; line-height: 1.7; }
+
+    @media (max-width: 600px) {
+      .form-section { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+
+<!-- ══════════ FORM ══════════ -->
+<div id="form-screen">
+  <!-- Hero -->
+  <div class="form-hero">
+    <div class="form-hero-inner">
+      <div class="form-greeting" id="greeting-line">Ihr persönliches Briefing</div>
+      <h1>Hallo <span class="gradient-text" id="customer-name-display">…</span>,<br>erzählen Sie uns von Ihrer Website</h1>
+      <p>Füllen Sie das Formular so vollständig wie möglich aus — je mehr wir wissen, desto besser können wir Sie beraten und ein passendes Angebot erstellen.</p>
+      <div class="expires-badge">
+        ⏱ Dieser Link ist gültig bis <strong id="expires-display">…</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- 1. Website-Typ -->
+    <div class="form-section" style="animation-delay:0.05s">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div class="section-title-wrap">
+          <h3>Website-Typ</h3>
+          <div class="section-subtitle">Was für eine Art Website benötigen Sie? (Mehrfachauswahl möglich)</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="typ">
+        <div class="chip" onclick="toggleChip(this)">Unternehmensseite</div>
+        <div class="chip" onclick="toggleChip(this)">Portfolio</div>
+        <div class="chip" onclick="toggleChip(this)">Online-Shop</div>
+        <div class="chip" onclick="toggleChip(this)">Landing Page</div>
+        <div class="chip" onclick="toggleChip(this)">Blog</div>
+        <div class="chip" onclick="toggleChip(this)">Visitenkarten-Seite</div>
+        <div class="chip" onclick="toggleChip(this)">Sonstiges</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Weitere Infos zum Website-Typ (optional) …" data-field="typ_text"></textarea>
+    </div>
+
+    <!-- 2. Ziel & Zweck -->
+    <div class="form-section" style="animation-delay:0.1s">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div class="section-title-wrap">
+          <h3>Ziel & Zweck</h3>
+          <div class="section-subtitle">Was soll die Website für Sie erreichen?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="ziel">
+        <div class="chip" onclick="toggleChip(this)">Neue Kunden gewinnen</div>
+        <div class="chip" onclick="toggleChip(this)">Termine buchen</div>
+        <div class="chip" onclick="toggleChip(this)">Produkte verkaufen</div>
+        <div class="chip" onclick="toggleChip(this)">Marke aufbauen</div>
+        <div class="chip" onclick="toggleChip(this)">Informieren / Aufklären</div>
+        <div class="chip" onclick="toggleChip(this)">Bewerber ansprechen</div>
+        <div class="chip" onclick="toggleChip(this)">Bestandskunden betreuen</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Was ist Ihr wichtigstes Ziel? …" data-field="ziel_text"></textarea>
+    </div>
+
+    <!-- 3. Zielgruppe -->
+    <div class="form-section" style="animation-delay:0.15s">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div class="section-title-wrap">
+          <h3>Zielgruppe</h3>
+          <div class="section-subtitle">Wer sind die Besucher Ihrer Website?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="zielgruppe">
+        <div class="chip" onclick="toggleChip(this)">Geschäftskunden (B2B)</div>
+        <div class="chip" onclick="toggleChip(this)">Privatkunden (B2C)</div>
+        <div class="chip" onclick="toggleChip(this)">Regional</div>
+        <div class="chip" onclick="toggleChip(this)">National (Deutschland)</div>
+        <div class="chip" onclick="toggleChip(this)">International</div>
+        <div class="chip" onclick="toggleChip(this)">18–35 Jahre</div>
+        <div class="chip" onclick="toggleChip(this)">35–60 Jahre</div>
+        <div class="chip" onclick="toggleChip(this)">60+ Jahre</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Beschreiben Sie Ihre Zielgruppe genauer …" data-field="zielgruppe_text"></textarea>
+    </div>
+
+    <!-- 4. Gewünschte Seiten -->
+    <div class="form-section" style="animation-delay:0.2s">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div class="section-title-wrap">
+          <h3>Gewünschte Seiten</h3>
+          <div class="section-subtitle">Welche Unterseiten soll die Website haben?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="seiten">
+        <div class="chip" onclick="toggleChip(this)">Startseite</div>
+        <div class="chip" onclick="toggleChip(this)">Über uns</div>
+        <div class="chip" onclick="toggleChip(this)">Leistungen</div>
+        <div class="chip" onclick="toggleChip(this)">Portfolio / Referenzen</div>
+        <div class="chip" onclick="toggleChip(this)">Kontakt</div>
+        <div class="chip" onclick="toggleChip(this)">Blog</div>
+        <div class="chip" onclick="toggleChip(this)">Online-Shop</div>
+        <div class="chip" onclick="toggleChip(this)">FAQ</div>
+        <div class="chip" onclick="toggleChip(this)">Impressum & Datenschutz</div>
+        <div class="chip" onclick="toggleChip(this)">Login-Bereich</div>
+        <div class="chip" onclick="toggleChip(this)">Karriere / Jobs</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Weitere Seiten, die Sie sich vorstellen …" data-field="seiten_text"></textarea>
+    </div>
+
+    <!-- 5. Design -->
+    <div class="form-section" style="animation-delay:0.25s">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div class="section-title-wrap">
+          <h3>Design-Vorstellungen</h3>
+          <div class="section-subtitle">Welcher Stil passt zu Ihnen?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="design">
+        <div class="chip" onclick="toggleChip(this)">Modern & Clean</div>
+        <div class="chip" onclick="toggleChip(this)">Minimalistisch</div>
+        <div class="chip" onclick="toggleChip(this)">Klassisch & Seriös</div>
+        <div class="chip" onclick="toggleChip(this)">Verspielt & Kreativ</div>
+        <div class="chip" onclick="toggleChip(this)">Luxuriös & Premium</div>
+        <div class="chip" onclick="toggleChip(this)">Technisch & Digital</div>
+        <div class="chip" onclick="toggleChip(this)">Natürlich & Organisch</div>
+        <div class="chip" onclick="toggleChip(this)">Bold & Auffällig</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Welche Farben bevorzugen Sie? Haben Sie Referenz-Webseiten, die Ihnen gefallen? …" data-field="design_text"></textarea>
+    </div>
+
+    <!-- 6. Inhalte & Materialien + Upload -->
+    <div class="form-section" style="animation-delay:0.3s">
+      <div class="section-head">
+        <div class="section-num">6</div>
+        <div class="section-title-wrap">
+          <h3>Inhalte & Materialien</h3>
+          <div class="section-subtitle">Was haben Sie bereits, was muss noch erstellt werden?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="inhalte">
+        <div class="chip" onclick="toggleChip(this)">Logo vorhanden</div>
+        <div class="chip" onclick="toggleChip(this)">Eigene Fotos vorhanden</div>
+        <div class="chip" onclick="toggleChip(this)">Eigene Texte vorhanden</div>
+        <div class="chip" onclick="toggleChip(this)">Logo muss erstellt werden</div>
+        <div class="chip" onclick="toggleChip(this)">Fotos müssen gemacht werden</div>
+        <div class="chip" onclick="toggleChip(this)">Texte müssen geschrieben werden</div>
+        <div class="chip" onclick="toggleChip(this)">Alles muss erstellt werden</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Weitere Infos zu Ihren Materialien …" data-field="inhalte_text"></textarea>
+
+      <!-- File Upload -->
+      <div style="margin-top:20px;">
+        <label style="margin-bottom:10px;">Dateien hochladen (Logo, Fotos, Referenzen)</label>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <input type="file" id="file-input" multiple accept="image/*,.pdf" onchange="handleFiles(this.files)">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:8px;color:var(--purple);opacity:0.6;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div><strong style="color:var(--text-2);">Dateien hierher ziehen</strong> oder klicken zum Auswählen</div>
+          <div style="margin-top:4px;font-size:11px;">Bilder (JPG, PNG, SVG) · PDF · max. 5 MB pro Datei</div>
+        </div>
+        <div class="upload-previews" id="upload-previews"></div>
+        <div id="upload-size-warning" style="display:none;color:var(--warning);font-size:12px;margin-top:8px;">
+          ⚠ Große Dateien werden als Vorschau angezeigt, aber möglicherweise komprimiert für die E-Mail übertragen.
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Funktionen -->
+    <div class="form-section" style="animation-delay:0.35s">
+      <div class="section-head">
+        <div class="section-num">7</div>
+        <div class="section-title-wrap">
+          <h3>Spezielle Funktionen</h3>
+          <div class="section-subtitle">Welche besonderen Features benötigen Sie?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="funktionen">
+        <div class="chip" onclick="toggleChip(this)">Kontaktformular</div>
+        <div class="chip" onclick="toggleChip(this)">Newsletter-Anmeldung</div>
+        <div class="chip" onclick="toggleChip(this)">Online-Buchung / Kalender</div>
+        <div class="chip" onclick="toggleChip(this)">Mehrsprachigkeit</div>
+        <div class="chip" onclick="toggleChip(this)">Live-Chat</div>
+        <div class="chip" onclick="toggleChip(this)">Login-Bereich</div>
+        <div class="chip" onclick="toggleChip(this)">Zahlungssystem</div>
+        <div class="chip" onclick="toggleChip(this)">Social Media Integration</div>
+        <div class="chip" onclick="toggleChip(this)">Google Maps</div>
+        <div class="chip" onclick="toggleChip(this)">Galerie / Slider</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Weitere Funktionen, die Sie sich wünschen …" data-field="funktionen_text"></textarea>
+    </div>
+
+    <!-- 8. KI & Automatisierung -->
+    <div class="form-section" style="animation-delay:0.38s">
+      <div class="section-head">
+        <div class="section-num">8</div>
+        <div class="section-title-wrap">
+          <h3>KI & Automatisierung</h3>
+          <div class="section-subtitle">Möchten Sie KI-gestützte Funktionen in Ihr Paket einbinden?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="ki_erweiterung">
+        <div class="chip" onclick="toggleChip(this)">Instagram Bot</div>
+        <div class="chip" onclick="toggleChip(this)">Website-Chatbot</div>
+        <div class="chip" onclick="toggleChip(this)">Beides (Instagram Bot + Chatbot)</div>
+        <div class="chip" onclick="toggleChip(this)">E-Mail Automatisierung</div>
+        <div class="chip" onclick="toggleChip(this)">Social Media Automatisierung</div>
+        <div class="chip" onclick="toggleChip(this)">Rechnungs-Automatisierung</div>
+        <div class="chip" onclick="toggleChip(this)">Komplexere Vorgänge auf Wunsch</div>
+        <div class="chip" onclick="toggleChip(this)">Nein, nicht gewünscht</div>
+      </div>
+      <div style="margin-top:14px;padding:12px 14px;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:8px;font-size:12px;color:var(--text-3);line-height:1.6;">
+        <strong style="color:var(--text-2);">Instagram Bot</strong> — Automatische Antworten auf DMs & Kommentare, Kontaktdaten weitergeben, an Support weiterleiten.<br>
+        <strong style="color:var(--text-2);">Website-Chatbot</strong> — KI-Assistent auf deiner Website: beantwortet häufige Fragen, gibt Kontaktdaten raus, leitet an Support weiter.<br>
+        <strong style="color:var(--text-2);">E-Mail Automatisierung</strong> — Automatischer Versand von Angeboten, Bestätigungen, Follow-ups & mehr — ohne manuellen Aufwand.<br>
+        <strong style="color:var(--text-2);">Social Media Automatisierung</strong> — Beiträge planen & automatisch veröffentlichen, DMs beantworten, Kommentare verwalten.<br>
+        <strong style="color:var(--text-2);">Rechnungs-Automatisierung</strong> — Rechnungen automatisch erstellen, versenden und nachverfolgen.<br>
+        <strong style="color:var(--text-2);">Komplexere Vorgänge auf Wunsch</strong> — Individuelle Prozesse, die wir gemeinsam analysieren und automatisieren.
+      </div>
+
+      <!-- Individuelle Automatisierung — nur sichtbar wenn Admin aktiviert -->
+      <div id="ki-individual-wrap" style="display:none;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);">
+        <label style="margin-bottom:8px;display:block;">
+          <span style="color:var(--purple);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Individuelle Automatisierung</span>
+        </label>
+        <textarea class="input" placeholder="Sie möchten einen Arbeitsablauf mit KI automatisieren? Beschreiben Sie kurz, was automatisiert werden soll …" data-field="ki_individual_text" style="min-height:100px;"></textarea>
+      </div>
+    </div>
+
+    <!-- 9. Social Media -->
+    <div class="form-section" style="animation-delay:0.41s">
+      <div class="section-head">
+        <div class="section-num">9</div>
+        <div class="section-title-wrap">
+          <h3>Social Media</h3>
+          <div class="section-subtitle">Möchten Sie Unterstützung bei Ihrem Social Media Auftritt?</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;color:var(--text-3);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.8px;">Art der Unterstützung</label>
+        <div class="chips-wrap" data-section="socialmedia_art">
+          <div class="chip" onclick="toggleChip(this)">Social Media Management</div>
+          <div class="chip" onclick="toggleChip(this)">Kurs / Coaching</div>
+          <div class="chip" onclick="toggleChip(this)">Beides</div>
+          <div class="chip" onclick="toggleChip(this)">Nein, nicht gewünscht</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;color:var(--text-3);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.8px;">Plattformen (Mehrfachauswahl)</label>
+        <div class="chips-wrap" data-section="socialmedia_plattform">
+          <div class="chip" onclick="toggleChip(this)">Instagram</div>
+          <div class="chip" onclick="toggleChip(this)">Facebook</div>
+          <div class="chip" onclick="toggleChip(this)">TikTok</div>
+          <div class="chip" onclick="toggleChip(this)">LinkedIn</div>
+          <div class="chip" onclick="toggleChip(this)">YouTube</div>
+          <div class="chip" onclick="toggleChip(this)">Pinterest</div>
+          <div class="chip" onclick="toggleChip(this)">Noch unklar</div>
+        </div>
+      </div>
+
+      <textarea class="input" placeholder="Haben Sie bereits Accounts? Was soll gepostet werden? Welche Ziele verfolgen Sie auf Social Media? …" data-field="socialmedia_text" style="min-height:90px;"></textarea>
+    </div>
+
+    <!-- 10. Budget -->
+    <div class="form-section" style="animation-delay:0.4s">
+      <div class="section-head">
+        <div class="section-num">10</div>
+        <div class="section-title-wrap">
+          <h3>Budget-Rahmen</h3>
+          <div class="section-subtitle">Was ist Ihr ungefähres Budget?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="budget">
+        <div class="chip" onclick="toggleChip(this)">Unter 500 €</div>
+        <div class="chip" onclick="toggleChip(this)">500 – 1.500 €</div>
+        <div class="chip" onclick="toggleChip(this)">1.500 – 5.000 €</div>
+        <div class="chip" onclick="toggleChip(this)">5.000 – 10.000 €</div>
+        <div class="chip" onclick="toggleChip(this)">Über 10.000 €</div>
+        <div class="chip" onclick="toggleChip(this)">Noch unklar</div>
+      </div>
+      <div class="budget-info">
+        <span class="budget-info-icon">ℹ</span>
+        Bei einem niedrigeren Budget müssen gewisse Abstriche bei Design, Funktionsumfang oder Individualität gemacht werden. Bestimmte Features &amp; Leistungen sind erst ab einer bestimmten Investitionssumme realisierbar.
+      </div>
+    </div>
+
+    <!-- 11. Deadline -->
+    <div class="form-section" style="animation-delay:0.45s">
+      <div class="section-head">
+        <div class="section-num">11</div>
+        <div class="section-title-wrap">
+          <h3>Wunsch-Termin</h3>
+          <div class="section-subtitle">Wann soll die Website fertig sein?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="deadline">
+        <div class="chip" onclick="toggleChip(this)">So schnell wie möglich</div>
+        <div class="chip" onclick="toggleChip(this)">In 1 Monat</div>
+        <div class="chip" onclick="toggleChip(this)">In 2–3 Monaten</div>
+        <div class="chip" onclick="toggleChip(this)">In 6 Monaten</div>
+        <div class="chip" onclick="toggleChip(this)">Kein festes Datum</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Gibt es ein wichtiges Datum oder Event? (z.B. Messe, Eröffnung) …" data-field="deadline_text"></textarea>
+    </div>
+
+    <!-- 12. Mitbewerber -->
+    <div class="form-section" style="animation-delay:0.5s">
+      <div class="section-head">
+        <div class="section-num">12</div>
+        <div class="section-title-wrap">
+          <h3>Mitbewerber & Referenzen</h3>
+          <div class="section-subtitle">Welche Websites finden Sie gut oder weniger gut?</div>
+        </div>
+      </div>
+      <textarea class="input" placeholder="Beispiel: competitor.de — gefällt mir, weil die Navigation klar ist. beispiel.com — mag ich nicht, zu unübersichtlich. …" data-field="konkurrenz_text" style="min-height:110px;"></textarea>
+    </div>
+
+    <!-- 13. Domain & Hosting -->
+    <div class="form-section" style="animation-delay:0.55s">
+      <div class="section-head">
+        <div class="section-num">13</div>
+        <div class="section-title-wrap">
+          <h3>Domain & Hosting</h3>
+          <div class="section-subtitle">Was haben Sie bereits, was benötigen Sie noch?</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="domain">
+        <div class="chip" onclick="toggleChip(this)">Domain bereits vorhanden</div>
+        <div class="chip" onclick="toggleChip(this)">Hosting bereits vorhanden</div>
+        <div class="chip" onclick="toggleChip(this)">Domain wird benötigt</div>
+        <div class="chip" onclick="toggleChip(this)">Hosting wird benötigt</div>
+        <div class="chip" onclick="toggleChip(this)">Beides wird benötigt</div>
+        <div class="chip" onclick="toggleChip(this)">Weiß ich noch nicht</div>
+      </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Haben Sie schon eine Wunsch-Domain? …" data-field="domain_text"></textarea>
+    </div>
+
+    <!-- 14. Anmerkungen -->
+    <div class="form-section" style="animation-delay:0.6s">
+      <div class="section-head">
+        <div class="section-num">14</div>
+        <div class="section-title-wrap">
+          <h3>Sonstige Anmerkungen</h3>
+          <div class="section-subtitle">Was ist Ihnen noch wichtig?</div>
+        </div>
+      </div>
+      <textarea class="input" placeholder="Alles was Sie noch sagen möchten — besondere Wünsche, Fragen, Anmerkungen …" data-field="anmerkungen_text" style="min-height:120px;"></textarea>
+    </div>
+
+  </div><!-- /form-body -->
+
+  <!-- Submit -->
+  <div class="submit-area">
+    <div class="submit-btn-wrap">
+      <div class="submit-glow"></div>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitForm()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Briefing absenden
+      </button>
+    </div>
+    <p>Ihre Angaben werden direkt übermittelt. Wir melden uns zeitnah bei Ihnen.</p>
+  </div>
+</div><!-- /form-screen -->
+
+<!-- ══════════ SUCCESS ══════════ -->
+<div id="success-screen" style="display:none;min-height:100vh;display:none;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
+  <div class="success-inner fade-up">
+    <div class="success-icon">✓</div>
+    <h2 class="gradient-text">Danke, <span id="success-name"></span>!</h2>
+    <p style="margin-top:12px;">Ihr Briefing wurde erfolgreich übermittelt. Wir melden uns in Kürze bei Ihnen mit einem individuellen Angebot.</p>
+    <p style="margin-top:20px;font-size:12px;color:var(--text-3);">Dieser Link ist nun deaktiviert.</p>
+    <button id="pdf-download-btn" onclick="downloadBriefingPdf()" style="margin-top:24px;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#6366f1);border:none;color:white;font-size:14px;font-weight:600;cursor:pointer;">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Briefing als PDF herunterladen
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ EXPIRED (inline fallback) ══════════ -->
+<div id="expired-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
+  <div class="success-inner fade-up">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 28px;box-shadow:0 0 30px rgba(248,113,113,0.15);">⏱</div>
+    <h2 style="color:var(--danger);">Link abgelaufen</h2>
+    <p style="margin-top:12px;">Dieser Briefing-Link ist leider nicht mehr gültig. Bitte kontaktieren Sie uns, um einen neuen Link zu erhalten.</p>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="form.js"></script>
+</body>
+</html>

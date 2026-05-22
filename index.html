@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Briefing-Tool · Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Login Screen ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-box { width: 100%; max-width: 380px; text-align: center; }
+    .login-logo {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 32px;
+    }
+    .login-box h1  { font-size: 28px; margin-bottom: 8px; }
+    .login-box p   { color: var(--text-2); font-size: 14px; margin-bottom: 32px; }
+    .login-box .input { margin-bottom: 14px; text-align: left; }
+    .login-error   { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+
+    /* ── App ── */
+    #app { display: none; }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,7,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .topbar-inner {
+      max-width: 1100px; margin: 0 auto; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-brand { font-family: var(--font-head); font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-count { font-size: 12px; color: var(--text-3); }
+
+    /* ── Main ── */
+    main { padding: 40px 24px 80px; }
+    .page-header {
+      max-width: 1100px; margin: 0 auto 36px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .page-header h2 { font-size: 32px; font-weight: 800; }
+    .page-header p  { font-size: 14px; color: var(--text-2); margin-top: 4px; }
+
+    /* ── Stats row ── */
+    .stats-row {
+      max-width: 1100px; margin: 0 auto 32px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .stat-card {
+      padding: 20px 24px; border-radius: var(--radius);
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--border-h); }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); margin-bottom: 6px; }
+    .stat-value { font-family: var(--font-head); font-size: 28px; font-weight: 700; }
+    .stat-value.green  { color: var(--success); }
+    .stat-value.yellow { color: var(--warning); }
+    .stat-value.red    { color: var(--danger); }
+    .stat-value.gray   { color: var(--text-3); }
+
+    /* ── Tabs ── */
+    .tabs-wrap {
+      max-width: 1100px; margin: 0 auto 28px;
+      display: flex; gap: 4px; border-bottom: 1px solid var(--border); padding-bottom: 0;
+    }
+    .tab-btn {
+      padding: 10px 20px; font-size: 14px; font-weight: 500;
+      background: none; border: none; color: var(--text-3);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text-2); }
+    .tab-btn.tab-current { color: var(--purple); border-bottom-color: var(--purple); }
+
+    /* ── Customer grid ── */
+    .customers-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px;
+    }
+    .customer-card {
+      padding: 22px; border-radius: var(--radius);
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      transition: all 0.2s; animation: fadeUp 0.4s ease both;
+    }
+    .customer-card:hover {
+      border-color: var(--border-h);
+      box-shadow: 0 0 30px rgba(168,85,247,0.12);
+      transform: translateY(-2px);
+    }
+    .customer-card.expired-card  { opacity: 0.55; border-color: rgba(248,113,113,0.15); }
+    .customer-card.warning-card  { border-color: rgba(251,191,36,0.3); box-shadow: 0 0 20px rgba(251,191,36,0.06); }
+    .customer-card.archived-card { opacity: 0.6; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+    .customer-name  { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+    .customer-email { font-size: 12px; color: var(--text-3); }
+    .card-meta { font-size: 12px; color: var(--text-2); margin: 14px 0; line-height: 1.8; }
+    .card-meta span { color: var(--text-3); }
+    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .countdown-bar  { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin: 14px 0; overflow: hidden; }
+    .countdown-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+    /* ── Archive badge ── */
+    .badge-archived { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: var(--indigo); }
+
+    /* ── Archive btn ── */
+    .btn-archive {
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.25);
+      color: var(--indigo);
+    }
+    .btn-archive:hover { background: rgba(99,102,241,0.18); }
+
+    /* ── Add card ── */
+    .add-card {
+      border: 2px dashed rgba(168,85,247,0.2); border-radius: var(--radius);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; min-height: 180px; transition: all 0.2s;
+      color: var(--text-3); font-size: 13px;
+    }
+    .add-card:hover { border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.05); color: var(--text-2); }
+    .add-card .add-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(168,85,247,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: var(--purple);
+    }
+
+    /* ── Form group ── */
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Link display ── */
+    .link-box {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 12px;
+    }
+    .link-box code {
+      flex: 1; font-size: 11px; color: var(--purple);
+      font-family: 'Courier New', monospace; word-break: break-all;
+    }
+
+    /* ── Empty state ── */
+    .empty-state { max-width: 1100px; margin: 60px auto; text-align: center; color: var(--text-3); }
+    .empty-state h3 { font-size: 20px; color: var(--text-2); margin-bottom: 8px; }
+    .empty-state p  { font-size: 14px; }
+
+    /* ── DB status ── */
+    #db-status {
+      max-width: 1100px; margin: 0 auto 20px;
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      font-size: 13px; display: none;
+    }
+    #db-status.error {
+      display: block;
+      background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3);
+      color: var(--danger);
+    }
+
+    @media (max-width: 700px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .form-row  { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 420px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen">
+  <div class="login-box fade-up">
+    <div class="login-logo">Briefing · Tool</div>
+    <h1 class="gradient-text">Admin-Zugang</h1>
+    <p>Gib dein Passwort ein um fortzufahren</p>
+    <div class="form-group">
+      <input type="password" id="pw-input" class="input" placeholder="Passwort …" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="checkLogin()">
+      Einloggen →
+    </button>
+    <div class="login-error" id="login-error">Falsches Passwort. Bitte nochmal.</div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand gradient-text">Briefing · Tool</div>
+      <div class="topbar-right">
+        <span class="topbar-count" id="topbar-count"></span>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Abmelden</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h2>Kunden-Briefings</h2>
+        <p>Erstelle und verwalte individuelle Briefing-Links für deine Kunden</p>
+      </div>
+      <button class="btn btn-primary" id="btn-new-customer" onclick="openNewModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Neuer Kunde
+      </button>
+    </div>
+
+    <!-- DB-Fehlermeldung -->
+    <div id="db-status"></div>
+
+    <!-- Stats (4 Karten) -->
+    <div class="stats-row">
+      <div class="stat-card" onclick="switchTab('active')">
+        <div class="stat-label">Aktiv</div>
+        <div class="stat-value green" id="stat-active">0</div>
+      </div>
+      <div class="stat-card" onclick="switchTab('active')">
+        <div class="stat-label">Läuft bald ab</div>
+        <div class="stat-value yellow" id="stat-warning">0</div>
+      </div>
+      <div class="stat-card" onclick="switchTab('active')">
+        <div class="stat-label">Abgelaufen</div>
+        <div class="stat-value red" id="stat-expired">0</div>
+      </div>
+      <div class="stat-card" onclick="switchTab('archive')">
+        <div class="stat-label">Archiviert</div>
+        <div class="stat-value gray" id="stat-archived">0</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-wrap">
+      <button class="tab-btn tab-current" id="tab-active"   onclick="switchTab('active')">Aktive Kunden</button>
+      <button class="tab-btn"             id="tab-archive"  onclick="switchTab('archive')">Archiv</button>
+    </div>
+
+    <!-- Sektion: Aktive Kunden -->
+    <div id="section-active">
+      <div class="customers-grid" id="customers-grid"></div>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <h3>Noch keine Kunden</h3>
+        <p>Klick auf "Neuer Kunde" um deinen ersten Briefing-Link zu erstellen.</p>
+      </div>
+    </div>
+
+    <!-- Sektion: Archiv -->
+    <div id="section-archive" style="display:none;">
+      <div class="customers-grid" id="archive-grid"></div>
+      <div class="empty-state" id="archive-empty" style="display:none;">
+        <h3>Archiv ist leer</h3>
+        <p>Abgeschlossene Kunden erscheinen hier.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════ MODAL: Neuer Kunde ══════════ -->
+<div class="modal-overlay" id="new-modal" style="display:none;" onclick="closeModalOnBg(event, 'new-modal')">
+  <div class="modal">
+    <h3 class="gradient-text">Neuen Kunden anlegen</h3>
+    <p>Ein individueller Briefing-Link wird generiert und ist 7 Werktage gültig.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Kundenname *</label>
+        <input type="text" id="new-name" class="input" placeholder="z.B. Amir Khalil">
+      </div>
+      <div class="form-group">
+        <label>E-Mail des Kunden</label>
+        <input type="email" id="new-email" class="input" placeholder="kunde@beispiel.de">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notiz (optional, nur für dich)</label>
+      <input type="text" id="new-note" class="input" placeholder="z.B. Angebot vom 18. Mai">
+    </div>
+    <div class="form-group" style="margin-top:4px;">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none;">
+        <input type="checkbox" id="new-individual-automation" style="margin-top:3px;accent-color:var(--purple);width:16px;height:16px;flex-shrink:0;">
+        <span>
+          <strong style="font-size:13px;color:var(--text-1);">Individuelle Automatisierung anfragen</strong><br>
+          <span style="font-size:12px;color:var(--text-3);">Aktivieren wenn du mit dem Kunden vorab eine individuelle KI-Automatisierung besprochen hast. Der Kunde sieht dann ein zusätzliches Feld im Formular.</span>
+        </span>
+      </label>
+    </div>
+    <div id="generated-link-box" style="display:none;">
+      <label style="margin-top:8px;">Generierter Link</label>
+      <div class="link-box">
+        <code id="generated-link-text"></code>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="copyGeneratedLink()" title="Kopieren">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-actions" id="new-modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('new-modal')">Abbrechen</button>
+      <button class="btn btn-primary" id="create-link-btn" onclick="createCustomer()">Link erstellen</button>
+      <button class="btn btn-primary" id="fertig-btn" style="display:none;" onclick="closeModal('new-modal')">Fertig</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: Löschen ══════════ -->
+<div class="modal-overlay" id="delete-modal" style="display:none;" onclick="closeModalOnBg(event, 'delete-modal')">
+  <div class="modal">
+    <h3>Kunden löschen?</h3>
+    <p>Der Kunde wird dauerhaft gelöscht und kann nicht wiederhergestellt werden.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('delete-modal')">Abbrechen</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: Archivieren ══════════ -->
+<div class="modal-overlay" id="archive-modal" style="display:none;" onclick="closeModalOnBg(event, 'archive-modal')">
+  <div class="modal">
+    <h3>Kunde abschließen?</h3>
+    <p>Der Kunde wird ins Archiv verschoben. Du kannst ihn jederzeit wiederherstellen.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('archive-modal')">Abbrechen</button>
+      <button class="btn btn-archive" onclick="confirmArchive()">Ins Archiv</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Firebase SDKs (v8 compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Deine Firebase-Konfiguration -->
+<script src="firebase-config.js"></script>
+
+<!-- PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Admin-Logik -->
+<script src="admin.js"></script>
+</body>
+</html>
