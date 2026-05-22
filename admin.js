@@ -531,7 +531,7 @@ function showToast(msg, type = 'success') {
 
 // ── Invitation via Resend (Netlify Function) ──
 async function sendInvitationEmail(to, name, subject, html) {
-  const res = await fetch('/.netlify/functions/send-invitation', {
+  const res = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ to, to_name: name, subject, html })
