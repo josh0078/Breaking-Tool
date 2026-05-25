@@ -276,6 +276,8 @@ function buildEmailHtml(data) {
     </td></tr>
   ` : '';
 
+  const adminUrl = 'https://josh0078.github.io/Breaking-Tool/index.html';
+
   return `
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head>
@@ -283,12 +285,31 @@ function buildEmailHtml(data) {
 <table width="100%" style="background:#f0f0f5;padding:30px 0;"><tr><td align="center">
 <table width="680" style="max-width:680px;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 40px rgba(0,0,0,0.12);">
 
+  <!-- Notification Banner -->
+  <tr><td style="background:#16a34a;padding:14px 40px;">
+    <table width="100%"><tr>
+      <td style="font-family:sans-serif;font-size:14px;font-weight:700;color:white;">✅ Neues Briefing eingegangen — ${escHtml(customerData.name)}</td>
+      <td align="right" style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,0.8);">${fmtDate(now)}, ${fmtTime(now)}</td>
+    </tr></table>
+  </td></tr>
+
   <!-- Header -->
   <tr><td style="background:linear-gradient(135deg,#0d0d1a 0%,#1a0535 50%,#0a1128 100%);padding:36px 40px;">
     <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(168,85,247,0.8);font-family:sans-serif;">Website-Briefing Dokument</p>
-    <h1 style="margin:0 0 6px;font-size:28px;color:white;font-family:sans-serif;">Briefing: <span style="background:linear-gradient(135deg,#a855f7,#6366f1,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${escHtml(customerData.name)}</span></h1>
-    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.45);font-family:sans-serif;">Ausgefüllt am ${fmtDate(now)} um ${fmtTime(now)}</p>
-    <table style="margin-top:24px;border-collapse:collapse;">
+    <h1 style="margin:0 0 6px;font-size:28px;color:white;font-family:sans-serif;">Briefing: <span style="color:#a855f7;">${escHtml(customerData.name)}</span></h1>
+    <p style="margin:0 0 28px;font-size:13px;color:rgba(255,255,255,0.45);font-family:sans-serif;">Ausgefüllt am ${fmtDate(now)} um ${fmtTime(now)}</p>
+
+    <!-- PDF Download CTA -->
+    <table style="margin-bottom:28px;border-collapse:collapse;"><tr>
+      <td>
+        <a href="${adminUrl}" style="display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#6366f1);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;font-family:sans-serif;letter-spacing:0.3px;">⬇ PDF herunterladen</a>
+      </td>
+      <td style="padding-left:16px;">
+        <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.5);font-family:sans-serif;">Im Admin-Panel öffnen<br>und PDF generieren</p>
+      </td>
+    </tr></table>
+
+    <table style="border-collapse:collapse;">
       <tr>
         <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(168,85,247,0.6);font-family:sans-serif;">Kunde</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;font-family:sans-serif;">${escHtml(customerData.name)}</p></td>
         <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(168,85,247,0.6);font-family:sans-serif;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;font-family:sans-serif;">${customerData.email || '—'}</p></td>
@@ -358,14 +379,17 @@ async function submitForm() {
   lastSubmittedHtml = htmlBody;
 
   try {
-    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-      to_email:     ADMIN_EMAIL,
-      from_name:    customerData.name,
-      customer_id:  customerData.id,
-      subject:      `Briefing von ${customerData.name} (${customerData.id})`,
-      html_content: htmlBody,
-      json_data:    JSON.stringify({ customer: customerData, form: { ...data, files: data.files.map(f => ({ name: f.name, type: f.type, sizeKb: f.sizeKb })) } }, null, 2)
+    const res = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to:      ADMIN_EMAIL,
+        to_name: 'Joshua',
+        subject: `✅ Briefing von ${customerData.name} (${customerData.id})`,
+        html:    htmlBody
+      })
     });
+    if (!res.ok) throw new Error('send failed');
 
     // Save briefing HTML to Firestore for admin PDF download
     try {
