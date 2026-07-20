@@ -3,7 +3,7 @@
    ============================================================
    1. Geh auf: https://console.firebase.google.com
    2. Neues Projekt erstellen (z.B. "247on-briefing")
-   3. Firestore Database → Erstellen → Testmodus
+   3. Firestore Database → Erstellen (Rules: siehe firestore.rules)
    4. Projekteinstellungen (Zahnrad) → Web-App hinzufügen (</> Symbol)
    5. Das Konfig-Objekt von Firebase hierher kopieren
    ============================================================ */
@@ -22,3 +22,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const CUSTOMERS_COL = db.collection('briefing_customers');
+
+/* Formular-Konfiguration pro Kunde (welche Abschnitte, welche eigenen Fragen).
+   Bewusst eine eigene Collection: sie enthält KEINE Kundendaten und darf
+   deshalb vom nicht eingeloggten Formular gelesen werden — briefing_customers
+   bleibt komplett gesperrt. Dokument-ID = Kunden-ID. */
+const FORMS_COL = db.collection('briefing_forms');
+
+/* Auth wird nur im Admin-Panel geladen (firebase-auth-compat.js).
+   Im Kunden-Formular bleibt `auth` bewusst null — das Formular
+   schreibt unauthentifiziert, abgesichert über firestore.rules. */
+const auth = firebase.auth ? firebase.auth() : null;

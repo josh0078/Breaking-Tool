@@ -193,11 +193,14 @@
   <div class="login-box fade-up">
     <div class="login-logo">Briefing · Tool</div>
     <h1 class="gradient-text">Admin-Zugang</h1>
-    <p>Gib dein Passwort ein um fortzufahren</p>
+    <p>Melde dich mit deinem Konto an um fortzufahren</p>
+    <div class="form-group">
+      <input type="email" id="email-input" class="input" placeholder="E-Mail …" autocomplete="username">
+    </div>
     <div class="form-group">
       <input type="password" id="pw-input" class="input" placeholder="Passwort …" autocomplete="current-password">
     </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="checkLogin()">
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" id="login-btn" onclick="checkLogin()">
       Einloggen →
     </button>
     <div class="login-error" id="login-error">Falsches Passwort. Bitte nochmal.</div>
@@ -307,6 +310,36 @@
         </span>
       </label>
     </div>
+    <!-- ── Welche Abschnitte sieht der Kunde? ── -->
+    <div class="form-group" id="section-picker-group" style="margin-top:18px;">
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <span>Fragen für diesen Kunden</span>
+        <span style="display:flex;gap:6px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllSections(true)">Alle</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllSections(false)">Keine</button>
+        </span>
+      </label>
+      <div id="section-picker"
+           style="max-height:190px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;">
+        <!-- von renderSectionPicker() aus FORM_SECTIONS befüllt -->
+      </div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:6px;">
+        Abgewählte Abschnitte erscheinen weder im Formular noch im Briefing-Dokument.
+      </div>
+    </div>
+
+    <!-- ── Eigene Fragen (nur für diesen Kunden) ── -->
+    <div class="form-group" style="margin-top:16px;">
+      <label>Eigene Fragen <span style="color:var(--text-3);font-weight:400;">(optional)</span></label>
+      <div id="custom-q-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addCustomQuestion()">
+        + Frage hinzufügen
+      </button>
+      <div style="font-size:12px;color:var(--text-3);margin-top:6px;">
+        Gilt nur für diesen Kunden — zukünftige Briefings bleiben unberührt.
+      </div>
+    </div>
+
     <div id="generated-link-box" style="display:none;">
       <label style="margin-top:8px;">Generierter Link</label>
       <div class="link-box">
@@ -353,10 +386,14 @@
 
 <!-- Firebase SDKs (v8 compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <!-- Deine Firebase-Konfiguration -->
 <script src="firebase-config.js"></script>
+
+<!-- Zentrale Abschnittsdefinition (auch von form.html genutzt) -->
+<script src="sections.js"></script>
 
 <!-- PDF generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

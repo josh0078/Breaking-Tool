@@ -1,0 +1,68 @@
+rules_version = '2';
+
+/* ============================================================
+   FIRESTORE RULES — 24/7 ON Briefing-Tool
+
+   Einspielen: Firebase Console → Firestore Database → Regeln
+               → Inhalt hier reinkopieren → "Veröffentlichen"
+
+   Zugriffsmodell:
+   - Admin (eingeloggt, feste UID) → Vollzugriff auf briefing_customers
+   - Kunde (nicht eingeloggt)      → darf AUSSCHLIESSLICH sein Briefing
+                                     einmalig absenden. Kein Lesen,
+                                     kein Anlegen, kein Löschen.
+   ============================================================ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* UID des Admin-Kontos.
+       Zu finden unter: Firebase Console → Authentication → Users → UID kopieren.
+       Wichtig: NICHT auf `request.auth != null` prüfen — mit dem öffentlichen
+       API-Key kann sich sonst jeder selbst ein Konto anlegen und wäre "eingeloggt". */
+    function isAdmin() {
+      return request.auth != null
+          && request.auth.uid == '1BK9QM0osAc7lA3qXt4H0pMXN7o1';
+    }
+
+    /* Ein Kunde reicht sein ausgefülltes Briefing ein.
+       Unauthentifiziert, deshalb so eng wie möglich gefasst. */
+    function isBriefingSubmission() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return
+        // Es dürfen sich exakt diese drei Felder ändern — sonst nichts.
+        // Schützt name, email, expiresAt, archived usw. vor Manipulation.
+        changed.hasOnly(['submitted', 'submittedAt', 'briefingHtml'])
+        // Nur der Übergang "offen" → "abgesendet".
+        // Verhindert, dass ein bereits eingereichtes Briefing überschrieben wird.
+        && resource.data.submitted == false
+        && request.resource.data.submitted == true
+        // Typen festnageln
+        && request.resource.data.submittedAt is string
+        && request.resource.data.briefingHtml is string
+        // Grobe Größenbremse (Firestore-Limit pro Dokument liegt bei 1 MiB)
+        && request.resource.data.briefingHtml.size() < 900000;
+    }
+
+    match /briefing_customers/{customerId} {
+      allow read, create, delete: if isAdmin();
+      allow update: if isAdmin() || isBriefingSubmission();
+    }
+
+    /* Fragenauswahl pro Kunde. Enthält bewusst KEINE Kundendaten —
+       nur Abschnitts-IDs und selbst formulierte Fragen. Deshalb darf das
+       nicht eingeloggte Formular sein eigenes Dokument lesen.
+       `get` = ein Dokument gezielt abrufen (Doc-ID muss bekannt sein).
+       `list` = die Collection durchblättern → bleibt dem Admin vorbehalten. */
+    match /briefing_forms/{customerId} {
+      allow get:   if true;
+      allow list:  if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    /* Alles außerhalb von briefing_customers bleibt zu. */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

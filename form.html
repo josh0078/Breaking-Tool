@@ -203,7 +203,7 @@
   <div class="form-body">
 
     <!-- 1. Website-Typ -->
-    <div class="form-section" style="animation-delay:0.05s">
+    <div class="form-section" data-sid="typ" style="animation-delay:0.05s">
       <div class="section-head">
         <div class="section-num">1</div>
         <div class="section-title-wrap">
@@ -224,7 +224,7 @@
     </div>
 
     <!-- 2. Ziel & Zweck -->
-    <div class="form-section" style="animation-delay:0.1s">
+    <div class="form-section" data-sid="ziel" style="animation-delay:0.1s">
       <div class="section-head">
         <div class="section-num">2</div>
         <div class="section-title-wrap">
@@ -245,7 +245,7 @@
     </div>
 
     <!-- 3. Zielgruppe -->
-    <div class="form-section" style="animation-delay:0.15s">
+    <div class="form-section" data-sid="zielgruppe" style="animation-delay:0.15s">
       <div class="section-head">
         <div class="section-num">3</div>
         <div class="section-title-wrap">
@@ -267,7 +267,7 @@
     </div>
 
     <!-- 4. Gewünschte Seiten -->
-    <div class="form-section" style="animation-delay:0.2s">
+    <div class="form-section" data-sid="seiten" style="animation-delay:0.2s">
       <div class="section-head">
         <div class="section-num">4</div>
         <div class="section-title-wrap">
@@ -292,7 +292,7 @@
     </div>
 
     <!-- 5. Design -->
-    <div class="form-section" style="animation-delay:0.25s">
+    <div class="form-section" data-sid="design" style="animation-delay:0.25s">
       <div class="section-head">
         <div class="section-num">5</div>
         <div class="section-title-wrap">
@@ -314,7 +314,7 @@
     </div>
 
     <!-- 6. Inhalte & Materialien + Upload -->
-    <div class="form-section" style="animation-delay:0.3s">
+    <div class="form-section" data-sid="inhalte" style="animation-delay:0.3s">
       <div class="section-head">
         <div class="section-num">6</div>
         <div class="section-title-wrap">
@@ -350,7 +350,7 @@
     </div>
 
     <!-- 7. Funktionen -->
-    <div class="form-section" style="animation-delay:0.35s">
+    <div class="form-section" data-sid="funktionen" style="animation-delay:0.35s">
       <div class="section-head">
         <div class="section-num">7</div>
         <div class="section-title-wrap">
@@ -374,7 +374,7 @@
     </div>
 
     <!-- 8. KI & Automatisierung -->
-    <div class="form-section" style="animation-delay:0.38s">
+    <div class="form-section" data-sid="ki_erweiterung" style="animation-delay:0.38s">
       <div class="section-head">
         <div class="section-num">8</div>
         <div class="section-title-wrap">
@@ -411,7 +411,7 @@
     </div>
 
     <!-- 9. Social Media -->
-    <div class="form-section" style="animation-delay:0.41s">
+    <div class="form-section" data-sid="socialmedia" style="animation-delay:0.41s">
       <div class="section-head">
         <div class="section-num">9</div>
         <div class="section-title-wrap">
@@ -447,7 +447,7 @@
     </div>
 
     <!-- 10. Budget -->
-    <div class="form-section" style="animation-delay:0.4s">
+    <div class="form-section" data-sid="budget" style="animation-delay:0.4s">
       <div class="section-head">
         <div class="section-num">10</div>
         <div class="section-title-wrap">
@@ -470,7 +470,7 @@
     </div>
 
     <!-- 11. Deadline -->
-    <div class="form-section" style="animation-delay:0.45s">
+    <div class="form-section" data-sid="deadline" style="animation-delay:0.45s">
       <div class="section-head">
         <div class="section-num">11</div>
         <div class="section-title-wrap">
@@ -489,7 +489,7 @@
     </div>
 
     <!-- 12. Mitbewerber -->
-    <div class="form-section" style="animation-delay:0.5s">
+    <div class="form-section" data-sid="konkurrenz" style="animation-delay:0.5s">
       <div class="section-head">
         <div class="section-num">12</div>
         <div class="section-title-wrap">
@@ -501,7 +501,7 @@
     </div>
 
     <!-- 13. Domain & Hosting -->
-    <div class="form-section" style="animation-delay:0.55s">
+    <div class="form-section" data-sid="domain" style="animation-delay:0.55s">
       <div class="section-head">
         <div class="section-num">13</div>
         <div class="section-title-wrap">
@@ -521,7 +521,7 @@
     </div>
 
     <!-- 14. Anmerkungen -->
-    <div class="form-section" style="animation-delay:0.6s">
+    <div class="form-section" data-sid="anmerkungen" style="animation-delay:0.6s">
       <div class="section-head">
         <div class="section-num">14</div>
         <div class="section-title-wrap">
@@ -531,6 +531,10 @@
       </div>
       <textarea class="input" placeholder="Alles was Sie noch sagen möchten — besondere Wünsche, Fragen, Anmerkungen …" data-field="anmerkungen_text" style="min-height:120px;"></textarea>
     </div>
+
+    <!-- Individuelle Fragen — nur für diesen Kunden, wird aus
+         briefing_forms/{id} geladen und von form.js gerendert. -->
+    <div id="custom-questions"></div>
 
   </div><!-- /form-body -->
 
@@ -575,6 +579,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="sections.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="form.js"></script>
 </body>

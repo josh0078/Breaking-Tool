@@ -13,6 +13,16 @@ let customerData = null;
 let uploadedFiles = []; // Array of { name, type, dataUrl, sizeKb }
 let lastSubmittedHtml = null;
 
+/* Welche Abschnitte dieser Kunde sieht und welche eigenen Fragen dazukommen.
+   enabledSections === null bedeutet "noch nicht geladen" oder "keine
+   Konfiguration hinterlegt" — in beiden Fällen wird alles angezeigt.
+   Damit funktionieren auch Kunden, die vor diesem Feature angelegt wurden. */
+let formConfig = { enabledSections: null, customQuestions: [] };
+
+function isSectionEnabled(sid) {
+  return !formConfig.enabledSections || formConfig.enabledSections.includes(sid);
+}
+
 // ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Load EmailJS
@@ -52,10 +62,80 @@ function initForm() {
 
     customerData = payload;
     renderFormHeader();
+    applyFormConfig(payload.id);
 
   } catch (e) {
     showExpired();
   }
+}
+
+/* Lädt die Fragenauswahl aus briefing_forms/{id} und wendet sie an.
+   Der Formularkörper bleibt so lange ausgeblendet, damit der Kunde nicht
+   erst alle Abschnitte sieht und sie ihm dann wegspringen. */
+async function applyFormConfig(customerId) {
+  const body = document.querySelector('.form-body');
+  if (body) body.style.opacity = '0';
+
+  try {
+    const snap = await FORMS_COL.doc(customerId).get();
+    if (snap.exists) {
+      const cfg = snap.data() || {};
+      if (Array.isArray(cfg.enabledSections)) formConfig.enabledSections = cfg.enabledSections;
+      if (Array.isArray(cfg.customQuestions)) formConfig.customQuestions = cfg.customQuestions;
+    }
+  } catch (e) {
+    // Kein Dokument, keine Berechtigung, offline → vollständiges Formular.
+    console.warn('Fragenauswahl nicht ladbar, zeige alle Abschnitte:', e);
+  }
+
+  applySectionVisibility();
+  renderCustomQuestions();
+  if (body) body.style.opacity = '1';
+}
+
+/* Blendet abgewählte Abschnitte aus und nummeriert die übrigen neu durch,
+   sonst stünde im Formular z.B. 1, 2, 5, 9. */
+function applySectionVisibility() {
+  let n = 0;
+  FORM_SECTIONS.forEach(s => {
+    const el = document.querySelector(`.form-section[data-sid="${s.id}"]`);
+    if (!el) return;
+    if (!isSectionEnabled(s.id)) { el.style.display = 'none'; return; }
+    n++;
+    const numEl = el.querySelector('.section-num');
+    if (numEl) numEl.textContent = n;
+  });
+  return n;
+}
+
+/* Hängt die individuellen Fragen als weitere Abschnitte an. Sie nutzen
+   dieselben Chips und dasselbe data-section wie die festen Abschnitte,
+   damit getChipValues() ohne Sonderfall funktioniert. */
+function renderCustomQuestions() {
+  const box = document.getElementById('custom-questions');
+  if (!box) return;
+  box.innerHTML = '';
+
+  let n = FORM_SECTIONS.filter(s => isSectionEnabled(s.id)).length;
+
+  formConfig.customQuestions.forEach(q => {
+    n++;
+    const el = document.createElement('div');
+    el.className = 'form-section';
+    el.innerHTML = `
+      <div class="section-head">
+        <div class="section-num">${n}</div>
+        <div class="section-title-wrap">
+          <h3>${escHtml(q.title)}</h3>
+          <div class="section-subtitle">Mehrfachauswahl möglich</div>
+        </div>
+      </div>
+      <div class="chips-wrap" data-section="${escHtml(q.id)}">
+        ${q.options.map(o => `<div class="chip" onclick="toggleChip(this)">${escHtml(o)}</div>`).join('')}
+      </div>
+    `;
+    box.appendChild(el);
+  });
 }
 
 function renderFormHeader() {
@@ -208,6 +288,10 @@ function collectFormData() {
     domain:        getChipValues('domain'),
     domain_text:   getFieldValue('domain_text'),
     anmerkungen:   getFieldValue('anmerkungen_text'),
+    custom:        formConfig.customQuestions.map(q => ({
+                     id: q.id, title: q.title, options: q.options,
+                     answers: getChipValues(q.id)
+                   })),
     files:         uploadedFiles.map(f => ({ name: f.name, type: f.type, sizeKb: f.sizeKb, dataUrl: f.dataUrl }))
   };
 }
@@ -234,7 +318,13 @@ function buildEmailHtml(data) {
     ? `<tr><td colspan="2" style="padding:8px 0;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">${label}</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #a855f7;padding:8px 12px;border-radius:0 6px 6px 0;">${val.replace(/\n/g,'<br>')}</p></td></tr>`
     : '';
 
-  const sectionHtml = (num, title, chips, allOpts, text) => `
+  /* Nummerierung richtet sich nach den tatsächlich aktiven Abschnitten,
+     sonst entstehen im Dokument Lücken (1, 2, 4, 7 …). */
+  const activeSections = FORM_SECTIONS.filter(s => isSectionEnabled(s.id));
+  const numOf = {};
+  activeSections.forEach((s, i) => { numOf[s.id] = i + 1; });
+
+  const sectionShell = (num, title, bodyHtml, text) => `
     <tr><td colspan="2" style="padding:16px 0 0;">
       <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
         <tr style="background:linear-gradient(135deg,#f8f4ff,#f0f4ff);">
@@ -245,11 +335,34 @@ function buildEmailHtml(data) {
             </tr></table>
           </td>
         </tr>
-        <tr><td style="padding:14px 16px;">${chipHtml(chips, allOpts)}</td></tr>
+        <tr><td style="padding:14px 16px;">${bodyHtml}</td></tr>
         ${text ? `<tr><td style="padding:0 16px 14px;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">Anmerkung</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #a855f7;padding:8px 12px;border-radius:0 6px 6px 0;">${text.replace(/\n/g,'<br>')}</p></td></tr>` : ''}
       </table>
     </td></tr>
   `;
+
+  /* Titel und Optionen kommen aus sections.js — nicht mehr pro Aufruf
+     wiederholen. Abgewählte Abschnitte liefern einen leeren String. */
+  const sectionHtml = (sid, chips, text) => {
+    if (!numOf[sid]) return '';
+    const def = FORM_SECTIONS.find(s => s.id === sid);
+    return sectionShell(numOf[sid], def.title, chipHtml(chips, def.options), text);
+  };
+
+  // Reine Freitext-Abschnitte (Mitbewerber, Anmerkungen)
+  const textSectionHtml = (sid, text) => {
+    if (!numOf[sid]) return '';
+    const def  = FORM_SECTIONS.find(s => s.id === sid);
+    const body = text
+      ? `<span style="font-size:13px;color:#333;">${text.replace(/\n/g,'<br>')}</span>`
+      : '<span style="color:#aaa;font-size:12px;font-style:italic;">Keine Angabe</span>';
+    return sectionShell(numOf[sid], def.title, body, '');
+  };
+
+  // Individuelle Fragen — hängen hinten an und zählen weiter
+  const customSectionsHtml = (data.custom || []).map((q, i) =>
+    sectionShell(activeSections.length + i + 1, q.title, chipHtml(q.answers, q.options), '')
+  ).join('');
 
   // Images to embed
   const imageSection = data.files.length > 0 ? `
@@ -276,7 +389,9 @@ function buildEmailHtml(data) {
     </td></tr>
   ` : '';
 
-  const adminUrl = 'https://josh0078.github.io/Breaking-Tool/index.html';
+  // Admin-Panel liegt immer neben form.html — nicht fest verdrahten,
+  // sonst zeigt der Link nach einem Hosting-Wechsel ins Leere.
+  const adminUrl = new URL('index.html', window.location.href).href;
 
   return `
 <!DOCTYPE html>
@@ -322,35 +437,22 @@ function buildEmailHtml(data) {
   <!-- Body -->
   <tr><td style="padding:32px 40px;">
     <table width="100%" style="border-collapse:collapse;">
-      ${sectionHtml(1,'Website-Typ',data.typ,['Unternehmensseite','Portfolio','Online-Shop','Landing Page','Blog','Visitenkarten-Seite','Sonstiges'],data.typ_text)}
-      ${sectionHtml(2,'Ziel & Zweck',data.ziel,['Neue Kunden gewinnen','Termine buchen','Produkte verkaufen','Marke aufbauen','Informieren / Aufklären','Bewerber ansprechen','Bestandskunden betreuen'],data.ziel_text)}
-      ${sectionHtml(3,'Zielgruppe',data.zielgruppe,['Geschäftskunden (B2B)','Privatkunden (B2C)','Regional','National (Deutschland)','International','18–35 Jahre','35–60 Jahre','60+ Jahre'],data.zielgruppe_text)}
-      ${sectionHtml(4,'Gewünschte Seiten',data.seiten,['Startseite','Über uns','Leistungen','Portfolio / Referenzen','Kontakt','Blog','Online-Shop','FAQ','Impressum & Datenschutz','Login-Bereich','Karriere / Jobs'],data.seiten_text)}
-      ${sectionHtml(5,'Design-Vorstellungen',data.design,['Modern & Clean','Minimalistisch','Klassisch & Seriös','Verspielt & Kreativ','Luxuriös & Premium','Technisch & Digital','Natürlich & Organisch','Bold & Auffällig'],data.design_text)}
-      ${sectionHtml(6,'Inhalte & Materialien',data.inhalte,['Logo vorhanden','Eigene Fotos vorhanden','Eigene Texte vorhanden','Logo muss erstellt werden','Fotos müssen gemacht werden','Texte müssen geschrieben werden','Alles muss erstellt werden'],data.inhalte_text)}
+      ${sectionHtml('typ', data.typ, data.typ_text)}
+      ${sectionHtml('ziel', data.ziel, data.ziel_text)}
+      ${sectionHtml('zielgruppe', data.zielgruppe, data.zielgruppe_text)}
+      ${sectionHtml('seiten', data.seiten, data.seiten_text)}
+      ${sectionHtml('design', data.design, data.design_text)}
+      ${sectionHtml('inhalte', data.inhalte, data.inhalte_text)}
       ${imageSection}
-      ${sectionHtml(7,'Spezielle Funktionen',data.funktionen,['Kontaktformular','Newsletter-Anmeldung','Online-Buchung / Kalender','Mehrsprachigkeit','Live-Chat','Login-Bereich','Zahlungssystem','Social Media Integration','Google Maps','Galerie / Slider'],data.funktionen_text)}
-      ${sectionHtml(8,'KI & Automatisierung',data.ki_erweiterung,['Instagram Bot','Website-Chatbot','Beides (Instagram Bot + Chatbot)','E-Mail Automatisierung','Social Media Automatisierung','Rechnungs-Automatisierung','Komplexere Vorgänge auf Wunsch','Nein, nicht gewünscht'], customerData.showIndividualAutomation && data.ki_individual_text ? '💡 Individuelle Automatisierung: ' + data.ki_individual_text : (customerData.showIndividualAutomation ? '💡 Individuelle Automatisierung: Keine Angabe' : ''))}
-      ${sectionHtml(9,'Social Media',data.socialmedia_art,['Social Media Management','Kurs / Coaching','Beides','Nein, nicht gewünscht'], (data.socialmedia_plattform.length > 0 ? 'Plattformen: ' + data.socialmedia_plattform.join(', ') : '') + (data.socialmedia_text ? '\n' + data.socialmedia_text : ''))}
-      ${sectionHtml(10,'Budget',data.budget,['Unter 500 €','500 – 1.500 €','1.500 – 5.000 €','5.000 – 10.000 €','Über 10.000 €','Noch unklar'],'')}
-      ${sectionHtml(11,'Wunsch-Termin',data.deadline,['So schnell wie möglich','In 1 Monat','In 2–3 Monaten','In 6 Monaten','Kein festes Datum'],data.deadline_text)}
-      <tr><td colspan="2" style="padding:16px 0 0;">
-        <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
-          <tr style="background:linear-gradient(135deg,#f8f4ff,#f0f4ff);">
-            <td style="padding:12px 16px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:0.8px;">12 · Mitbewerber & Referenzen</td>
-          </tr>
-          <tr><td style="padding:14px 16px;font-size:13px;color:#333;">${data.konkurrenz ? data.konkurrenz.replace(/\n/g,'<br>') : '<span style="color:#aaa;font-style:italic;">Keine Angabe</span>'}</td></tr>
-        </table>
-      </td></tr>
-      ${sectionHtml(13,'Domain & Hosting',data.domain,['Domain bereits vorhanden','Hosting bereits vorhanden','Domain wird benötigt','Hosting wird benötigt','Beides wird benötigt','Weiß ich noch nicht'],data.domain_text)}
-      <tr><td colspan="2" style="padding:16px 0 0;">
-        <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
-          <tr style="background:linear-gradient(135deg,#f8f4ff,#f0f4ff);">
-            <td style="padding:12px 16px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:0.8px;">14 · Sonstige Anmerkungen</td>
-          </tr>
-          <tr><td style="padding:14px 16px;font-size:13px;color:#333;">${data.anmerkungen ? data.anmerkungen.replace(/\n/g,'<br>') : '<span style="color:#aaa;font-style:italic;">Keine Angabe</span>'}</td></tr>
-        </table>
-      </td></tr>
+      ${sectionHtml('funktionen', data.funktionen, data.funktionen_text)}
+      ${sectionHtml('ki_erweiterung', data.ki_erweiterung, customerData.showIndividualAutomation && data.ki_individual_text ? '💡 Individuelle Automatisierung: ' + data.ki_individual_text : (customerData.showIndividualAutomation ? '💡 Individuelle Automatisierung: Keine Angabe' : ''))}
+      ${sectionHtml('socialmedia', data.socialmedia_art, (data.socialmedia_plattform.length > 0 ? 'Plattformen: ' + data.socialmedia_plattform.join(', ') : '') + (data.socialmedia_text ? '\n' + data.socialmedia_text : ''))}
+      ${sectionHtml('budget', data.budget, '')}
+      ${sectionHtml('deadline', data.deadline, data.deadline_text)}
+      ${textSectionHtml('konkurrenz', data.konkurrenz)}
+      ${sectionHtml('domain', data.domain, data.domain_text)}
+      ${textSectionHtml('anmerkungen', data.anmerkungen)}
+      ${customSectionsHtml}
     </table>
   </td></tr>
 

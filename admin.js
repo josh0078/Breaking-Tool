@@ -3,7 +3,6 @@
    ============================================ */
 
 // ── Config ──────────────────────────────────
-const ADMIN_PASSWORD   = 'joshua2024';
 const EMAILJS_SERVICE  = 'service_2rr4ih8';
 const EMAILJS_TEMPLATE = 'template_w72zub6';
 const EMAILJS_PUBLIC   = 'qil4eefMTb5qApNIk';
@@ -19,36 +18,67 @@ let unsubscribe      = null;
 
 // ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('pw-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkLogin();
+  ['email-input', 'pw-input'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkLogin();
+    });
   });
   const script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
   script.onload = () => emailjs.init(EMAILJS_PUBLIC);
   document.head.appendChild(script);
+
+  // Bestehende Session wiederherstellen (überlebt jetzt ein Reload)
+  auth.onAuthStateChanged(user => {
+    if (user) showApp(); else showLogin();
+  });
 });
 
 // ── Auth ─────────────────────────────────────
-function checkLogin() {
-  const pw = document.getElementById('pw-input').value;
-  if (pw === ADMIN_PASSWORD) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    startRealtimeSync();
-  } else {
-    const err = document.getElementById('login-error');
-    err.style.display = 'block';
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
-    setTimeout(() => err.style.display = 'none', 3000);
+async function checkLogin() {
+  const email = document.getElementById('email-input').value.trim();
+  const pw    = document.getElementById('pw-input').value;
+  const btn   = document.getElementById('login-btn');
+
+  btn.disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword(email, pw);
+    // showApp() läuft über onAuthStateChanged
+  } catch (err) {
+    showLoginError(
+      err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email'
+        ? 'E-Mail oder Passwort stimmt nicht. Bitte nochmal.'
+        : 'Login fehlgeschlagen: ' + err.message
+    );
+  } finally {
+    btn.disabled = false;
   }
 }
 
-function logout() {
+function showLoginError(msg) {
+  const err = document.getElementById('login-error');
+  err.textContent  = msg;
+  err.style.display = 'block';
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-input').focus();
+  setTimeout(() => err.style.display = 'none', 5000);
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  startRealtimeSync();
+}
+
+function showLogin() {
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pw-input').value = '';
+}
+
+function logout() {
+  auth.signOut(); // onAuthStateChanged ruft showLogin()
 }
 
 // ── Firestore Realtime Sync ───────────────────
@@ -212,6 +242,74 @@ function generateLink(customer) {
 }
 
 // ── CRUD (Firestore) ──────────────────────────
+// ── Formular-Konfiguration (Abschnitte + eigene Fragen) ──
+
+function renderSectionPicker() {
+  document.getElementById('section-picker').innerHTML = FORM_SECTIONS.map(s => `
+    <label style="display:flex;align-items:center;gap:9px;padding:5px 2px;cursor:pointer;user-select:none;font-size:13px;">
+      <input type="checkbox" class="section-toggle" value="${s.id}" checked
+             style="accent-color:var(--purple);width:15px;height:15px;flex-shrink:0;">
+      <span style="color:var(--text-3);min-width:20px;">${s.num}</span>
+      <span style="color:var(--text-1);">${escHtml(s.title)}</span>
+    </label>
+  `).join('');
+}
+
+function toggleAllSections(on) {
+  document.querySelectorAll('#section-picker .section-toggle').forEach(cb => cb.checked = on);
+}
+
+function addCustomQuestion() {
+  const row = document.createElement('div');
+  row.className = 'custom-q-row';
+  row.style.cssText = 'border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;';
+  row.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="text" class="input cq-title" placeholder="Frage, z.B. Welches CMS bevorzugen Sie?" style="flex:1;">
+      <button type="button" class="btn btn-ghost btn-sm" title="Frage entfernen"
+              onclick="this.closest('.custom-q-row').remove()">✕</button>
+    </div>
+    <textarea class="input cq-options" style="min-height:76px;"
+      placeholder="Antwortmöglichkeiten — eine pro Zeile:&#10;WordPress&#10;Webflow&#10;Egal, bitte empfehlen"></textarea>
+  `;
+  document.getElementById('custom-q-list').appendChild(row);
+  row.querySelector('.cq-title').focus();
+}
+
+/* Liest den Baukasten aus. Gibt null zurück (und meckert), wenn etwas
+   halb ausgefüllt ist — lieber abbrechen als stillschweigend verschlucken. */
+function collectFormConfig() {
+  const enabledSections = [...document.querySelectorAll('#section-picker .section-toggle')]
+    .filter(cb => cb.checked).map(cb => cb.value);
+
+  const customQuestions = [];
+  const rows = [...document.querySelectorAll('.custom-q-row')];
+
+  for (let i = 0; i < rows.length; i++) {
+    const title   = rows[i].querySelector('.cq-title').value.trim();
+    const options = rows[i].querySelector('.cq-options').value
+                      .split('\n').map(o => o.trim()).filter(Boolean);
+
+    if (!title && !options.length) continue;          // leere Zeile → ignorieren
+    if (!title) {
+      showToast(`Eigene Frage ${i + 1}: Fragetext fehlt.`, 'error');
+      return null;
+    }
+    if (!options.length) {
+      showToast(`„${title}“: mindestens eine Antwortmöglichkeit angeben.`, 'error');
+      return null;
+    }
+    customQuestions.push({ id: 'custom_' + (customQuestions.length + 1), title, options });
+  }
+
+  if (!enabledSections.length && !customQuestions.length) {
+    showToast('Das Formular wäre leer — mindestens eine Frage auswählen.', 'error');
+    return null;
+  }
+
+  return { enabledSections, customQuestions };
+}
+
 async function createCustomer() {
   const name                 = document.getElementById('new-name').value.trim();
   const email                = document.getElementById('new-email').value.trim();
@@ -219,6 +317,9 @@ async function createCustomer() {
   const showIndividualAutomation = document.getElementById('new-individual-automation').checked;
 
   if (!name) { showToast('Bitte einen Namen eingeben.', 'error'); return; }
+
+  const config = collectFormConfig();
+  if (!config) return;   // Baukasten unvollständig — collectFormConfig() hat gemeckert
 
   const now     = new Date();
   const expires = addBusinessDays(now, 7);
@@ -236,6 +337,15 @@ async function createCustomer() {
   try {
     const docRef = await CUSTOMERS_COL.add(customer);
     customer.id  = docRef.id;
+
+    // Fragenauswahl unter derselben ID ablegen. Schlägt das fehl, existiert
+    // der Kunde trotzdem — dann sieht er das vollständige Formular.
+    try {
+      await FORMS_COL.doc(docRef.id).set(config);
+    } catch (err) {
+      showToast('Kunde angelegt, aber die Fragenauswahl wurde nicht gespeichert — er sieht alle Fragen. ' + err.message, 'error');
+    }
+
     const link   = generateLink(customer);
     document.getElementById('generated-link-text').textContent = link;
     document.getElementById('generated-link-box').style.display = 'block';
@@ -499,6 +609,8 @@ function openNewModal() {
   document.getElementById('new-email').value = '';
   document.getElementById('new-note').value  = '';
   document.getElementById('new-individual-automation').checked = false;
+  document.getElementById('custom-q-list').innerHTML = '';
+  renderSectionPicker();   // setzt alle Häkchen zurück auf "an"
   document.getElementById('generated-link-box').style.display = 'none';
   document.getElementById('create-link-btn').style.display = '';
   document.getElementById('fertig-btn').style.display = 'none';
