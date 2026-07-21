@@ -37,6 +37,11 @@ service cloud.firestore {
         // Verhindert, dass ein bereits eingereichtes Briefing überschrieben wird.
         && resource.data.submitted == false
         && request.resource.data.submitted == true
+        // Frist serverseitig erzwingen: nach Ablauf lehnt Firebase das Absenden
+        // ab, egal was im (manipulierbaren) Token oder im Browser steht.
+        // Altkunden ohne dieses Feld bleiben zugelassen.
+        && (!('expiresAtMillis' in resource.data)
+            || request.time.toMillis() < resource.data.expiresAtMillis)
         // Typen festnageln
         && request.resource.data.submittedAt is string
         && request.resource.data.briefingHtml is string

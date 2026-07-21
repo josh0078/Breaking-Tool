@@ -328,8 +328,11 @@ async function createCustomer() {
     email,
     note,
     showIndividualAutomation,
-    createdAt:  now.toISOString(),
-    expiresAt:  expires.toISOString(),
+    createdAt:      now.toISOString(),
+    expiresAt:      expires.toISOString(),
+    // Als Zahl gespiegelt, damit die Firestore-Rules die Frist erzwingen
+    // können — Rules können ISO-Strings nicht mit request.time vergleichen.
+    expiresAtMillis: expires.getTime(),
     submitted:  false,
     archived:   false
   };
@@ -368,8 +371,10 @@ async function createCustomer() {
 
 async function extendCustomer(id) {
   try {
+    const expires = addBusinessDays(new Date(), 7);
     await CUSTOMERS_COL.doc(id).update({
-      expiresAt: addBusinessDays(new Date(), 7).toISOString()
+      expiresAt:       expires.toISOString(),
+      expiresAtMillis: expires.getTime()
     });
     showToast('Link um 7 Werktage verlängert.', 'success');
   } catch (err) {
