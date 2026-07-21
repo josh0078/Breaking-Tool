@@ -530,6 +530,10 @@ function renderGrid() {
         ${c.submitted ? `<button class="btn btn-ghost btn-sm" onclick="downloadCustomerPdf('${escHtml(c.id)}')" title="PDF herunterladen">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           PDF
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="openFilesModal('${escHtml(c.id)}')" title="Hochgeladene Dateien">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Dateien
         </button>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="copyLink('${escHtml(c.id)}')" title="Link kopieren">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -591,6 +595,10 @@ function renderArchive() {
         ${c.submitted ? `<button class="btn btn-ghost btn-sm" onclick="downloadCustomerPdf('${escHtml(c.id)}')" title="PDF herunterladen">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           PDF
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="openFilesModal('${escHtml(c.id)}')" title="Hochgeladene Dateien">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Dateien
         </button>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="restoreCustomer('${escHtml(c.id)}')">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
@@ -652,6 +660,112 @@ async function sendInvitationEmail(to, name, subject, html) {
 }
 
 // ── PDF Download ──────────────────────────────
+// ── Hochgeladene Dateien ──────────────────────
+
+/* Die Dateien liegen nicht separat, sondern als Base64 im briefingHtml.
+   Hier werden sie wieder herausgelöst — unverändert, so wie der Kunde
+   sie abgeschickt hat. */
+let currentFiles = [];
+let currentUrls  = [];   // Blob-URLs zu den Dateien, müssen wieder freigegeben werden
+
+function releaseFileUrls() {
+  currentUrls.forEach(u => URL.revokeObjectURL(u));
+  currentUrls = [];
+}
+
+function closeFilesModal() {
+  releaseFileUrls();
+  closeModal('files-modal');
+}
+
+function extractFilesFromBriefing(briefingHtml) {
+  const doc = new DOMParser().parseFromString(briefingHtml, 'text/html');
+  // Bilder stecken als <img src="data:…">, alles andere als <a href="data:…">
+  const nodes = [
+    ...doc.querySelectorAll('img[src^="data:"]'),
+    ...doc.querySelectorAll('a[href^="data:"]')
+  ];
+  return nodes.map((el, i) => {
+    const src  = el.getAttribute('src') || el.getAttribute('href');
+    const mime = (src.match(/^data:([^;]+)/) || [, 'application/octet-stream'])[1];
+    const ext  = (mime.split('/')[1] || 'bin').replace('jpeg', 'jpg');
+    const name = el.getAttribute('alt') || el.getAttribute('download') || `datei-${i + 1}.${ext}`;
+    return { name, mime, dataUrl: src, kb: Math.round((src.length - src.indexOf(',') - 1) * 0.75 / 1024) };
+  });
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [head, b64] = dataUrl.split(',');
+  const mime  = (head.match(/^data:([^;]+)/) || [,'application/octet-stream'])[1];
+  const bytes = atob(b64);
+  const buf   = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+  return new Blob([buf], { type: mime });
+}
+
+/* Die Download-Knöpfe sind echte <a download>-Links, keine Buttons mit
+   JavaScript dahinter. Ein synthetisch ausgelöster Klick auf ein frisch
+   erzeugtes Anker-Element wird von manchen Browsern (vor allem Safari)
+   nicht als Download behandelt — die Datei wird dann nur geöffnet.
+   Ein echter Klick auf einen echten Link funktioniert überall. */
+function downloadAllFiles() {
+  if (!currentFiles.length) return;
+  currentFiles.forEach((_, i) => setTimeout(() => {
+    const a = document.getElementById('file-dl-' + i);
+    if (a) a.click();
+  }, i * 500));
+  showToast(`${currentFiles.length} Datei(en) werden gespeichert …`, 'success');
+}
+
+async function openFilesModal(id) {
+  const list = document.getElementById('files-modal-list');
+  const btn  = document.getElementById('files-download-all');
+  list.innerHTML = '<p style="color:var(--text-3);font-size:13px;">Wird geladen …</p>';
+  btn.style.display = 'none';
+  document.getElementById('files-modal').style.display = 'flex';
+
+  try {
+    const doc  = await CUSTOMERS_COL.doc(id).get();
+    const data = doc.data();
+
+    if (!data || !data.briefingHtml) {
+      list.innerHTML = '<p style="color:var(--text-3);font-size:13px;">Kein gespeichertes Briefing vorhanden — dieser Kunde hat vor dem letzten Update abgesendet.</p>';
+      return;
+    }
+
+    releaseFileUrls();
+    currentFiles = extractFilesFromBriefing(data.briefingHtml);
+    currentUrls  = currentFiles.map(f => URL.createObjectURL(dataUrlToBlob(f.dataUrl)));
+    document.getElementById('files-modal-sub').textContent =
+      `Von ${data.name || id} mit dem Briefing übermittelt.`;
+
+    if (!currentFiles.length) {
+      list.innerHTML = '<p style="color:var(--text-3);font-size:13px;">Dieser Kunde hat keine Dateien hochgeladen.</p>';
+      return;
+    }
+
+    btn.style.display = '';
+    list.innerHTML = currentFiles.map((f, i) => `
+      <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:10px;padding:10px;">
+        ${f.mime.startsWith('image/')
+          ? `<img src="${f.dataUrl}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#0d0d1a;">`
+          : `<div style="width:56px;height:56px;border-radius:6px;flex-shrink:0;background:#0d0d1a;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-3);text-transform:uppercase;">${escHtml((f.mime.split('/')[1] || 'datei').slice(0, 4))}</div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(f.name)}</div>
+          <div style="font-size:11px;color:var(--text-3);">${f.mime} · ${f.kb} KB</div>
+        </div>
+        <a class="btn btn-ghost btn-sm" id="file-dl-${i}" href="${currentUrls[i]}" download="${escHtml(f.name)}" title="Herunterladen" style="flex-shrink:0;text-decoration:none;">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Laden
+        </a>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    list.innerHTML = `<p style="color:var(--danger);font-size:13px;">Fehler: ${escHtml(err.message)}</p>`;
+  }
+}
+
 async function downloadCustomerPdf(id) {
   showToast('PDF wird erstellt …', 'success');
   try {
@@ -670,7 +784,7 @@ async function downloadCustomerPdf(id) {
       margin: 0,
       filename: `Briefing_${name}.pdf`,
       image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#f0f0f5' },
+      html2canvas: { scale: 3, useCORS: true, backgroundColor: '#f0f0f5' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }).from(bodyHtml).save();
   } catch (err) {

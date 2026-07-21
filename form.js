@@ -193,9 +193,45 @@ function handleDrop(e) {
   handleFiles(e.dataTransfer.files);
 }
 
+/* ── Bildverkleinerung ────────────────────────
+   Das komplette Briefing inklusive aller Bilder wird als ein einziges
+   Firestore-Dokument gespeichert, und dort ist bei 1 MiB Schluss. Base64
+   kostet zusätzlich +33 %. Ein Handyfoto allein sprengt das also schon.
+
+   Deshalb: nur was über SHRINK_ABOVE_KB liegt, wird verkleinert. Logos,
+   Icons und kleine Grafiken bleiben damit bitgenau im Original erhalten
+   und lassen sich im Admin unverändert wieder herunterladen. */
+const SHRINK_ABOVE_KB = 400;   // darunter wird nichts angefasst
+const MAX_EDGE_PX     = 1600;  // längste Kante nach dem Verkleinern
+const JPEG_QUALITY    = 0.82;
+
+function shrinkImage(dataUrl, mime) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const factor = MAX_EDGE_PX / Math.max(img.width, img.height);
+      if (factor >= 1) { resolve(dataUrl); return; }   // Auflösung reicht schon
+
+      const canvas  = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * factor);
+      canvas.height = Math.round(img.height * factor);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Typ beibehalten — PNG nach JPEG würde Transparenz schwarz füllen.
+      resolve(mime === 'image/png'
+        ? canvas.toDataURL('image/png')
+        : canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+    };
+    img.onerror = () => resolve(dataUrl);   // im Zweifel das Original behalten
+    img.src = dataUrl;
+  });
+}
+
+const dataUrlKb = url => Math.round((url.length - (url.indexOf(',') + 1)) * 0.75 / 1024);
+
 function handleFiles(fileList) {
   const maxSize = 5 * 1024 * 1024; // 5MB
-  let hasLarge  = false;
+  let shrunkAny = false;
 
   Array.from(fileList).forEach(file => {
     if (uploadedFiles.length >= 10) {
@@ -206,25 +242,34 @@ function handleFiles(fileList) {
       showToast(`"${file.name}" ist zu groß (max. 5 MB).`, 'error');
       return;
     }
-    if (file.size > 500 * 1024) hasLarge = true;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const fileObj = {
-        name:    file.name,
-        type:    file.type,
-        dataUrl: e.target.result,
-        sizeKb:  Math.round(file.size / 1024)
-      };
-      uploadedFiles.push(fileObj);
+    reader.onload = async (e) => {
+      let dataUrl = e.target.result;
+
+      const isImage = file.type.startsWith('image/');
+      const tooBig  = file.size > SHRINK_ABOVE_KB * 1024;
+
+      if (isImage && tooBig) {
+        const shrunk = await shrinkImage(dataUrl, file.type);
+        if (shrunk.length < dataUrl.length) {   // nur wenn es wirklich hilft
+          dataUrl   = shrunk;
+          shrunkAny = true;
+        }
+      }
+
+      uploadedFiles.push({
+        name:     file.name,
+        type:     file.type,
+        dataUrl:  dataUrl,
+        sizeKb:   dataUrlKb(dataUrl),
+        origKb:   Math.round(file.size / 1024)
+      });
       renderPreviews();
+      if (shrunkAny) document.getElementById('upload-size-warning').style.display = 'block';
     };
     reader.readAsDataURL(file);
   });
-
-  if (hasLarge) {
-    document.getElementById('upload-size-warning').style.display = 'block';
-  }
 }
 
 function removeFile(index) {
@@ -331,7 +376,7 @@ function buildEmailHtml(data) {
           <td style="padding:12px 16px;">
             <table><tr>
               <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#6366f1);text-align:center;vertical-align:middle;color:white;font-weight:700;font-size:12px;font-family:sans-serif;">${num}</td>
-              <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:0.8px;">${title}</td>
+              <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:0.8px;">${escHtml(String(title).toUpperCase())}</td>
             </tr></table>
           </td>
         </tr>
@@ -364,6 +409,21 @@ function buildEmailHtml(data) {
     sectionShell(activeSections.length + i + 1, q.title, chipHtml(q.answers, q.options), '')
   ).join('');
 
+  /* Dateien zu je zwei pro Zeile. Vorher lagen alle in einer einzigen Zeile —
+     ab drei Bildern lief das über die Seitenbreite hinaus und wurde im PDF
+     abgeschnitten. Der Container ist 680px breit, macht ~560px nutzbar. */
+  const fileRows = [];
+  for (let i = 0; i < data.files.length; i += 2) fileRows.push(data.files.slice(i, i + 2));
+
+  const filePreview = f => f.type.startsWith('image/')
+    ? `<img src="${f.dataUrl}" alt="${escHtml(f.name)}" style="width:100%;max-width:260px;height:auto;border-radius:6px;border:1px solid #eee;display:block;">
+       <span style="display:block;margin-top:5px;font-size:10px;color:#888;font-family:sans-serif;">${escHtml(f.name)}</span>`
+    // Nicht-Bilder (z.B. PDF) als Download-Link einbetten. Vorher stand hier
+    // nur der Dateiname — die Datei selbst ging dabei verloren.
+    : `<a href="${f.dataUrl}" download="${escHtml(f.name)}" style="text-decoration:none;">
+         <div style="width:100%;max-width:260px;background:#f5f5f8;border:1px solid #eee;border-radius:6px;font-size:11px;color:#888;text-align:center;padding:24px 8px;font-family:sans-serif;">${escHtml(f.name)}<br><span style="font-size:10px;">(${f.sizeKb} KB) · zum Öffnen klicken</span></div>
+       </a>`;
+
   // Images to embed
   const imageSection = data.files.length > 0 ? `
     <tr><td colspan="2" style="padding:16px 0 0;">
@@ -371,19 +431,18 @@ function buildEmailHtml(data) {
         <tr style="background:linear-gradient(135deg,#f8f4ff,#f0f4ff);">
           <td style="padding:12px 16px;">
             <table><tr>
-              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#6366f1);text-align:center;vertical-align:middle;color:white;font-weight:700;font-size:12px;font-family:sans-serif;">📎</td>
-              <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:0.8px;">Hochgeladene Dateien (${data.files.length})</td>
+              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#6366f1);text-align:center;vertical-align:middle;color:white;font-weight:700;font-size:12px;font-family:sans-serif;">${data.files.length}</td>
+              <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:0.8px;">HOCHGELADENE DATEIEN</td>
             </tr></table>
           </td>
         </tr>
         <tr><td style="padding:14px 16px;">
-          <table><tr>
-            ${data.files.map(f => `
-              <td style="padding:4px;vertical-align:top;">
-                ${f.type.startsWith('image/') ? `<img src="${f.dataUrl}" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #eee;" alt="${f.name}"><br><span style="font-size:10px;color:#888;">${f.name}</span>` : `<div style="width:100px;height:100px;background:#f5f5f8;border:1px solid #eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;text-align:center;padding:8px;">${f.name}<br><span style="font-size:10px;">(${f.sizeKb} KB)</span></div>`}
-              </td>
-            `).join('')}
-          </tr></table>
+          <table width="100%" style="border-collapse:collapse;">
+            ${fileRows.map(row => `<tr>
+              ${row.map(f => `<td width="50%" style="padding:6px;vertical-align:top;">${filePreview(f)}</td>`).join('')}
+              ${row.length === 1 ? '<td width="50%"></td>' : ''}
+            </tr>`).join('')}
+          </table>
         </td></tr>
       </table>
     </td></tr>
@@ -445,7 +504,7 @@ function buildEmailHtml(data) {
       ${sectionHtml('inhalte', data.inhalte, data.inhalte_text)}
       ${imageSection}
       ${sectionHtml('funktionen', data.funktionen, data.funktionen_text)}
-      ${sectionHtml('ki_erweiterung', data.ki_erweiterung, customerData.showIndividualAutomation && data.ki_individual_text ? '💡 Individuelle Automatisierung: ' + data.ki_individual_text : (customerData.showIndividualAutomation ? '💡 Individuelle Automatisierung: Keine Angabe' : ''))}
+      ${sectionHtml('ki_erweiterung', data.ki_erweiterung, customerData.showIndividualAutomation && data.ki_individual_text ? 'Individuelle Automatisierung: ' + data.ki_individual_text : (customerData.showIndividualAutomation ? 'Individuelle Automatisierung: Keine Angabe' : ''))}
       ${sectionHtml('socialmedia', data.socialmedia_art, (data.socialmedia_plattform.length > 0 ? 'Plattformen: ' + data.socialmedia_plattform.join(', ') : '') + (data.socialmedia_text ? '\n' + data.socialmedia_text : ''))}
       ${sectionHtml('budget', data.budget, '')}
       ${sectionHtml('deadline', data.deadline, data.deadline_text)}
@@ -540,7 +599,7 @@ function downloadBriefingPdf() {
     margin: 0,
     filename: `Briefing_${name}.pdf`,
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#f0f0f5' },
+    html2canvas: { scale: 3, useCORS: true, backgroundColor: '#f0f0f5' },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   }).from(bodyHtml).save().finally(() => {
     if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Briefing als PDF herunterladen'; }

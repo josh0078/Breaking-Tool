@@ -357,6 +357,19 @@
   </div>
 </div>
 
+<!-- ══════════ MODAL: Hochgeladene Dateien ══════════ -->
+<div class="modal-overlay" id="files-modal" style="display:none;" onclick="if(event.target===event.currentTarget) closeFilesModal()">
+  <div class="modal">
+    <h3 class="gradient-text">Hochgeladene Dateien</h3>
+    <p id="files-modal-sub">Vom Kunden mit dem Briefing übermittelt.</p>
+    <div id="files-modal-list" style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;margin-top:4px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeFilesModal()">Schließen</button>
+      <button class="btn btn-primary" id="files-download-all" onclick="downloadAllFiles()">Alle herunterladen</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: Löschen ══════════ -->
 <div class="modal-overlay" id="delete-modal" style="display:none;" onclick="closeModalOnBg(event, 'delete-modal')">
   <div class="modal">
