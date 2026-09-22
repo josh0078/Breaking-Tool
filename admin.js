@@ -6,7 +6,7 @@
 const EMAILJS_SERVICE  = 'service_2rr4ih8';
 const EMAILJS_TEMPLATE = 'template_w72zub6';
 const EMAILJS_PUBLIC   = 'qil4eefMTb5qApNIk';
-const ADMIN_EMAIL      = 'majosh2026we@gmail.com';
+const ADMIN_EMAIL      = 'info@nexvia-we.de';
 const ADMIN_UID        = '1BK9QM0osAc7lA3qXt4H0pMXN7o1';
 
 // ── State ────────────────────────────────────

@@ -19,6 +19,11 @@ Alle Verbesserungen und neuen Features die am **24/7 ON Briefing-Tool** umgesetz
 
 ## ✅ Umgesetzte Features
 
+### 8. Aktualisierung der E-Mail-Adresse auf info@nexvia-we.de (2026-09-22)
+
+- [x] **Admin-Benachrichtigungsadresse (`form.js`)**: Empfänger für ausgefüllte Kundenbriefings auf `info@nexvia-we.de` aktualisiert.
+- [x] **Admin-Konfiguration (`admin.js`)**: `ADMIN_EMAIL` auf `info@nexvia-we.de` gesetzt.
+
 ### 7. Security Hardening & Vulnerability Fixes (2026-09-22)
 
 - [x] **Stored XSS geschlossen (`form.js`)**: Alle Benutzereingaben (`val`, `text`, `customerData.email`, Chips) werden in `buildEmailHtml()` vor dem Einfügen in den DOM/PDF-Stream strikt mit `escHtml()` bereinigt.
@@ -124,7 +129,7 @@ Alle Verbesserungen und neuen Features die am **24/7 ON Briefing-Tool** umgesetz
 - [x] 3-Schritte-Prozess mit lila Kreisen
 - [x] CTA-Button „Briefing jetzt ausfüllen →"
 - [x] Hinweis-Box mit Ablaufdatum
-- [x] Absender: `Joshua · 24/7 ON <majosh2026we@gmail.com>` via Brevo
+- [x] Absender: `Nexvia <info@nexvia-we.de>` via Brevo
 - [x] Durchgehend **Sie-Form** (formelle Ansprache)
 
 > [!tip] E-Mail CSS Gotchas
