@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website-Briefing</title>
+  <title>Nexvia · Website-Briefing</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body { padding-bottom: 80px; }
@@ -18,8 +18,8 @@
     .form-hero::before {
       content: '';
       position: absolute;
-      width: 500px; height: 300px;
-      background: radial-gradient(ellipse, rgba(168,85,247,0.2) 0%, transparent 65%);
+      width: 550px; height: 320px;
+      background: radial-gradient(ellipse, rgba(34,197,94,0.18) 0%, transparent 65%);
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
@@ -27,10 +27,10 @@
     .form-hero-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
     .form-greeting {
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--purple);
+      color: var(--green);
       margin-bottom: 16px;
     }
     .form-hero h1 {
@@ -43,7 +43,7 @@
       font-size: 15px;
       color: var(--text-2);
       line-height: 1.7;
-      max-width: 520px;
+      max-width: 540px;
       margin: 0 auto 24px;
     }
     .expires-badge {
@@ -51,13 +51,13 @@
       align-items: center;
       gap: 8px;
       padding: 8px 18px;
-      background: rgba(168,85,247,0.08);
-      border: 1px solid rgba(168,85,247,0.25);
+      background: rgba(6,182,212,0.08);
+      border: 1px solid rgba(6,182,212,0.25);
       border-radius: 20px;
       font-size: 13px;
       color: var(--text-2);
     }
-    .expires-badge strong { color: var(--purple); }
+    .expires-badge strong { color: var(--green); }
 
     /* ── Form body ── */
     .form-body {
@@ -87,15 +87,15 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      background: linear-gradient(135deg, var(--green), var(--cyan));
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 13px;
       font-weight: 700;
-      color: white;
+      color: #040912;
       flex-shrink: 0;
-      box-shadow: 0 0 14px rgba(168,85,247,0.3);
+      box-shadow: 0 0 14px rgba(34,197,94,0.35);
     }
     .section-title-wrap h3 {
       font-size: 16px;
@@ -127,9 +127,9 @@
       position: absolute;
       inset: -4px;
       border-radius: 12px;
-      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      background: linear-gradient(135deg, var(--green), var(--cyan));
       filter: blur(12px);
-      opacity: 0.4;
+      opacity: 0.45;
       z-index: 0;
       animation: pulse-glow 3s ease infinite;
     }
@@ -191,9 +191,14 @@
   <!-- Hero -->
   <div class="form-hero">
     <div class="form-hero-inner">
-      <div class="form-greeting" id="greeting-line">Ihr persönliches Briefing</div>
-      <h1>Hallo <span class="gradient-text" id="customer-name-display">…</span>,<br>erzählen Sie uns von Ihrer Website</h1>
-      <p>Füllen Sie das Formular so vollständig wie möglich aus — je mehr wir wissen, desto besser können wir Sie beraten und ein passendes Angebot erstellen.</p>
+      <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(6,182,212,0.06);border:1px solid var(--border);border-radius:30px;padding:6px 18px 6px 8px;margin-bottom:24px;">
+        <img src="assets/nexvia-logo.jpg" alt="Nexvia" style="width:28px;height:28px;border-radius:50%;object-fit:cover;box-shadow:0 0 10px rgba(34,197,94,0.4);">
+        <span style="font-family:var(--font-head);font-size:14px;font-weight:800;letter-spacing:1.5px;color:#ffffff;">NEXVIA</span>
+        <span style="font-size:11px;color:var(--cyan-bright);letter-spacing:0.8px;font-weight:500;">Next Vision Intelligence Automation</span>
+      </div>
+      <div class="form-greeting" id="greeting-line">Website & Automations-Briefing</div>
+      <h1>Hallo <span class="gradient-text" id="customer-name-display">…</span>,<br>erzählen Sie uns von Ihrem Projekt</h1>
+      <p>Füllen Sie das Formular so vollständig wie möglich aus — je mehr wir über Ihre Anforderungen und Wünsche wissen, desto zielgerichteter können wir Sie beraten und ein passendes Angebot erstellen.</p>
       <div class="expires-badge">
         ⏱ Dieser Link ist gültig bis <strong id="expires-display">…</strong>
       </div>
@@ -338,7 +343,7 @@
         <label style="margin-bottom:10px;">Dateien hochladen (Logo, Fotos, Referenzen)</label>
         <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
           <input type="file" id="file-input" multiple accept="image/*,.pdf" onchange="handleFiles(this.files)">
-          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:8px;color:var(--purple);opacity:0.6;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:8px;color:var(--cyan);opacity:0.75;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <div><strong style="color:var(--text-2);">Dateien hierher ziehen</strong> oder klicken zum Auswählen</div>
           <div style="margin-top:4px;font-size:11px;">Bilder (JPG, PNG, SVG) · PDF · max. 5 MB pro Datei</div>
         </div>
@@ -392,7 +397,7 @@
         <div class="chip" onclick="toggleChip(this)">Komplexere Vorgänge auf Wunsch</div>
         <div class="chip" onclick="toggleChip(this)">Nein, nicht gewünscht</div>
       </div>
-      <div style="margin-top:14px;padding:12px 14px;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:8px;font-size:12px;color:var(--text-3);line-height:1.6;">
+      <div style="margin-top:14px;padding:12px 14px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;font-size:12px;color:var(--text-3);line-height:1.6;">
         <strong style="color:var(--text-2);">Instagram Bot</strong> — Automatische Antworten auf DMs & Kommentare, Kontaktdaten weitergeben, an Support weiterleiten.<br>
         <strong style="color:var(--text-2);">Website-Chatbot</strong> — KI-Assistent auf deiner Website: beantwortet häufige Fragen, gibt Kontaktdaten raus, leitet an Support weiter.<br>
         <strong style="color:var(--text-2);">E-Mail Automatisierung</strong> — Automatischer Versand von Angeboten, Bestätigungen, Follow-ups & mehr — ohne manuellen Aufwand.<br>
@@ -404,7 +409,7 @@
       <!-- Individuelle Automatisierung — nur sichtbar wenn Admin aktiviert -->
       <div id="ki-individual-wrap" style="display:none;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);">
         <label style="margin-bottom:8px;display:block;">
-          <span style="color:var(--purple);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Individuelle Automatisierung</span>
+          <span style="color:var(--cyan-bright);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Individuelle Automatisierung</span>
         </label>
         <textarea class="input" placeholder="Sie möchten einen Arbeitsablauf mit KI automatisieren? Beschreiben Sie kurz, was automatisiert werden soll …" data-field="ki_individual_text" style="min-height:100px;"></textarea>
       </div>
@@ -552,14 +557,14 @@
 </div><!-- /form-screen -->
 
 <!-- ══════════ SUCCESS ══════════ -->
-<div id="success-screen" style="display:none;min-height:100vh;display:none;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
+<div id="success-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
   <div class="success-inner fade-up">
-    <div class="success-icon">✓</div>
+    <div class="success-icon" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:var(--green);box-shadow:0 0 30px rgba(34,197,94,0.25);">✓</div>
     <h2 class="gradient-text">Danke, <span id="success-name"></span>!</h2>
-    <p style="margin-top:12px;">Ihr Briefing wurde erfolgreich übermittelt. Wir melden uns in Kürze bei Ihnen mit einem individuellen Angebot.</p>
-    <p style="margin-top:20px;font-size:12px;color:var(--text-3);">Dieser Link ist nun deaktiviert.</p>
-    <button id="pdf-download-btn" onclick="downloadBriefingPdf()" style="margin-top:24px;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#6366f1);border:none;color:white;font-size:14px;font-weight:600;cursor:pointer;">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <p style="margin-top:12px;">Ihr Briefing wurde erfolgreich an <strong>Nexvia</strong> übermittelt. Wir analysieren Ihre Wünsche und melden uns in Kürze mit einem maßgeschneiderten Konzept bei Ihnen.</p>
+    <p style="margin-top:20px;font-size:12px;color:var(--text-3);">Dieser persönliche Link ist nun abgeschlossen.</p>
+    <button id="pdf-download-btn" onclick="downloadBriefingPdf()" style="margin-top:24px;display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--cyan));border:none;color:#040912;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 0 24px rgba(34,197,94,0.35);">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Briefing als PDF herunterladen
     </button>
   </div>
@@ -570,7 +575,7 @@
   <div class="success-inner fade-up">
     <div style="width:80px;height:80px;border-radius:50%;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 28px;box-shadow:0 0 30px rgba(248,113,113,0.15);">⏱</div>
     <h2 style="color:var(--danger);">Link abgelaufen</h2>
-    <p style="margin-top:12px;">Dieser Briefing-Link ist leider nicht mehr gültig. Bitte kontaktieren Sie uns, um einen neuen Link zu erhalten.</p>
+    <p style="margin-top:12px;">Dieser Briefing-Link ist leider nicht mehr gültig. Bitte kontaktieren Sie <strong>Nexvia (Next Vision Intelligence Automation)</strong>, um einen neuen Link zu erhalten.</p>
   </div>
 </div>
 

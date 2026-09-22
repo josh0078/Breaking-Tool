@@ -19,7 +19,18 @@ Alle Verbesserungen und neuen Features die am **24/7 ON Briefing-Tool** umgesetz
 
 ## ✅ Umgesetzte Features
 
-### 4. KI & Automatisierung — Neue Leistungsoptionen (2026-05-22)
+### 6. Rebranding auf Nexvia — Next Vision Intelligence Automation (2026-09-22)
+
+- [x] Offizieller Markenname festgelegt: **Nexvia** (`Next Vision Intelligence Automation`)
+- [x] Neues Farbsystem implementiert: Deep Obsidian Background (`#060b14`), leuchtendes Smaragdgrün (`#22c55e`), Cyan / Elektro-Teal (`#06b6d4`, `#38bdf8`) und dynamische Glow-Effekte
+- [x] Logo-Assets eingebunden (`assets/nexvia-logo.jpg`, `assets/nexvia-banner.jpg`)
+- [x] **Admin-Portal** (`index.html`): Login-Screen mit Nexvia-Logo & Claim, Topbar mit Markenemblem, grüne Akzente
+- [x] **Kunden-Formular** (`form.html`): Hero-Header mit Nexvia-Badge & Claim, modernisierte Section-Badges und Button-Glows
+- [x] **Erfolgs- & Ablauf-Seiten** (`form.html`, `expired.html`): Nexvia-Branding & aktualisierte Kontakttexte
+- [x] **E-Mail-Vorlagen & PDF-Export** (`admin.js`, `form.js`, Netlify Function):
+  - Einladungs- & Erinnerungsmail im Nexvia-Design
+  - Briefing-Dokument & generiertes PDF mit Nexvia-Branding und Farbakzenten
+  - Absender auf `Joshua · Nexvia` angepasst
 
 - [x] 4 neue Chips in **Abschnitt 8 „KI & Automatisierung"** des Kunden-Formulars ergänzt
 - [x] Beschreibungsbox im Formular um alle neuen Optionen erweitert

@@ -13,9 +13,9 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sender: { name: 'Joshua · 24/7 ON', email: 'majosh2026we@gmail.com' },
+        sender: { name: 'Joshua · Nexvia', email: 'majosh2026we@gmail.com' },
         to: [{ email: to, name: to_name || to }],
-        subject: subject || 'Website-Briefing',
+        subject: subject || 'Nexvia Website-Briefing',
         htmlContent: html
       })
     });

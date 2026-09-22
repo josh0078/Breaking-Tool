@@ -1,7 +1,7 @@
 rules_version = '2';
 
 /* ============================================================
-   FIRESTORE RULES — 24/7 ON Briefing-Tool
+   FIRESTORE RULES — Nexvia Briefing-Tool
 
    Einspielen: Firebase Console → Firestore Database → Regeln
                → Inhalt hier reinkopieren → "Veröffentlichen"

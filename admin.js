@@ -153,74 +153,75 @@ function buildInvitationEmailHtml(name, link, daysLeft) {
 <table width="600" style="max-width:600px;background:white;border-radius:16px;overflow:hidden;box-shadow:0 8px 50px rgba(0,0,0,0.14);">
 
   <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,#0d0d1a 0%,#1a0535 55%,#0a1128 100%);padding:48px 48px 40px;">
-    <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:3px;color:rgba(168,85,247,0.75);font-family:sans-serif;">Hallo ${firstName}!</p>
-    <h1 style="margin:0 0 16px;font-size:28px;font-weight:800;color:white;font-family:sans-serif;line-height:1.2;">Das Website-Briefing —<br><span style="color:#a855f7;">angepasst an Ihre Wünsche.</span></h1>
-    <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.5);font-family:sans-serif;line-height:1.6;">Wir freuen uns darauf, gemeinsam mit Ihnen Ihre neue Website zu entwickeln.</p>
+  <tr><td style="background:linear-gradient(135deg,#060b14 0%,#0c1a30 55%,#071526 100%);padding:48px 48px 40px;">
+    <p style="margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:#22c55e;font-family:sans-serif;font-weight:700;">NEXVIA · Next Vision Intelligence Automation</p>
+    <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.7);font-family:sans-serif;">Hallo ${firstName}!</p>
+    <h1 style="margin:0 0 16px;font-size:28px;font-weight:800;color:white;font-family:sans-serif;line-height:1.2;">Das Website-Briefing —<br><span style="color:#22c55e;">angepasst an Ihre Wünsche.</span></h1>
+    <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.6);font-family:sans-serif;line-height:1.6;">Wir freuen uns darauf, gemeinsam mit Ihnen Ihr digitales Vorhaben zu realisieren.</p>
   </td></tr>
 
   <!-- Body -->
   <tr><td style="padding:40px 48px;">
     <p style="margin:0 0 20px;font-size:15px;color:#333;line-height:1.7;font-family:sans-serif;">
-      Damit wir Ihre Website <strong>genau nach Ihren Vorstellungen</strong> umsetzen können, haben wir ein kurzes Briefing-Formular vorbereitet. Es dauert nur wenige Minuten und hilft uns, Ihr Projekt von Anfang an richtig anzupacken.
+      Damit wir Ihr Projekt <strong>genau nach Ihren Vorstellungen</strong> umsetzen können, haben wir ein kurzes Briefing-Formular vorbereitet. Es dauert nur wenige Minuten und hilft uns, Ihre Anforderungen von Anfang an perfekt anzupacken.
     </p>
 
     <!-- Steps -->
     <table width="100%" style="border-collapse:collapse;margin:28px 0;">
       <tr>
         <td width="36" valign="top" style="padding:0 14px 18px 0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:#a855f7;font-size:13px;font-weight:700;color:#ffffff;text-align:center;line-height:32px;font-family:sans-serif;">1</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:#22c55e;font-size:13px;font-weight:700;color:#040912;text-align:center;line-height:32px;font-family:sans-serif;">1</div>
         </td>
         <td valign="top" style="padding-bottom:18px;">
           <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1a1a2e;font-family:sans-serif;">Link öffnen</p>
-          <p style="margin:0;font-size:13px;color:#888;font-family:sans-serif;">Klicken Sie unten auf den Button, um Ihr persönliches Formular zu öffnen.</p>
+          <p style="margin:0;font-size:13px;color:#888;font-family:sans-serif;">Klicken Sie unten auf den Button, um Ihr persönliches Briefing zu öffnen.</p>
         </td>
       </tr>
       <tr>
         <td valign="top" style="padding:0 14px 18px 0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:#a855f7;font-size:13px;font-weight:700;color:#ffffff;text-align:center;line-height:32px;font-family:sans-serif;">2</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:#22c55e;font-size:13px;font-weight:700;color:#040912;text-align:center;line-height:32px;font-family:sans-serif;">2</div>
         </td>
         <td valign="top" style="padding-bottom:18px;">
           <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1a1a2e;font-family:sans-serif;">Briefing ausfüllen</p>
-          <p style="margin:0;font-size:13px;color:#888;font-family:sans-serif;">Beantworten Sie ein paar Fragen zu Ihren Wünschen, Zielen und Ihrem Design-Geschmack.</p>
+          <p style="margin:0;font-size:13px;color:#888;font-family:sans-serif;">Beantworten Sie ein paar Fragen zu Ihren Wünschen, Zielen und Design-Vorstellungen.</p>
         </td>
       </tr>
       <tr>
         <td valign="top" style="padding:0 14px 0 0;">
-          <div style="width:32px;height:32px;border-radius:50%;background:#a855f7;font-size:13px;font-weight:700;color:#ffffff;text-align:center;line-height:32px;font-family:sans-serif;">3</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:#22c55e;font-size:13px;font-weight:700;color:#040912;text-align:center;line-height:32px;font-family:sans-serif;">3</div>
         </td>
         <td valign="top">
           <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1a1a2e;font-family:sans-serif;">Wir melden uns</p>
-          <p style="margin:0;font-size:13px;color:#888;font-family:sans-serif;">Sobald Sie das Briefing abgesendet haben, erstellen wir Ihr individuelles Angebot.</p>
+          <p style="margin:0;font-size:13px;color:#888;font-family:sans-serif;">Sobald Sie das Briefing abgesendet haben, erstellen wir Ihr maßgeschneidertes Konzept & Angebot.</p>
         </td>
       </tr>
     </table>
 
     <!-- CTA Button -->
     <table width="100%" style="margin:32px 0;"><tr><td align="center">
-      <a href="${link}" style="display:inline-block;padding:16px 40px;border-radius:12px;background:#a855f7;color:#ffffff !important;font-size:15px;font-weight:700;text-decoration:none;font-family:sans-serif;letter-spacing:0.3px;-webkit-text-fill-color:#ffffff;">
+      <a href="${link}" style="display:inline-block;padding:16px 40px;border-radius:12px;background:#22c55e;background-color:#22c55e;color:#040912 !important;font-size:15px;font-weight:800;text-decoration:none;font-family:sans-serif;letter-spacing:0.3px;-webkit-text-fill-color:#040912;box-shadow:0 4px 20px rgba(34,197,94,0.35);">
         Briefing jetzt ausfüllen &#8594;
       </a>
     </td></tr></table>
 
     <!-- Expiry notice -->
-    <table width="100%" style="border-collapse:collapse;background:#fdf8ff;border:1px solid rgba(168,85,247,0.2);border-radius:10px;"><tr><td style="padding:14px 18px;">
-      <p style="margin:0;font-size:12px;color:#7c3aed;font-family:sans-serif;">
+    <table width="100%" style="border-collapse:collapse;background:#f0fdf4;border:1px solid rgba(34,197,94,0.3);border-radius:10px;"><tr><td style="padding:14px 18px;">
+      <p style="margin:0;font-size:12px;color:#15803d;font-family:sans-serif;">
         <strong>⏱ Hinweis:</strong> Ihr persönlicher Link ist bis zum <strong>${expDate}</strong> gültig (${daysLeft} Werktage). Bitte füllen Sie das Formular bis dahin aus.
       </p>
     </td></tr></table>
 
     <p style="margin:24px 0 0;font-size:13px;color:#aaa;font-family:sans-serif;">
       Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:<br>
-      <a href="${link}" style="color:#a855f7;word-break:break-all;">${link}</a>
+      <a href="${link}" style="color:#0ea5e9;word-break:break-all;">${link}</a>
     </p>
   </td></tr>
 
   <!-- Footer -->
-  <tr><td style="background:linear-gradient(135deg,#0d0d1a,#1a0535);padding:24px 48px;">
+  <tr><td style="background:linear-gradient(135deg,#060b14,#0c1a30);padding:24px 48px;">
     <table width="100%"><tr>
-      <td style="font-size:12px;color:rgba(168,85,247,0.7);font-family:sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;">24/7 ON</td>
-      <td align="right" style="font-size:11px;color:rgba(255,255,255,0.25);font-family:sans-serif;">Diese E-Mail wurde persönlich für ${name} erstellt.</td>
+      <td style="font-size:12px;color:#22c55e;font-family:sans-serif;font-weight:800;letter-spacing:2px;text-transform:uppercase;">NEXVIA</td>
+      <td align="right" style="font-size:11px;color:rgba(255,255,255,0.4);font-family:sans-serif;">Next Vision Intelligence Automation</td>
     </tr></table>
   </td></tr>
 
@@ -248,7 +249,7 @@ function renderSectionPicker() {
   document.getElementById('section-picker').innerHTML = FORM_SECTIONS.map(s => `
     <label style="display:flex;align-items:center;gap:9px;padding:5px 2px;cursor:pointer;user-select:none;font-size:13px;">
       <input type="checkbox" class="section-toggle" value="${s.id}" checked
-             style="accent-color:var(--purple);width:15px;height:15px;flex-shrink:0;">
+             style="accent-color:var(--green);width:15px;height:15px;flex-shrink:0;">
       <span style="color:var(--text-3);min-width:20px;">${s.num}</span>
       <span style="color:var(--text-1);">${escHtml(s.title)}</span>
     </label>
@@ -358,7 +359,7 @@ async function createCustomer() {
     if (email) {
       const left     = businessDaysLeft(customer.expiresAt);
       const htmlBody = buildInvitationEmailHtml(name, link, left);
-      sendInvitationEmail(email, name, `Website-Briefing`, htmlBody)
+      sendInvitationEmail(email, name, `Nexvia Website-Briefing`, htmlBody)
         .then(() => showToast(`✓ Einladungsmail an ${email} gesendet!`, 'success'))
         .catch(() => showToast('Kunde erstellt, aber E-Mail fehlgeschlagen. Manuell senden.', 'error'));
     } else {
@@ -440,7 +441,7 @@ function sendLinkEmail(id) {
   const link     = generateLink(c);
   const left     = businessDaysLeft(c.expiresAt);
   const htmlBody = buildInvitationEmailHtml(c.name, link, left);
-  sendInvitationEmail(c.email, c.name, `Website-Briefing`, htmlBody)
+  sendInvitationEmail(c.email, c.name, `Nexvia Website-Briefing`, htmlBody)
     .then(() => showToast(`Einladungsmail an ${c.email} gesendet!`, 'success'))
     .catch(() => showToast('Fehler beim Senden.', 'error'));
 }

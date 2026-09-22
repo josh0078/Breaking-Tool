@@ -142,7 +142,7 @@ function renderFormHeader() {
   const name    = customerData.name.split(' ')[0]; // Vorname
   const expires = new Date(customerData.expiresAt);
 
-  document.title = `Briefing für ${customerData.name}`;
+  document.title = `Nexvia Briefing · ${customerData.name}`;
   document.getElementById('customer-name-display').textContent = name;
   document.getElementById('success-name').textContent = name;
   document.getElementById('expires-display').textContent = expires.toLocaleDateString('de-DE', {
@@ -462,21 +462,21 @@ function buildEmailHtml(data) {
   <!-- Notification Banner -->
   <tr><td style="background:#16a34a;padding:14px 40px;">
     <table width="100%"><tr>
-      <td style="font-family:sans-serif;font-size:14px;font-weight:700;color:white;">✅ Neues Briefing eingegangen — ${escHtml(customerData.name)}</td>
+      <td style="font-family:sans-serif;font-size:14px;font-weight:700;color:white;">✅ Neues Nexvia Briefing eingegangen — ${escHtml(customerData.name)}</td>
       <td align="right" style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,0.8);">${fmtDate(now)}, ${fmtTime(now)}</td>
     </tr></table>
   </td></tr>
 
   <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,#0d0d1a 0%,#1a0535 50%,#0a1128 100%);padding:36px 40px;">
-    <p style="margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(168,85,247,0.8);font-family:sans-serif;">Website-Briefing Dokument</p>
-    <h1 style="margin:0 0 6px;font-size:28px;color:white;font-family:sans-serif;">Briefing: <span style="color:#a855f7;">${escHtml(customerData.name)}</span></h1>
-    <p style="margin:0 0 28px;font-size:13px;color:rgba(255,255,255,0.45);font-family:sans-serif;">Ausgefüllt am ${fmtDate(now)} um ${fmtTime(now)}</p>
+  <tr><td style="background:linear-gradient(135deg,#060b14 0%,#0c1930 50%,#081426 100%);padding:36px 40px;">
+    <p style="margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#22c55e;font-family:sans-serif;font-weight:700;">NEXVIA · Next Vision Intelligence Automation</p>
+    <h1 style="margin:0 0 6px;font-size:28px;color:white;font-family:sans-serif;">Briefing: <span style="color:#22c55e;">${escHtml(customerData.name)}</span></h1>
+    <p style="margin:0 0 28px;font-size:13px;color:rgba(255,255,255,0.5);font-family:sans-serif;">Ausgefüllt am ${fmtDate(now)} um ${fmtTime(now)}</p>
 
     <!-- PDF Download CTA -->
     <table style="margin-bottom:28px;border-collapse:collapse;"><tr>
       <td>
-        <a href="${adminUrl}" style="display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#6366f1);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;font-family:sans-serif;letter-spacing:0.3px;">⬇ PDF herunterladen</a>
+        <a href="${adminUrl}" style="display:inline-block;padding:14px 32px;border-radius:10px;background:#22c55e;background-color:#22c55e;color:#040912 !important;font-size:15px;font-weight:800;text-decoration:none;font-family:sans-serif;letter-spacing:0.3px;-webkit-text-fill-color:#040912;box-shadow:0 4px 16px rgba(34,197,94,0.3);">⬇ PDF herunterladen</a>
       </td>
       <td style="padding-left:16px;">
         <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.5);font-family:sans-serif;">Im Admin-Panel öffnen<br>und PDF generieren</p>
@@ -485,10 +485,10 @@ function buildEmailHtml(data) {
 
     <table style="border-collapse:collapse;">
       <tr>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(168,85,247,0.6);font-family:sans-serif;">Kunde</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;font-family:sans-serif;">${escHtml(customerData.name)}</p></td>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(168,85,247,0.6);font-family:sans-serif;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;font-family:sans-serif;">${customerData.email || '—'}</p></td>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(168,85,247,0.6);font-family:sans-serif;">Formular-ID</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;font-family:sans-serif;">${customerData.id}</p></td>
-        <td><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(168,85,247,0.6);font-family:sans-serif;">Abgesendet</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;font-family:sans-serif;">${fmtDate(now)}, ${fmtTime(now)}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Kunde</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.name)}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${customerData.email || '—'}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Formular-ID</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${customerData.id}</p></td>
+        <td><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Abgesendet</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${fmtDate(now)}, ${fmtTime(now)}</p></td>
       </tr>
     </table>
   </td></tr>
@@ -516,10 +516,10 @@ function buildEmailHtml(data) {
   </td></tr>
 
   <!-- Footer -->
-  <tr><td style="background:linear-gradient(135deg,#0d0d1a,#1a0535);padding:20px 40px;display:flex;justify-content:space-between;">
+  <tr><td style="background:linear-gradient(135deg,#060b14,#0c1930);padding:20px 40px;display:flex;justify-content:space-between;">
     <table width="100%"><tr>
-      <td style="font-size:11px;color:rgba(168,85,247,0.7);font-family:sans-serif;">Erstellt mit dem Briefing-Tool</td>
-      <td align="right" style="font-size:10px;color:rgba(255,255,255,0.3);font-family:sans-serif;">${customerData.id} · ${fmtDate(now)}</td>
+      <td style="font-size:11px;color:#22c55e;font-family:sans-serif;font-weight:700;">NEXVIA · Next Vision Intelligence Automation</td>
+      <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:sans-serif;">${customerData.id} · ${fmtDate(now)}</td>
     </tr></table>
   </td></tr>
 
@@ -546,7 +546,7 @@ async function submitForm() {
       body: JSON.stringify({
         to:      ADMIN_EMAIL,
         to_name: 'Joshua',
-        subject: `✅ Briefing von ${customerData.name} (${customerData.id})`,
+        subject: `✅ Nexvia Briefing von ${customerData.name} (${customerData.id})`,
         html:    htmlBody
       })
     });
@@ -597,7 +597,7 @@ function downloadBriefingPdf() {
 
   html2pdf().set({
     margin: 0,
-    filename: `Briefing_${name}.pdf`,
+    filename: `Nexvia_Briefing_${name}.pdf`,
     image: { type: 'jpeg', quality: 0.95 },
     html2canvas: { scale: 3, useCORS: true, backgroundColor: '#f0f0f5' },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
