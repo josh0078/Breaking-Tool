@@ -19,6 +19,16 @@ Alle Verbesserungen und neuen Features die am **24/7 ON Briefing-Tool** umgesetz
 
 ## ✅ Umgesetzte Features
 
+### 7. Security Hardening & Vulnerability Fixes (2026-09-22)
+
+- [x] **Stored XSS geschlossen (`form.js`)**: Alle Benutzereingaben (`val`, `text`, `customerData.email`, Chips) werden in `buildEmailHtml()` vor dem Einfügen in den DOM/PDF-Stream strikt mit `escHtml()` bereinigt.
+- [x] **File-Upload & DataURL-Sanitization (`form.js`)**: Dateilinks prüfen explizit auf sichere MIME-/DataURL-Präfixe (`data:image/`, `data:application/pdf`).
+- [x] **Payload-Größencheck (`form.js`)**: Prüfung auf max. ~850 KB vor dem Absenden verhindert stilles Scheitern am 1 MiB Firestore-Dokumentenlimit.
+- [x] **Admin-Authentifizierung gehärtet (`admin.js`)**: `ADMIN_UID` wird im Client bei Login und Session-Restore geprüft (`auth.onAuthStateChanged`). Unberechtigte Nutzer werden sofort abgemeldet.
+- [x] **Email-Header-Injection geschützt (`form.js`)**: Bereinigung von Newlines (`\r`, `\n`) in dynamischen Feldern des E-Mail-Betreffs.
+- [x] **Tote Netlify-Funktion entfernt**: Die alte, ungenutzte `netlify/functions/send-invitation.js` wurde entfernt, um keinen ungeschützten Endpunkt bereitzustellen.
+- [x] **HTTP-Security-Header aktiviert (`netlify.toml`)**: `X-Frame-Options: DENY` (Clickjacking-Schutz), `X-Content-Type-Options: nosniff`, `Referrer-Policy` und Content Security Policy (CSP) konfiguriert.
+
 ### 6. Rebranding auf Nexvia — Next Vision Intelligence Automation (2026-09-22)
 
 - [x] Offizieller Markenname festgelegt: **Nexvia** (`Next Vision Intelligence Automation`)

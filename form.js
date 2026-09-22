@@ -350,17 +350,17 @@ function buildEmailHtml(data) {
   const chipHtml = (items, allOptions) => {
     if (!allOptions) {
       return items.length > 0
-        ? items.map(i => `<span style="display:inline-block;padding:4px 12px;margin:3px;border-radius:20px;font-size:12px;font-weight:500;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#7c3aed;">${i}</span>`).join('')
+        ? items.map(i => `<span style="display:inline-block;padding:4px 12px;margin:3px;border-radius:20px;font-size:12px;font-weight:500;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.4);color:#15803d;">${escHtml(i)}</span>`).join('')
         : '<span style="color:#aaa;font-size:12px;font-style:italic;">Keine Auswahl</span>';
     }
     return allOptions.map(opt => {
       const sel = items.includes(opt);
-      return `<span style="display:inline-block;padding:4px 12px;margin:3px;border-radius:20px;font-size:12px;font-weight:${sel?'600':'400'};background:${sel?'rgba(168,85,247,0.12)':'#f5f5f8'};border:1px solid ${sel?'rgba(168,85,247,0.4)':'#e5e5ea'};color:${sel?'#7c3aed':'#aaa'};">${sel?'✓ ':''} ${opt}</span>`;
+      return `<span style="display:inline-block;padding:4px 12px;margin:3px;border-radius:20px;font-size:12px;font-weight:${sel?'600':'400'};background:${sel?'rgba(34,197,94,0.12)':'#f5f5f8'};border:1px solid ${sel?'rgba(34,197,94,0.4)':'#e5e5ea'};color:${sel?'#15803d':'#aaa'};">${sel?'✓ ':''} ${escHtml(opt)}</span>`;
     }).join('');
   };
 
   const textRow = (label, val) => val
-    ? `<tr><td colspan="2" style="padding:8px 0;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">${label}</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #a855f7;padding:8px 12px;border-radius:0 6px 6px 0;">${val.replace(/\n/g,'<br>')}</p></td></tr>`
+    ? `<tr><td colspan="2" style="padding:8px 0;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">${escHtml(label)}</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #22c55e;padding:8px 12px;border-radius:0 6px 6px 0;">${escHtml(val).replace(/\n/g,'<br>')}</p></td></tr>`
     : '';
 
   /* Nummerierung richtet sich nach den tatsächlich aktiven Abschnitten,
@@ -372,16 +372,16 @@ function buildEmailHtml(data) {
   const sectionShell = (num, title, bodyHtml, text) => `
     <tr><td colspan="2" style="padding:16px 0 0;">
       <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
-        <tr style="background:linear-gradient(135deg,#f8f4ff,#f0f4ff);">
+        <tr style="background:linear-gradient(135deg,#f0fdf4,#f0fdfa);">
           <td style="padding:12px 16px;">
             <table><tr>
-              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#6366f1);text-align:center;vertical-align:middle;color:white;font-weight:700;font-size:12px;font-family:sans-serif;">${num}</td>
+              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);text-align:center;vertical-align:middle;color:#040912;font-weight:700;font-size:12px;font-family:sans-serif;">${num}</td>
               <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:0.8px;">${escHtml(String(title).toUpperCase())}</td>
             </tr></table>
           </td>
         </tr>
         <tr><td style="padding:14px 16px;">${bodyHtml}</td></tr>
-        ${text ? `<tr><td style="padding:0 16px 14px;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">Anmerkung</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #a855f7;padding:8px 12px;border-radius:0 6px 6px 0;">${text.replace(/\n/g,'<br>')}</p></td></tr>` : ''}
+        ${text ? `<tr><td style="padding:0 16px 14px;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">Anmerkung</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #22c55e;padding:8px 12px;border-radius:0 6px 6px 0;">${escHtml(text).replace(/\n/g,'<br>')}</p></td></tr>` : ''}
       </table>
     </td></tr>
   `;
@@ -399,7 +399,7 @@ function buildEmailHtml(data) {
     if (!numOf[sid]) return '';
     const def  = FORM_SECTIONS.find(s => s.id === sid);
     const body = text
-      ? `<span style="font-size:13px;color:#333;">${text.replace(/\n/g,'<br>')}</span>`
+      ? `<span style="font-size:13px;color:#333;">${escHtml(text).replace(/\n/g,'<br>')}</span>`
       : '<span style="color:#aaa;font-size:12px;font-style:italic;">Keine Angabe</span>';
     return sectionShell(numOf[sid], def.title, body, '');
   };
@@ -409,18 +409,16 @@ function buildEmailHtml(data) {
     sectionShell(activeSections.length + i + 1, q.title, chipHtml(q.answers, q.options), '')
   ).join('');
 
-  /* Dateien zu je zwei pro Zeile. Vorher lagen alle in einer einzigen Zeile —
-     ab drei Bildern lief das über die Seitenbreite hinaus und wurde im PDF
-     abgeschnitten. Der Container ist 680px breit, macht ~560px nutzbar. */
+  /* Dateien zu je zwei pro Zeile. */
   const fileRows = [];
   for (let i = 0; i < data.files.length; i += 2) fileRows.push(data.files.slice(i, i + 2));
 
+  const safeDataUrl = url => (typeof url === 'string' && (url.startsWith('data:image/') || url.startsWith('data:application/pdf'))) ? url : '#';
+
   const filePreview = f => f.type.startsWith('image/')
-    ? `<img src="${f.dataUrl}" alt="${escHtml(f.name)}" style="width:100%;max-width:260px;height:auto;border-radius:6px;border:1px solid #eee;display:block;">
+    ? `<img src="${safeDataUrl(f.dataUrl)}" alt="${escHtml(f.name)}" style="width:100%;max-width:260px;height:auto;border-radius:6px;border:1px solid #eee;display:block;">
        <span style="display:block;margin-top:5px;font-size:10px;color:#888;font-family:sans-serif;">${escHtml(f.name)}</span>`
-    // Nicht-Bilder (z.B. PDF) als Download-Link einbetten. Vorher stand hier
-    // nur der Dateiname — die Datei selbst ging dabei verloren.
-    : `<a href="${f.dataUrl}" download="${escHtml(f.name)}" style="text-decoration:none;">
+    : `<a href="${safeDataUrl(f.dataUrl)}" download="${escHtml(f.name)}" style="text-decoration:none;">
          <div style="width:100%;max-width:260px;background:#f5f5f8;border:1px solid #eee;border-radius:6px;font-size:11px;color:#888;text-align:center;padding:24px 8px;font-family:sans-serif;">${escHtml(f.name)}<br><span style="font-size:10px;">(${f.sizeKb} KB) · zum Öffnen klicken</span></div>
        </a>`;
 
@@ -428,10 +426,10 @@ function buildEmailHtml(data) {
   const imageSection = data.files.length > 0 ? `
     <tr><td colspan="2" style="padding:16px 0 0;">
       <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
-        <tr style="background:linear-gradient(135deg,#f8f4ff,#f0f4ff);">
+        <tr style="background:linear-gradient(135deg,#f0fdf4,#f0fdfa);">
           <td style="padding:12px 16px;">
             <table><tr>
-              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#6366f1);text-align:center;vertical-align:middle;color:white;font-weight:700;font-size:12px;font-family:sans-serif;">${data.files.length}</td>
+              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);text-align:center;vertical-align:middle;color:#040912;font-weight:700;font-size:12px;font-family:sans-serif;">${data.files.length}</td>
               <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:0.8px;">HOCHGELADENE DATEIEN</td>
             </tr></table>
           </td>
@@ -486,8 +484,8 @@ function buildEmailHtml(data) {
     <table style="border-collapse:collapse;">
       <tr>
         <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Kunde</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.name)}</p></td>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${customerData.email || '—'}</p></td>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Formular-ID</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${customerData.id}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.email || '—')}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Formular-ID</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.id)}</p></td>
         <td><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Abgesendet</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${fmtDate(now)}, ${fmtTime(now)}</p></td>
       </tr>
     </table>
@@ -519,7 +517,7 @@ function buildEmailHtml(data) {
   <tr><td style="background:linear-gradient(135deg,#060b14,#0c1930);padding:20px 40px;display:flex;justify-content:space-between;">
     <table width="100%"><tr>
       <td style="font-size:11px;color:#22c55e;font-family:sans-serif;font-weight:700;">NEXVIA · Next Vision Intelligence Automation</td>
-      <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:sans-serif;">${customerData.id} · ${fmtDate(now)}</td>
+      <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:sans-serif;">${escHtml(customerData.id)} · ${fmtDate(now)}</td>
     </tr></table>
   </td></tr>
 
@@ -535,31 +533,46 @@ async function submitForm() {
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner"></div> Wird gesendet …`;
 
-  const data    = collectFormData();
+  const data     = collectFormData();
   const htmlBody = buildEmailHtml(data);
   lastSubmittedHtml = htmlBody;
 
-  try {
-    const res = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to:      ADMIN_EMAIL,
-        to_name: 'Joshua',
-        subject: `✅ Nexvia Briefing von ${customerData.name} (${customerData.id})`,
-        html:    htmlBody
-      })
-    });
-    if (!res.ok) throw new Error('send failed');
+  // Größencheck vor dem Absenden (Firestore-Dokumentenlimit ca. 1 MiB)
+  const payloadSize = new Blob([htmlBody]).size;
+  if (payloadSize > 850000) {
+    showToast('Das Briefing ist durch die vielen Dateien zu groß für den Upload (max. ca. 850 KB gesamt). Bitte entfernen Sie einzelne große Dateien.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Briefing absenden`;
+    return;
+  }
 
-    // Save briefing HTML to Firestore for admin PDF download
+  // Header-Injection-Schutz für Mail-Betreff
+  const safeName = String(customerData.name || '').replace(/[\r\n]+/g, ' ').trim();
+  const safeId   = String(customerData.id || '').replace(/[\r\n]+/g, ' ').trim();
+
+  try {
+    // 1. Zuerst in Firestore abspeichern (Prüft Server-Frist und Sperre gegen Mehrfachabsenden)
+    await CUSTOMERS_COL.doc(customerData.id).update({
+      submitted: true,
+      submittedAt: new Date().toISOString(),
+      briefingHtml: htmlBody
+    });
+
+    // 2. Benachrichtigungs-Mail an den Admin versenden
     try {
-      await CUSTOMERS_COL.doc(customerData.id).update({
-        submitted: true,
-        submittedAt: new Date().toISOString(),
-        briefingHtml: htmlBody
+      await fetch('https://send-invitation.majosh2026we.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to:      ADMIN_EMAIL,
+          to_name: 'Joshua',
+          subject: `✅ Nexvia Briefing von ${safeName} (${safeId})`,
+          html:    htmlBody
+        })
       });
-    } catch (_) {}
+    } catch (mailErr) {
+      console.warn('Briefing in Datenbank gespeichert, aber E-Mail-Zustellung fehlgeschlagen:', mailErr);
+    }
 
     // Mark as submitted
     localStorage.setItem('submitted_' + customerData.id, '1');
@@ -577,8 +590,8 @@ async function submitForm() {
     s.style.display = 'flex';
 
   } catch (err) {
-    console.error(err);
-    showToast('Fehler beim Senden. Bitte versuchen Sie es erneut oder kontaktieren Sie uns direkt.', 'error');
+    console.error('Fehler beim Absenden des Briefings:', err);
+    showToast('Fehler beim Speichern. Bitte prüfen Sie, ob der Link abgelaufen ist oder versuchen Sie es erneut.', 'error');
     btn.disabled = false;
     btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Briefing absenden`;
   }

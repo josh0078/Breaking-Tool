@@ -7,6 +7,7 @@ const EMAILJS_SERVICE  = 'service_2rr4ih8';
 const EMAILJS_TEMPLATE = 'template_w72zub6';
 const EMAILJS_PUBLIC   = 'qil4eefMTb5qApNIk';
 const ADMIN_EMAIL      = 'majosh2026we@gmail.com';
+const ADMIN_UID        = '1BK9QM0osAc7lA3qXt4H0pMXN7o1';
 
 // ── State ────────────────────────────────────
 let customers        = [];   // aktive Kunden
@@ -28,9 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
   script.onload = () => emailjs.init(EMAILJS_PUBLIC);
   document.head.appendChild(script);
 
-  // Bestehende Session wiederherstellen (überlebt jetzt ein Reload)
+  // Bestehende Session wiederherstellen mit strikter UID-Prüfung
   auth.onAuthStateChanged(user => {
-    if (user) showApp(); else showLogin();
+    if (user && user.uid === ADMIN_UID) {
+      showApp();
+    } else if (user) {
+      // Eingeloggt, aber kein Administrator-Konto
+      auth.signOut();
+      showLoginError('Zugriff verweigert: Dieses Konto besitzt keine Administrator-Rechte.');
+      showLogin();
+    } else {
+      showLogin();
+    }
   });
 });
 
@@ -42,7 +52,12 @@ async function checkLogin() {
 
   btn.disabled = true;
   try {
-    await auth.signInWithEmailAndPassword(email, pw);
+    const cred = await auth.signInWithEmailAndPassword(email, pw);
+    if (cred.user.uid !== ADMIN_UID) {
+      await auth.signOut();
+      showLoginError('Zugriff verweigert: Dieses Konto besitzt keine Administrator-Rechte.');
+      return;
+    }
     // showApp() läuft über onAuthStateChanged
   } catch (err) {
     showLoginError(
