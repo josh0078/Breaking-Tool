@@ -223,7 +223,525 @@
     }
   ];
 
-  // ── 2. Wissensbasis aller 31 Fragen des Baukastens ────────────────────────────
+  // ── 2. Kontextuelle Fragen- & Dilemma-Beratung („Frage 3: Woher weiß ich...?“) ──────
+  const CONTEXT_CONSULTING = [
+    // 🎯 Zielgruppe & Markt (web_zielgruppe / Frage 3)
+    {
+      id: 'zielgruppe_ermitteln',
+      sectionId: 'web_zielgruppe',
+      keywords: [
+        'welche kunden', 'kunden ansprechen', 'zielgruppe', 'wen ansprechen', 'wen soll ich ansprechen',
+        'kunden will', 'kunden wil', 'zielkunden', 'wunschkunden', 'b2b oder b2c', 'zielgruppe finden',
+        'wer ist meine zielgruppe', 'welche kunden will', 'wen ansprechen soll', 'kundenfokus'
+      ],
+      title: '🎯 Frage {num}: Woher wissen Sie, welche Kunden Sie ansprechen sollten?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Ihre Zielgruppe entscheidet über das gesamte Design, die Ansprache und den wirtschaftlichen Erfolg Ihrer Website.</strong><br><br>
+
+          Hier ist ein bewährter 3-Schritte-Leitfaden von Nexvia, um in 2 Minuten Klarheit zu bekommen:<br><br>
+
+          <strong>1. Die 80/20-Umsatzregel (Der einfachste Praxistest):</strong><br>
+          Schauen Sie auf Ihre bestehenden Kunden: Welche 20% Ihrer Aufträge bringen Ihnen 80% Ihres Gewinns und machen Ihnen die geringste Mühe? Das sind Ihre echten Wunschkunden! Richten Sie Ihre neue Website primär an genau diesem Kundentyp aus.<br><br>
+
+          <strong>2. B2B (Unternehmen) vs. B2C (Privatkunden):</strong>
+          <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
+            <li><strong>B2B (Geschäftskunden / Firmen):</strong> Entscheider suchen nach Zuverlässigkeit, Referenzen, messbarem ROI, Zertifizierungen und schneller Erreichbarkeit. Die Sprache muss professionell, sachlich und faktenbasiert sein.</li>
+            <li><strong>B2C (Endverbraucher / Privat):</strong> Privatkunden entscheiden emotionaler. Wichtig sind: sofortiges Vertrauen, Kundenstimmen, transparente Preise und eine kinderleichte Kontaktaufnahme.</li>
+          </ul>
+
+          <strong>3. Regional vor Ort vs. Überregional:</strong><br>
+          Müssen Sie persönlich vor Ort sein (z.B. Handwerk, Praxis, Kanzlei, lokale Dienstleistung)? Dann wählen Sie unbedingt <strong>„Regional“</strong>, damit wir Ihre Website für lokale Google-Suchen („in meiner Nähe“) optimieren können.<br><br>
+
+          💡 <strong>Alex' konkrete Empfehlung:</strong> Eine Mehrfachauswahl ist ausdrücklich möglich! Die meisten erfolgreichen Betriebe wählen z.B. <em>„B2B (Geschäftskunden)“ + „Regional“</em> oder <em>„B2C“ + „Regional“</em>.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „B2B (Geschäftskunden)“ auswählen', action: (apply) => apply('web_zielgruppe', 'B2B (Geschäftskunden / Unternehmen)') },
+        { text: '✓ „B2C (Endverbraucher)“ auswählen', action: (apply) => apply('web_zielgruppe', 'B2C (Endverbraucher)') },
+        { text: '✓ „Regional“ auswählen', action: (apply) => apply('web_zielgruppe', 'Regional') },
+        { text: '✓ „Gehobenes Segment“ auswählen', action: (apply) => apply('web_zielgruppe', 'Gehobenes / Premium-Segment') }
+      ]
+    },
+
+    // 🌐 Domain & Hosting / Keine IT-Kenntnisse (web_domain / Frage 7)
+    {
+      id: 'domain_bestehend_unsicher',
+      sectionId: 'web_domain',
+      keywords: [
+        'habe eine webseite', 'habe schon eine webseite', 'habe schon website', 'habe webseite',
+        'habe website', 'kenne mich nicht aus', 'kenne mich da nich aus', 'kenne mich nich aus',
+        'technisch keine ahnung', 'was empieflst du', 'was empfiehlst du', 'domain umzug',
+        'bestehende domain', 'keine ahnung von hosting', 'nicht auskennen', 'technisch nicht',
+        'alte webseite', 'domain vorhanden'
+      ],
+      title: '🌐 Frage {num}: Sie haben bereits eine Website, kennen sich technisch aber nicht aus?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Das ist absolut kein Problem – Sie müssen sich um keinerlei technische Details kümmern!</strong><br><br>
+
+          Genau dafür ist Nexvia da: Wir übernehmen das gesamte technische Setup schlüsselfertig im Hintergrund.<br><br>
+
+          <strong>So läuft der reibungslose Ablauf für Sie:</strong>
+          <ul style="margin:8px 0 12px 18px;padding:0;line-height:1.65;">
+            <li><strong>0% Ausfallzeit:</strong> Ihre bisherige Website und Ihre Firmen-E-Mail-Adressen bleiben während der gesamten Konzeptions- und Bauphase unterbrechungsfrei erreichbar.</li>
+            <li><strong>Nexvia regelt den Umzug:</strong> Wir fordern (falls nötig) einfach den sogenannten Auth-Code bei Ihrem bisherigen Anbieter an und schalten Ihre neue High-End-Webseite nahtlos auf Ihre gewohnte Webadresse auf.</li>
+            <li><strong>High-Speed & DSGVO inklusive:</strong> Gehostet auf deutschen ISO-27001-Servern mit automatischer SSL-Verschlüsselung, täglichen Backups und modernstem Spamschutz.</li>
+          </ul>
+
+          💡 <strong>Alex' konkrete Empfehlung:</strong><br>
+          Wählen Sie im Formular einfach <strong>„Domain & Webhosting vorhanden (soll übernommen werden)“</strong> oder <strong>„Nexvia soll Domain & Hosting einrichten“</strong>. Wir stimmen danach alles Nötige einfach und unkompliziert mit Ihnen ab!
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Domain bereits vorhanden“ auswählen', action: (apply) => apply('web_domain', 'Domain bereits vorhanden') },
+        { text: '✓ „Nexvia soll Domain & Hosting einrichten“ auswählen', action: (apply) => apply('web_domain', 'Nexvia soll Domain & Hosting einrichten') },
+        { text: '✓ „Beratung gewünscht“ auswählen', action: (apply) => apply('web_domain', 'Beratung gewünscht') }
+      ]
+    },
+
+    // 📱 Social Media Reichweite & Nutzen (sm_ziele / Frage 10)
+    {
+      id: 'social_reichweite_nutzen',
+      sectionId: 'sm_ziele',
+      keywords: [
+        'was bringt mir reichweite', 'was bringt reichweite', 'warum reichweite', 'bringt reichweite kunden',
+        'reichweite', 'markenbekanntheit was bringt', 'was nützen follower', 'follower bringen nichts',
+        'wozu reichweite', 'warum sichtbar sein'
+      ],
+      title: '📱 Frage {num}: Was bringt Ihnen Reichweite auf Social Media wirklich?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Reine Klicks oder Follower zahlen keine Rechnungen – aber gezielte Reichweite ist der stärkste Hebel für planbares Unternehmenswachstum.</strong><br><br>
+
+          Hier ist der reale geschäftliche Nutzen von qualifizierter Reichweite:<br><br>
+
+          <strong>1. Der „Top-of-Mind“-Effekt (Aufträge ohne Kaltakquise):</strong><br>
+          Kunden haben nicht jeden Tag sofort akuten Bedarf. Wenn jemand aber in 3 Monaten einen Dienstleister, Handwerker oder IT-Partner sucht, ruft er genau die Firma an, die er in den letzten 12 Wochen regelmäßig positiv, modern und kompetent in seinem Instagram- oder LinkedIn-Feed gesehen hat.<br><br>
+
+          <strong>2. Vertrauensvorsprung bei Neukunden:</strong><br>
+          Bevor ein Interessent bei Ihnen anfragt oder einen hochpreisigen Vertrag unterschreibt, prüft er Ihre Social-Media-Kanäle. Ein verwaistes Profil wirkt unsicher – ein aktiver Kanal mit hoher regionaler Sichtbarkeit strahlt Marktführerschaft und Zuverlässigkeit aus.<br><br>
+
+          <strong>3. Die #1 Waffe gegen Fachkräftemangel (Employer Branding):</strong><br>
+          Die besten Fachkräfte und Auszubildenden sind bereits in Arbeit und suchen nicht aktiv auf Jobbörsen. Durch regionale Social-Media-Reichweite sehen diese Fachkräfte Ihre Mitarbeiter, Ihre Kultur und bewerben sich direkt bei Ihnen.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Kombinieren Sie <strong>„Reichweite & Markenbekanntheit“</strong> immer mit <strong>„Organische Neukundengewinnung“</strong> oder <strong>„Employer Branding / Mitarbeitergewinnung“</strong>.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Reichweite & Markenbekanntheit“ auswählen', action: (apply) => apply('sm_ziele', 'Reichweite & Markenbekanntheit') },
+        { text: '✓ „Organische Neukundengewinnung“ auswählen', action: (apply) => apply('sm_ziele', 'Organische Neukundengewinnung') },
+        { text: '✓ „Employer Branding / Mitarbeitergewinnung“ auswählen', action: (apply) => apply('sm_ziele', 'Employer Branding / Mitarbeitergewinnung') }
+      ]
+    },
+
+    // 🌐 Webseiten-Typ: Website vs. Web App vs. Shop (web_typ / Frage 1)
+    {
+      id: 'web_typ_auswahl',
+      sectionId: 'web_typ',
+      keywords: [
+        'unterschied website web app', 'webseite oder web app', 'brauche ich eine web app',
+        'was ist eine web app', 'was brauche ich für eine seite', 'onlineshop oder website',
+        'relaunch oder neu', 'portal oder webseite'
+      ],
+      title: '🌐 Frage {num}: Unternehmensseite, Web-App oder Online-Shop?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Die Wahl des richtigen Produkts spart Ihnen unnötige Kosten und Fehlentwicklungen:</strong><br><br>
+
+          • <strong>Unternehmensseite / Landingpage:</strong> Präsentiert Ihre Leistungen, stärkt Ihr Image und verwandelt Besucher in planbare Kundenanfragen (Leads). Ideal für 90% aller Dienstleister, Handwerker und Kanzleien.<br>
+          • <strong>Web App / Kundenportal:</strong> Wenn Kunden sich einloggen sollen, eigene Verträge/Projekte einsehen, Daten hochladen oder interaktive Online-Rechner nutzen sollen.<br>
+          • <strong>Online-Shop (E-Commerce):</strong> Wenn Sie physische oder digitale Waren direkt mit Warenkorb und Sofort-Zahlung (Stripe, PayPal) verkaufen wollen.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wenn Sie bestehende Kundenanfragen steigern möchten, wählen Sie <strong>„Unternehmensseite“</strong> (oder <strong>„Relaunch bestehende Website“</strong>).
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Unternehmensseite“ auswählen', action: (apply) => apply('web_typ', 'Unternehmensseite') },
+        { text: '✓ „Web App / SaaS-Plattform“ auswählen', action: (apply) => apply('web_typ', 'Web App / SaaS-Plattform') },
+        { text: '✓ „Relaunch bestehende Website“ auswählen', action: (apply) => apply('web_typ', 'Relaunch bestehende Website') }
+      ]
+    },
+
+    // 🌐 Hauptziel der Website (web_ziel / Frage 2)
+    {
+      id: 'web_ziel_auswahl',
+      sectionId: 'web_ziel',
+      keywords: [
+        'wie gewinne ich leads', 'qualifizierte anfragen', 'was bringt am meisten kunden',
+        'wie funktioniert lead generierung', 'mehr kunden über website', 'hauptziel website'
+      ],
+      title: '🎯 Frage {num}: Welches Hauptziel bringt Ihnen wirtschaftlich am meisten?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Eine Website darf kein digitaler Staubfänger sein – sie muss messbar Umsatz bringen.</strong><br><br>
+
+          Die beiden profitabelsten Ziele im Mittelstand:<br>
+          1. <strong>Neukunden & Leads gewinnen:</strong> Besucher finden über Google zu Ihnen, verstehen Ihr Angebot sofort und fordern ein Angebot an oder buchen ein Erstgespräch.<br>
+          2. <strong>Bewerber ansprechen (Recruiting):</strong> Qualifizierte Mitarbeiter bewerben sich über ein 60-Sekunden-Bewerbungsformular direkt vom Smartphone aus.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wählen Sie <strong>„Neukunden & Leads gewinnen“</strong> als Priorität #1, ergänzt durch <strong>„Markenauftritt & Vertrauen stärken“</strong>!
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Neukunden & Leads gewinnen“ auswählen', action: (apply) => apply('web_ziel', 'Neukunden & Leads gewinnen') },
+        { text: '✓ „Markenauftritt & Vertrauen stärken“ auswählen', action: (apply) => apply('web_ziel', 'Markenauftritt & Vertrauen stärken') },
+        { text: '✓ „Bewerber ansprechen (Recruiting)“ auswählen', action: (apply) => apply('web_ziel', 'Bewerber ansprechen (Recruiting)') }
+      ]
+    },
+
+    // 🌐 Gewünschte Seiten (web_seiten / Frage 4)
+    {
+      id: 'web_seiten_auswahl',
+      sectionId: 'web_seiten',
+      keywords: [
+        'welche seiten brauche ich', 'welche seiten', 'reicht eine onepage', 'reicht eine landingpage',
+        'brauche ich einen blog', 'wie viele unterseiten', 'welche unterseiten'
+      ],
+      title: '📑 Frage {num}: Welche Unterseiten werden wirklich benötigt?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Weniger ist oft mehr – aber diese Seiten sind für Google-Rankings und Vertrauen unverzichtbar:</strong><br><br>
+
+          • <strong>Startseite:</strong> Der erste Eindruck mit klarer Positionierung, Nutzenversprechen und Kontakt-Aufruf.<br>
+          • <strong>Individuelle Leistungsseiten:</strong> Jede Ihrer Hauptleistungen braucht eine eigene Seite – nur so ranken Sie bei Google auf Seite 1 für spezifische Suchanfragen!<br>
+          • <strong>Über uns / Team:</strong> Die am zweithäufigsten geklickte Seite. Kunden wollen die Gesichter hinter dem Unternehmen sehen.<br>
+          • <strong>Portfolio / Referenzen:</strong> Echte Kundenprojekte schaffen sofortige Kaufsicherheit.<br><br>
+
+          💡 <strong>Brauche ich einen Blog?</strong> Nur, wenn Sie monatlich Zeit haben, Fachbeiträge zu schreiben. Falls nicht, lassen Sie ihn weg – eine verwaiste Blogseite schadet mehr als sie nützt.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Startseite“ auswählen', action: (apply) => apply('web_seiten', 'Startseite') },
+        { text: '✓ „Leistungsseiten“ auswählen', action: (apply) => apply('web_seiten', 'Leistungsseiten') },
+        { text: '✓ „Über uns“ auswählen', action: (apply) => apply('web_seiten', 'Über uns') },
+        { text: '✓ „Portfolio / Referenzen“ auswählen', action: (apply) => apply('web_seiten', 'Portfolio / Referenzen') }
+      ]
+    },
+
+    // 🌐 Design & Stil (web_design / Frage 5)
+    {
+      id: 'web_design_auswahl',
+      sectionId: 'web_design',
+      keywords: [
+        'welches design', 'habe kein logo', 'habe keine farben', 'designstil',
+        'dark tech oder clean', 'welcher stil passt', 'welches design passt'
+      ],
+      title: '🎨 Frage {num}: Welcher Design-Stil passt zu Ihrem Betrieb?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Das Design transportiert Ihre Preisklasse und Qualität innerhalb von 0,05 Sekunden:</strong><br><br>
+
+          • <strong>Modern & Clean:</strong> Helle Farben, klare Typografie, viel Weißraum. Ideal für Kanzleien, Ärzte, Therapeuten, Dienstleister.<br>
+          • <strong>Dark Tech & High-End:</strong> Dunkler Hintergrund mit dezentem Cyan/Grün-Glow (wie das Nexvia-Design). Perfekt für Software, IT, innovative Handwerksbetriebe und zukunftsorientierte Marken.<br>
+          • <strong>Seriös & Corporate:</strong> Klassische Eleganz, gedeckte Töne für Industrie und Finanzen.<br><br>
+
+          💡 <strong>Sie haben noch kein Logo oder Farbkonzept?</strong> Kein Problem! Kreuzen Sie einfach Ihren Wunschstil an – Nexvia entwickelt bei Bedarf ein harmonisches, professionelles Branding für Sie.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Modern & Clean“ auswählen', action: (apply) => apply('web_design', 'Modern & Clean') },
+        { text: '✓ „Dark Tech & High-End“ auswählen', action: (apply) => apply('web_design', 'Dark Tech & High-End') },
+        { text: '✓ „Seriös & Corporate“ auswählen', action: (apply) => apply('web_design', 'Seriös & Corporate') }
+      ]
+    },
+
+    // 🌐 Spezielle Funktionen & Kalender (web_funktionen / Frage 6)
+    {
+      id: 'web_funktionen_auswahl',
+      sectionId: 'web_funktionen',
+      keywords: [
+        'wie funktioniert online termin', 'online kalender', 'terminbuchung', 'brauche ich einen rechner',
+        'crm anbindung', 'online bezahlung', 'preisrechner', 'schnittstelle crm'
+      ],
+      title: '⚡ Frage {num}: Welche technischen Funktionen lohnen sich?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Zusatzfunktionen automatisieren zeitraubende Routinearbeiten:</strong><br><br>
+
+          • <strong>Online-Terminkalender:</strong> Kunden buchen Termine direkt auf der Website. Keine 5 E-Mails mehr hin und her! Termine landen automatisch in Ihrem Google- oder Outlook-Kalender.<br>
+          • <strong>Kundenportal / Login:</strong> Ermöglicht Kunden den geschützten Zugriff auf Dokumente, Rechnungen oder Status-Updates.<br>
+          • <strong>Schnittstelle zu CRM:</strong> Anfragen landen direkt in Ihrem Kundensystem ohne manuelles Abtippen.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Ein Online-Terminkalender rechnet sich ab dem ersten Monat durch die gewonnene Zeit!
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Online-Terminkalender / Buchung“ auswählen', action: (apply) => apply('web_funktionen', 'Online-Terminkalender / Buchung') },
+        { text: '✓ „Kundenportal / Login-Bereich“ auswählen', action: (apply) => apply('web_funktionen', 'Kundenportal / Login-Bereich') },
+        { text: '✓ „Schnittstelle zu CRM / ERP“ auswählen', action: (apply) => apply('web_funktionen', 'Schnittstelle zu CRM / ERP') }
+      ]
+    },
+
+    // 📱 Social Media Plattformen (sm_plattformen / Frage 9)
+    {
+      id: 'sm_plattformen_auswahl',
+      sectionId: 'sm_plattformen',
+      keywords: [
+        'welche plattform', 'lohnt sich tiktok', 'instagram oder linkedin', 'welches netzwerk',
+        'wo soll ich starten', 'plattformen social media', 'welche netzwerke'
+      ],
+      title: '📲 Frage {num}: Welche Social-Media-Plattform passt am besten zu Ihnen?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Fokussieren Sie sich auf die Plattformen, auf denen Ihre echten Entscheider unterwegs sind:</strong><br><br>
+
+          • <strong>Instagram:</strong> Der Spitzenreiter für regionale Bekanntheit, Handwerk, Gastronomie, Dienstleistung, Reels und Mitarbeitergewinnung.<br>
+          • <strong>LinkedIn:</strong> Das #1 B2B-Netzwerk für Firmenkunden, Kanzleien, Industrie und gehobene Fachkräfte.<br>
+          • <strong>TikTok:</strong> Perfekt für extrem schnelle organische Reichweite und Azubi-Recruiting.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Für 90% aller Unternehmen ist die Kombination aus <strong>Instagram + LinkedIn</strong> der absolute Erfolgsgarant.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Instagram“ auswählen', action: (apply) => apply('sm_plattformen', 'Instagram') },
+        { text: '✓ „LinkedIn“ auswählen', action: (apply) => apply('sm_plattformen', 'LinkedIn') },
+        { text: '✓ „TikTok“ auswählen', action: (apply) => apply('sm_plattformen', 'TikTok') }
+      ]
+    },
+
+    // 📱 Social Media Leistungen (sm_leistungen / Frage 10)
+    {
+      id: 'sm_leistungen_auswahl',
+      sectionId: 'sm_leistungen',
+      keywords: [
+        'content oder ads', 'was sind performance ads', 'lohnen sich werbeanzeigen',
+        'account management was ist das', 'vollbetreuung social media', 'was bringen ads'
+      ],
+      title: '🚀 Frage {num}: Content-Creation vs. Performance Ads',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Zwei Seiten derselben Medaille für maximales Wachstum:</strong><br><br>
+
+          • <strong>Content-Creation (Organisch):</strong> Hochwertige Beiträge, Reels und Karussells bauen langfristiges Vertrauen, Markenbekanntheit und Follower auf.<br>
+          • <strong>Performance Ads (Bezahlte Werbeanzeigen):</strong> Werden millimetergenau nur an Ihre Wunschzielgruppe in Ihrer Region ausgespielt. Liefert sofort messbare Anfragen und Bewerbungen ab Tag 1!<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wer schnell Mitarbeiter oder Neukunden braucht, wählt <strong>„Performance Ads (Meta / LinkedIn)“</strong> in Kombination mit <strong>„Content-Creation“</strong>.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Content-Creation (Reels, Karussells, Posts)“ auswählen', action: (apply) => apply('sm_leistungen', 'Content-Creation (Reels, Karussells, Posts)') },
+        { text: '✓ „Performance Ads (Meta / LinkedIn)“ auswählen', action: (apply) => apply('sm_leistungen', 'Performance Ads (Meta / LinkedIn)') },
+        { text: '✓ „Ganzheitliches Account-Management“ auswählen', action: (apply) => apply('sm_leistungen', 'Ganzheitliches Account-Management') }
+      ]
+    },
+
+    // 📱 Social Media Material (sm_material / Frage 12)
+    {
+      id: 'sm_material_auswahl',
+      sectionId: 'sm_material',
+      keywords: [
+        'habe keine fotos', 'kein videomaterial', 'keine videos', 'muss ich vor die kamera',
+        'habe kein material', 'start bei null', 'keine fotos vorhanden'
+      ],
+      title: '📸 Frage {num}: Sie haben noch keine professionellen Fotos oder Videos?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Überhaupt kein Problem – die meisten unserer Kunden starten genau an diesem Punkt!</strong><br><br>
+
+          Sie müssen sich nicht vor die Kamera stellen und kein teures Studio mieten:<br>
+          • Nexvia erstellt professionelle Grafiken, animierte Erklär-Posts, Vorlagen und Brand-Designs schlüsselfertig.<br>
+          • Wenn Sie einfache Schnappschüsse mit dem Smartphone machen (z.B. Baustellen, Arbeitsplatz, Vorher-Nachher), schneidet unser Schnitt-Team daraus hochwertige Kurzvideos (Reels).<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wählen Sie <strong>„Komplett bei 0 starten (Nexvia erstellt alles)“</strong> oder <strong>„Vorlagen & Templates gewünscht“</strong>!
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Komplett bei 0 starten“ auswählen', action: (apply) => apply('sm_material', 'Komplett bei 0 starten (Nexvia erstellt alles)') },
+        { text: '✓ „Vorlagen & Templates gewünscht“ auswählen', action: (apply) => apply('sm_material', 'Vorlagen & Templates gewünscht') },
+        { text: '✓ „Eigenes Material vorhanden“ auswählen', action: (apply) => apply('sm_material', 'Eigenes Foto- / Videomaterial vorhanden') }
+      ]
+    },
+
+    // ⚙️ Automations-Bereiche (auto_bereiche / Frage 14)
+    {
+      id: 'auto_bereiche_auswahl',
+      sectionId: 'auto_bereiche',
+      keywords: [
+        'was als erstes automatisieren', 'wo anfangen bei automatisierung', 'welcher bereich lohnt sich',
+        'welche prozesse automatisieren', 'zeitfresser stoppen', 'automatisierung einstieg'
+      ],
+      title: '⚙️ Frage {num}: Welche Prozesse sollten Sie als Erstes automatisieren?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Starten Sie dort, wo Ihre Mitarbeiter jede Woche die meiste Zeit mit manuellem Copy-Paste verschwenden:</strong><br><br>
+
+          1. <strong>Vertrieb & CRM:</strong> Neue Website-Anfragen automatisch im CRM anlegen, Vertriebsmitarbeiter per WhatsApp/Push alarmieren und Kunden sofort eine automatisierte Vorab-Bestätigung senden.<br>
+          2. <strong>E-Mail-Postfach:</strong> E-Mails automatisch kategorisieren, Rechnungen extrahieren und Standardanfragen vorbereiten.<br>
+          3. <strong>Rechnungsstellung & vorbereitende Buchhaltung:</strong> Aus erledigten Aufträgen automatisch Rechnungen erzeugen und an sevdesk/lexoffice/Datev übergeben.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wählen Sie die 2–3 Bereiche aus, die Ihnen heute das meiste Kopfzerbrechen bereiten.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Vertrieb & Lead-Management (CRM)“ auswählen', action: (apply) => apply('auto_bereiche', 'Vertrieb & Lead-Management (CRM)') },
+        { text: '✓ „E-Mail- & Posteingangs-Workflows“ auswählen', action: (apply) => apply('auto_bereiche', 'E-Mail- & Posteingangs-Workflows') },
+        { text: '✓ „Rechnungsstellung & Buchhaltung“ auswählen', action: (apply) => apply('auto_bereiche', 'Rechnungsstellung & vorbereitende Buchhaltung') }
+      ]
+    },
+
+    // ⚙️ Software & Tools Anbindung (auto_tools / Frage 16)
+    {
+      id: 'auto_tools_auswahl',
+      sectionId: 'auto_tools',
+      keywords: [
+        'geht datev', 'datev anbinden', 'sevdesk anbinden', 'lexoffice synchronisieren',
+        'mein tool ist nicht dabei', 'schnittstelle möglich', 'crm schnittstelle', 'kann man tools verbinden'
+      ],
+      title: '🔌 Frage {num}: Können Ihre bestehenden Programme angebunden werden?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Ja, zu 100%! Nexvia verbindet Ihre bestehende Softwarelandschaft nahtlos.</strong><br><br>
+
+          Fast jedes moderne Cloud- oder Server-Tool verfügt über eine sogenannte REST-API:<br>
+          • <strong>Buchhaltung:</strong> Datev, Sevdesk, Lexoffice.<br>
+          • <strong>CRM:</strong> HubSpot, Salesforce, Pipedrive.<br>
+          • <strong>Zahlung:</strong> Stripe, PayPal.<br><br>
+
+          💡 <strong>Ihr Tool ist nicht in der Liste?</strong> Kein Problem! Notieren Sie den Namen einfach unten im Textfeld. Wir prüfen die Schnittstelle kostenlos für Sie und binden sie an.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Sevdesk / Lexoffice“ auswählen', action: (apply) => apply('auto_tools', 'Sevdesk / Lexoffice') },
+        { text: '✓ „Datev“ auswählen', action: (apply) => apply('auto_tools', 'Datev') },
+        { text: '✓ „Eigene Branchensoftware / API“ auswählen', action: (apply) => apply('auto_tools', 'Eigene Branchensoftware / API') }
+      ]
+    },
+
+    // ⚙️ Automationsgrad & Fehlergefahr (auto_grad / Frage 19)
+    {
+      id: 'auto_grad_auswahl',
+      sectionId: 'auto_grad',
+      keywords: [
+        'was wenn fehler passiert', 'ist zero touch sicher', 'was ist human in the loop',
+        'vollautomatisch gefährlich', 'fehlergefahr automatisierung', 'kann das schiefgehen'
+      ],
+      title: '🛡️ Frage {num}: Zero-Touch vs. Human-in-the-Loop – Wie sicher ist das?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Sie müssen bei Automatisierung niemals die Kontrolle aus der Hand geben:</strong><br><br>
+
+          • <strong>Vollautomatisiert (Zero-Touch):</strong> Ideal für unkritische Standardroutinen ohne Fehlerrisiko (z.B. Kontaktanfrage ins CRM eintragen, Benachrichtigung senden, Kalender synchronisieren).<br>
+          • <strong>Teilautomatisiert (Human-in-the-Loop):</strong> Die Automation bereitet den aufwendigen Teil vor (z.B. fertiger E-Mail-Entwurf oder fertige Rechnung), aber ein Mensch klickt einmal auf „Freigeben / Senden“.<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Für den Start ist <strong>„Teilautomatisiert mit menschlicher Freigabe (Human-in-the-Loop)“</strong> ideal, um Vertrauen in das System aufzubauen.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Human-in-the-Loop (mit Freigabe)“ auswählen', action: (apply) => apply('auto_grad', 'Teilautomatisiert mit menschlicher Freigabe (Human-in-the-Loop)') },
+        { text: '✓ „Zero-Touch (vollautomatisch)“ auswählen', action: (apply) => apply('auto_grad', 'Vollautomatisiert im Hintergrund (Zero-Touch)') },
+        { text: '✓ „Hybrides Modell“ auswählen', action: (apply) => apply('auto_grad', 'Hybrides Modell je nach Sensibilität der Daten') }
+      ]
+    },
+
+    // 🤖 KI-Agent Zugriffsrechte & Datenschutz (agent_zugriff / Frage 26)
+    {
+      id: 'agent_zugriff_auswahl',
+      sectionId: 'agent_zugriff',
+      keywords: [
+        'können mitarbeiter alles sehen', 'geheime chef daten', 'rollen und rechte',
+        'sehen mitarbeiter verträge', 'zugriffsrechte ki', 'vertrauliche daten mitarbeiter'
+      ],
+      title: '🔒 Frage {num}: Können Mitarbeiter vertrauliche Firmendaten in der KI sehen?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Klares NEIN – sensible Firmendaten bleiben absolut geschützt!</strong><br><br>
+
+          Nexvia richtet ein präzises <strong>Rollen- und Rechtekonzept</strong> für Sie ein:<br>
+          • Vertriebsmitarbeiter können z.B. alle Produktkataloge, Preise und Handbücher abfragen – haben aber 0 Zugriff auf Gehaltslisten, Bilanzen oder Personalakten.<br>
+          • Die Geschäftsleitung hat vollen Zugriff auf strategische Kennzahlen, Analysen und Management-Berichte.<br>
+          • Jeder Zugriff wird protokolliert und erfüllt höchste Compliance-Standards.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Detailliertes Rollen- und Rechtekonzept“ auswählen', action: (apply) => apply('agent_zugriff', 'Detailliertes Rollen- und Rechtekonzept erforderlich') },
+        { text: '✓ „Nur Geschäftsführung“ auswählen', action: (apply) => apply('agent_zugriff', 'Nur Geschäftsführung / Führungskräfte') },
+        { text: '✓ „Gesamte Belegschaft“ auswählen', action: (apply) => apply('agent_zugriff', 'Gesamte Belegschaft') }
+      ]
+    },
+
+    // 🤖 KI-Agent Hardware & Anschaffung (agent_hardware / Frage 25)
+    {
+      id: 'agent_hardware_auswahl',
+      sectionId: 'agent_hardware',
+      keywords: [
+        'brauche ich teure server', 'welche hardware brauche ich', 'welche server für ki',
+        'reicht ein mac', 'gpu nötig', 'hardware anschaffung'
+      ],
+      title: '🖥️ Frage {num}: Welche Hardware wird für einen lokalen KI-Agenten benötigt?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Sie müssen keine teuren Großserver für zehntausende Euro anschaffen!</strong><br><br>
+
+          Dank modernster Open-Source-Modelle genügen heute oft bereits:<br>
+          • Ein bestehender Büro-Server oder eine moderne Workstation mit NVIDIA-GPU.<br>
+          • Oder ein kompakter Apple Mac Studio (extrem energieeffizient und schnell für lokale KI).<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wählen Sie <strong>„Cloud-Testinstanz vorab gewünscht“</strong> oder <strong>„Hardware-Empfehlung durch Nexvia“</strong> – so können Sie das System risikolos ausprobieren, bevor Sie investieren!
+        </div>
+      `,
+      pills: [
+        { text: '✓ „Cloud-Testinstanz vorab gewünscht“ auswählen', action: (apply) => apply('agent_hardware', 'Cloud-Testinstanz vorab gewünscht') },
+        { text: '✓ „Hardware-Empfehlung durch Nexvia“ auswählen', action: (apply) => apply('agent_hardware', 'Hardware-Empfehlung & Beschaffung durch Nexvia gewünscht') },
+        { text: '✓ „Bestehende Server vorhanden“ auswählen', action: (apply) => apply('agent_hardware', 'Bestehende Büro-Server / Workstations vorhanden') }
+      ]
+    },
+
+    // 💰 Budget-Orientierung (budget / Frage 28)
+    {
+      id: 'budget_beratung',
+      sectionId: 'budget',
+      keywords: [
+        'was kostet das ungefähr', 'welches budget ist realistisch', 'wie viel geld',
+        'kosten webseite', 'preise nexvia', 'was kostet ein ki agent', 'budget rahmen'
+      ],
+      title: '💰 Frage {num}: Welches Budget ist realistisch?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Transparente Orientierung ohne versteckte Kosten:</strong><br><br>
+
+          • <strong>1.500 – 3.000 €:</strong> Ideal für zielgerichtete High-End Landingpages, Relaunches kleinerer Websites oder fokussierte E-Mail-/CRM-Automationen.<br>
+          • <strong>3.000 – 6.000 €:</strong> Der bewährte Standard für vollständige Unternehmensauftritte mit Unterseiten, Online-Terminkalender, Social-Media-Setup oder lokale RAG-Assistenten.<br>
+          • <strong>6.000 – 12.000 €+:</strong> Für komplexe Webportale mit Kunden-Logins, On-Premise KI-Server-Architekturen oder unternehmensweite Automations-Pipelines.<br><br>
+
+          💡 <strong>Unverbindlich:</strong> Ihre Angabe dient nur als Orientierung. Nexvia erstellt Ihnen ein faires, maßgeschneidertes Festpreis-Angebot.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „1.500 – 3.000 €“ auswählen', action: (apply) => apply('budget', '1.500 – 3.000 €') },
+        { text: '✓ „3.000 – 6.000 €“ auswählen', action: (apply) => apply('budget', '3.000 – 6.000 €') },
+        { text: '✓ „Individuell / Noch offen“ auswählen', action: (apply) => apply('budget', 'Individuell / Noch offen') }
+      ]
+    },
+
+    // ⏱️ Timeline & Dauer (timeline / Frage 29)
+    {
+      id: 'timeline_beratung',
+      sectionId: 'timeline',
+      keywords: [
+        'wie lange dauert das', 'wie schnell geht die umsetzung', 'wann ist es fertig',
+        'geht express', 'timeline umsetzung', 'wie schnell'
+      ],
+      title: '⏱️ Frage {num}: Wie schnell kann Nexvia Ihr Projekt umsetzen?',
+      answerHtml: `
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Schnelle, schlüsselfertige Umsetzung ohne monatelangen Stillstand:</strong><br><br>
+
+          • <strong>In 2–4 Wochen:</strong> Der typische Turnaround für High-End-Webseiten, Social-Media-Setups und Workflow-Pipelines.<br>
+          • <strong>So schnell wie möglich:</strong> Wenn Sie eine feste Deadline haben (z.B. Messe, Neugründung, Saisonstart), priorisieren wir Ihr Projekt gerne per Express!<br><br>
+
+          💡 <strong>Alex' Empfehlung:</strong> Wählen Sie <strong>„In 2–4 Wochen“</strong> oder <strong>„So schnell wie möglich“</strong>.
+        </div>
+      `,
+      pills: [
+        { text: '✓ „In 2–4 Wochen“ auswählen', action: (apply) => apply('timeline', 'In 2–4 Wochen') },
+        { text: '✓ „So schnell wie möglich“ auswählen', action: (apply) => apply('timeline', 'So schnell wie möglich') },
+        { text: '✓ „Flexibel / Kein fester Termin“ auswählen', action: (apply) => apply('timeline', 'Flexibel / Kein fester Termin') }
+      ]
+    }
+  ];
+
+  // ── 3. Wissensbasis aller 31 Fragen des Baukastens ────────────────────────────
   const QUESTION_KNOWLEDGE = {
     // 🌐 Webseiten & Web Apps
     web_typ: {
@@ -682,6 +1200,93 @@
     return text.includes(kw);
   }
 
+  /**
+   * Kontextueller Matcher für Beratungs-Dilemmas (z.B. Zielgruppe, Reichweite, Domain ohne IT-Wissen)
+   * Prüft bevorzugt die Frage falls angegeben, ansonsten alle Einträge
+   */
+  function findContextConsulting(cleanText, questionNum) {
+    let targetSectionId = null;
+    if (questionNum) {
+      const q = getQuestionByNum(questionNum);
+      if (q) targetSectionId = q.id;
+    }
+
+    // 1. Wenn Frage-Nummer angegeben: Bevorzugt Einträge für diesen Abschnitt matchen
+    if (targetSectionId) {
+      for (const item of CONTEXT_CONSULTING) {
+        if (item.sectionId === targetSectionId) {
+          const kwHit = item.keywords.some(kw => matchesKeyword(cleanText, kw));
+          if (kwHit) return { item, questionNum, q: getQuestionByNum(questionNum) };
+        }
+      }
+    }
+
+    // 2. Globaler Match über Keywords (z.B. „was bringt mir reichweite“ ohne Fragennummer)
+    for (const item of CONTEXT_CONSULTING) {
+      const kwHit = item.keywords.some(kw => matchesKeyword(cleanText, kw));
+      if (kwHit) {
+        const q = getQuestionById(item.sectionId);
+        return { item, questionNum: q ? q.num : questionNum, q };
+      }
+    }
+
+    return null;
+  }
+
+  function deliverContextConsulting(match) {
+    const { item, q, questionNum } = match;
+    const numDisplay = q ? q.num : (questionNum || '');
+    let title = item.title;
+    if (numDisplay) {
+      title = title.replace('{num}', numDisplay);
+    } else {
+      title = title.replace('Frage {num}:', '').replace('Frage {num}', '').trim();
+    }
+
+    if (q) {
+      setQuestionFocus(q);
+    }
+
+    const pills = [];
+
+    // Pill: Zu Frage springen
+    if (q) {
+      pills.push({
+        text: `📌 Zu Frage ${q.num} im Formular springen`,
+        action: () => scrollToQuestion(q.num)
+      });
+    }
+
+    // Aktions-Pills aus CONTEXT_CONSULTING
+    if (item.pills && item.pills.length > 0) {
+      item.pills.forEach(p => {
+        pills.push({
+          text: p.text,
+          action: () => {
+            if (typeof p.action === 'function') {
+              p.action(
+                (sid, opt) => applyOptionToForm(sid, opt),
+                (query) => processUserInput(query)
+              );
+            } else {
+              processUserInput(p.text);
+            }
+          }
+        });
+      });
+    }
+
+    pills.push({
+      text: 'Fragen-Übersicht',
+      action: () => showQuestionsOverview()
+    });
+
+    appendBotMessage(
+      `<strong>${title}</strong><br><br>${item.answerHtml}`,
+      pills
+    );
+  }
+
   function processUserInput(rawText) {
     const clean = normalizeText(rawText);
 
@@ -700,17 +1305,31 @@
       }
     }
 
-    // ── STUFE 1: Sektoren- & Nutzen-Beratung („Was bringt mir ein Security Agent?“) ──
+    // Frage-Nummer extrahieren falls vorhanden (z.B. bei „Frage 3 woher weiß ich...“)
+    const questionNum = extractQuestionNumber(rawText);
+
+    // ── STUFE 1: Kontextuelle Fragen- & Dilemma-Beratung ──
+    // Matcht Fragen wie:
+    // • „frage 3 woher weiß ich welche kunden ich ansprechen wil“
+    // • „frage 7 ich habe eine webseite aber ich kenne mich da nich aus was empieflst du“
+    // • „Frage 10 was bringt mir reichweite“
+    // • oder ohne Fragennummer: „was bringt mir reichweite“, „welche kunden ansprechen“
+    const matchedContext = findContextConsulting(clean, questionNum);
+    if (matchedContext) {
+      deliverContextConsulting(matchedContext);
+      return;
+    }
+
+    // ── STUFE 2: Sektoren- & Nutzen-Beratung („Was bringt mir ein Security Agent?“) ──
     const matchedSector = findSectorConsulting(clean);
     if (matchedSector) {
       deliverSectorConsulting(matchedSector);
       return;
     }
 
-    // ── STUFE 2: Fragennummer-Erkennung im Satz (z.B. „Frage 4: Was bedeutet...“) ──
-    const num = extractQuestionNumber(rawText);
-    if (num) {
-      const q = getQuestionByNum(num);
+    // ── STUFE 3: Fragennummer-Erklärung wenn keine spezifische Dilemma-Frage erkannt wurde ──
+    if (questionNum) {
+      const q = getQuestionByNum(questionNum);
       if (q) {
         setQuestionFocus(q);
         explainQuestion(q, rawText);
@@ -718,7 +1337,7 @@
       }
     }
 
-    // ── STUFE 3: Nachfragen zur aktuell fokussierten Frage ──
+    // ── STUFE 4: Nachfragen zur aktuell fokussierten Frage ──
     if (currentFocusedQuestion) {
       const matchedOpt = currentFocusedQuestion.options.find(opt => clean.includes(normalizeText(opt).slice(0, 8)));
       if (matchedOpt) {
@@ -734,7 +1353,7 @@
       }
     }
 
-    // ── STUFE 4: Allgemeine Begriffserklärungen (RAG, Zero-Touch, On-Premise etc.) ──
+    // ── STUFE 5: Allgemeine Begriffserklärungen (RAG, Zero-Touch, On-Premise etc.) ──
     const matchedGeneral = GENERAL_KNOWLEDGE.find(item =>
       item.keywords.some(kw => matchesKeyword(clean, kw))
     );
@@ -750,7 +1369,7 @@
       return;
     }
 
-    // ── STUFE 5: Schlagwörter gegen Fragen & Optionen matchen ──
+    // ── STUFE 6: Schlagwörter gegen Fragen & Optionen matchen ──
     const matchedCategoryQuestion = activeQuestions.find(q =>
       clean.includes(normalizeText(q.title)) ||
       (q.subtitle && clean.includes(normalizeText(q.subtitle).slice(0, 10))) ||
@@ -763,7 +1382,7 @@
       return;
     }
 
-    // ── STUFE 6: Begrüßungen ──
+    // ── STUFE 7: Begrüßungen ──
     if (clean.includes('hallo') || clean.includes('hi') || clean.includes('hey') || clean.includes('guten tag')) {
       appendBotMessage(
         `Hallo! Ich berate Sie gerne zu allen Themen rund um <strong>Sicherheits-Agenten, lokale KI, Automatisierung, Webseiten und Social Media</strong>.<br><br>Was möchten Sie wissen?`,
@@ -777,7 +1396,7 @@
       return;
     }
 
-    // ── STUFE 7: Fallback mit klaren Aktionsvorschlägen ──
+    // ── STUFE 8: Fallback mit klaren Aktionsvorschlägen ──
     appendBotMessage(
       `Ich helfe Ihnen gerne als digitaler Berater weiter!<br><br>` +
       `Fragen Sie mich nach dem <strong>konkreten Nutzen</strong> unserer Lösungen (z.B. <em>„Was bringt ein Security Agent?“</em>) oder nennen Sie mir einfach eine <strong>Fragennummer</strong> aus dem Formular (z.B. <em>„Frage 4“</em> oder <em>„4“</em>).`,
@@ -922,14 +1541,20 @@
 
     const chips = secEl.querySelectorAll('.chip');
     let found = false;
+    const targetNorm = normalizeText(optionText);
+
     chips.forEach(chip => {
-      if (chip.textContent.trim().toLowerCase() === optionText.trim().toLowerCase()) {
+      const chipNorm = normalizeText(chip.textContent);
+      if (
+        chipNorm === targetNorm ||
+        chipNorm.includes(targetNorm) ||
+        targetNorm.includes(chipNorm) ||
+        (chipNorm.slice(0, 10) === targetNorm.slice(0, 10) && chipNorm.length > 5)
+      ) {
         if (!chip.classList.contains('active')) {
           chip.click();
-          found = true;
-        } else {
-          found = true;
         }
+        found = true;
       }
     });
 
@@ -951,7 +1576,7 @@
         ]
       );
     } else {
-      appendBotMessage(`Option „${escHtml(optionText)}“ konnte nicht gefunden werden.`);
+      appendBotMessage(`Option „${escHtml(optionText)}“ konnte im Formular nicht automatisch zugeordnet werden.`);
     }
   }
 
@@ -1070,6 +1695,7 @@
     openHelpForQuestion: openHelpForQuestion,
     clearQuestionFocus: clearQuestionFocus,
     sendMessage: sendMessage,
+    ask: processUserInput,
     applyOptionToForm: applyOptionToForm,
     syncActiveSections: function(sectionsList) {
       activeQuestions = sectionsList || [];
