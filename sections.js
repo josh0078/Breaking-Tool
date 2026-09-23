@@ -120,6 +120,22 @@ const FORM_CATEGORIES = [
     description: 'Strategie, Content Creation, Performance Ads & Management',
     sections: [
       {
+        id: 'sm_branche',
+        title: 'Branche & Tätigkeitsfeld',
+        subtitle: 'In welcher Branche oder Nische ist Ihr Unternehmen tätig?',
+        options: [
+          'Dienstleistung, Coaching & Beratung',
+          'Handwerk, Bau & Immobilien',
+          'E-Commerce, Shop & Handel',
+          'Gastronomie, Hotellerie & Tourismus',
+          'Gesundheit, Medizin, Fitness & Beauty',
+          'Industrie, B2B & Fertigung',
+          'IT, Software & Technik',
+          'Finanzen, Versicherung & Recht',
+          'Kreativbranche, Medien & Entertainment'
+        ]
+      },
+      {
         id: 'sm_plattformen',
         title: 'Relevante Plattformen',
         subtitle: 'Auf welchen Netzwerken möchten Sie aktiv sein oder wachsen?',
@@ -276,6 +292,7 @@ const FORM_CATEGORIES = [
         options: [
           'Interner Mitarbeiter-Assistent für Unternehmenswissen',
           'Lokale Dokumentenanalyse & RAG (PDFs, Verträge, Handbücher)',
+          'Sicherheits-Agent (IT-Security, Compliance & Systemüberwachung)',
           'Automatisierte Recherche & Berichterstellung',
           'Intelligenter Kundenservice- / Support-Agent',
           'Automatisierte Daten- & Textverarbeitung'
