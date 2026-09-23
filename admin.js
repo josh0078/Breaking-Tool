@@ -753,12 +753,36 @@ function showToast(msg, type = 'success') {
   }, 3000);
 }
 
-// ── Invitation via Resend (Netlify Function) ──
+// ── Invitation E-Mail Versand ──────────────────
 async function sendInvitationEmail(to, name, subject, html) {
+  let authHeader = '';
+  try {
+    if (auth && auth.currentUser) {
+      const token = await auth.currentUser.getIdToken();
+      authHeader = `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.warn('Konnte ID-Token nicht ermitteln:', e);
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Nexvia-Source': 'admin-panel'
+  };
+  if (authHeader) {
+    headers['Authorization'] = authHeader;
+  }
+
   const res = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to, to_name: name, subject, html })
+    headers: headers,
+    body: JSON.stringify({
+      type:    'invitation',
+      to:      to,
+      to_name: name,
+      subject: subject,
+      html:    html
+    })
   });
   if (!res.ok) throw new Error('send failed');
 }
@@ -783,28 +807,49 @@ function closeFilesModal() {
 }
 
 function extractFilesFromBriefing(briefingHtml) {
-  const doc = new DOMParser().parseFromString(briefingHtml, 'text/html');
-  // Bilder stecken als <img src="data:…">, alles andere als <a href="data:…">
+  // Sicherheits-Hardening: HTML säubern bevor Dateien geparst werden
+  const cleanHtml = (typeof DOMPurify !== 'undefined')
+    ? DOMPurify.sanitize(String(briefingHtml || ''), {
+        WHOLE_DOCUMENT: true,
+        FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
+        FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover']
+      })
+    : String(briefingHtml || '');
+
+  const doc = new DOMParser().parseFromString(cleanHtml, 'text/html');
   const nodes = [
     ...doc.querySelectorAll('img[src^="data:"]'),
     ...doc.querySelectorAll('a[href^="data:"]')
   ];
+
   return nodes.map((el, i) => {
-    const src  = el.getAttribute('src') || el.getAttribute('href');
+    const src  = el.getAttribute('src') || el.getAttribute('href') || '';
+
+    // Strenge Validierung: Nur saubere Bild- und PDF-Data-URLs zulassen
+    const safeRegex = /^data:(image\/(png|jpe?g|webp|gif)|application\/pdf);base64,[A-Za-z0-9+/=]+$/i;
+    if (!safeRegex.test(src.replace(/\s+/g, ''))) {
+      return null;
+    }
+
     const mime = (src.match(/^data:([^;]+)/) || [, 'application/octet-stream'])[1];
     const ext  = (mime.split('/')[1] || 'bin').replace('jpeg', 'jpg');
     const name = el.getAttribute('alt') || el.getAttribute('download') || `datei-${i + 1}.${ext}`;
     return { name, mime, dataUrl: src, kb: Math.round((src.length - src.indexOf(',') - 1) * 0.75 / 1024) };
-  });
+  }).filter(Boolean);
 }
 
 function dataUrlToBlob(dataUrl) {
-  const [head, b64] = dataUrl.split(',');
-  const mime  = (head.match(/^data:([^;]+)/) || [,'application/octet-stream'])[1];
-  const bytes = atob(b64);
-  const buf   = new Uint8Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
-  return new Blob([buf], { type: mime });
+  try {
+    const [head, b64] = dataUrl.split(',');
+    const mime  = (head.match(/^data:([^;]+)/) || [,'application/octet-stream'])[1];
+    const bytes = atob(b64);
+    const buf   = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+    return new Blob([buf], { type: mime });
+  } catch (err) {
+    console.warn('Fehler beim Konvertieren der Datei:', err);
+    return new Blob([], { type: 'application/octet-stream' });
+  }
 }
 
 /* Die Download-Knöpfe sind echte <a download>-Links, keine Buttons mit
@@ -852,11 +897,11 @@ async function openFilesModal(id) {
     list.innerHTML = currentFiles.map((f, i) => `
       <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:10px;padding:10px;">
         ${f.mime.startsWith('image/')
-          ? `<img src="${f.dataUrl}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#0d0d1a;">`
+          ? `<img src="${currentUrls[i]}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#0d0d1a;">`
           : `<div style="width:56px;height:56px;border-radius:6px;flex-shrink:0;background:#0d0d1a;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-3);text-transform:uppercase;">${escHtml((f.mime.split('/')[1] || 'datei').slice(0, 4))}</div>`}
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(f.name)}</div>
-          <div style="font-size:11px;color:var(--text-3);">${f.mime} · ${f.kb} KB</div>
+          <div style="font-size:11px;color:var(--text-3);">${escHtml(f.mime)} · ${f.kb} KB</div>
         </div>
         <a class="btn btn-ghost btn-sm" id="file-dl-${i}" href="${currentUrls[i]}" download="${escHtml(f.name)}" title="Herunterladen" style="flex-shrink:0;text-decoration:none;">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -879,8 +924,19 @@ async function downloadCustomerPdf(id) {
       showToast('Kein PDF verfügbar (Briefing vor Update eingegangen).', 'error');
       return;
     }
+
+    // Sicherheits-Hardening: HTML säubern mit DOMPurify gegen Script-/Tag-Injections
+    const rawHtml = String(data.briefingHtml);
+    const cleanHtml = (typeof DOMPurify !== 'undefined')
+      ? DOMPurify.sanitize(rawHtml, {
+          WHOLE_DOCUMENT: true,
+          FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
+          FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus']
+        })
+      : rawHtml;
+
     const parser = new DOMParser();
-    const parsed = parser.parseFromString(data.briefingHtml, 'text/html');
+    const parsed = parser.parseFromString(cleanHtml, 'text/html');
     const bodyHtml = parsed.body.innerHTML;
 
     const name = (data.name || id).replace(/\s+/g, '_');

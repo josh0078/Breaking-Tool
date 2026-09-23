@@ -703,8 +703,12 @@ async function submitForm() {
     try {
       await fetch('https://send-invitation.majosh2026we.workers.dev/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Nexvia-Source': 'briefing-form'
+        },
         body: JSON.stringify({
+          type:    'submission',
           to:      ADMIN_EMAIL,
           to_name: 'Joshua',
           subject: `✅ Nexvia Briefing von ${safeName} (${safeId})`,
