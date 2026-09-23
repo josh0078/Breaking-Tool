@@ -267,8 +267,8 @@ function renderSectionPicker() {
   container.innerHTML = FORM_CATEGORIES.map(cat => {
     const total = cat.sections.length;
     return `
-      <div class="cat-card" data-cat-id="${cat.id}" style="border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.02);overflow:hidden;">
-        <div class="cat-header" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:rgba(255,255,255,0.03);">
+      <div class="cat-card" data-cat-id="${cat.id}">
+        <div class="cat-header" onclick="toggleCatAccordion('${cat.id}')">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;user-select:none;margin:0;" onclick="event.stopPropagation();">
             <input type="checkbox" class="cat-toggle" value="${cat.id}" checked
                    onchange="toggleCategory('${cat.id}', this.checked)"
@@ -279,12 +279,12 @@ function renderSectionPicker() {
               <div style="font-size:11px;color:var(--text-3);">${escHtml(cat.description)}</div>
             </div>
           </label>
-          <div style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;" onclick="toggleCatAccordion('${cat.id}')">
+          <div style="display:flex;align-items:center;gap:8px;user-select:none;padding-left:8px;">
             <span id="badge-${cat.id}" style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(34,197,94,0.15);color:var(--green);font-weight:600;">${total}/${total}</span>
-            <span id="arrow-${cat.id}" style="font-size:11px;color:var(--text-3);transition:transform 0.2s;">▼</span>
+            <span id="arrow-${cat.id}" style="font-size:11px;color:var(--text-3);transition:transform 0.2s;display:inline-block;transform:rotate(-90deg);">▼</span>
           </div>
         </div>
-        <div id="body-${cat.id}" style="padding:6px 12px 10px 38px;display:flex;flex-direction:column;gap:3px;border-top:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.18);">
+        <div id="body-${cat.id}" class="cat-body" style="display:none;">
           ${cat.sections.map(s => `
             <label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;user-select:none;font-size:12px;">
               <input type="checkbox" class="section-toggle" data-cat="${cat.id}" value="${s.id}" checked
@@ -338,6 +338,15 @@ function toggleCatAccordion(catId) {
   const isHidden = body.style.display === 'none';
   body.style.display = isHidden ? 'flex' : 'none';
   if (arrow) arrow.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+}
+
+function toggleAllAccordions(open) {
+  FORM_CATEGORIES.forEach(cat => {
+    const body = document.getElementById(`body-${cat.id}`);
+    const arrow = document.getElementById(`arrow-${cat.id}`);
+    if (body) body.style.display = open ? 'flex' : 'none';
+    if (arrow) arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
+  });
 }
 
 function toggleAllSections(on) {
