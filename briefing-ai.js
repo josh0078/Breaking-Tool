@@ -1,19 +1,152 @@
 /**
  * ============================================================================
- * BRIEFING-AI.JS — Nexvia KI-Briefing-Assistent („Alex“)
+ * BRIEFING-AI.JS — Nexvia KI-Berater („Alex“)
  * ============================================================================
- * 100% lokaler, DSGVO-konformer KI-Support für Kunden beim Ausfüllen des Formulars.
+ * 100% lokaler, DSGVO-konformer KI-Strategie- & Briefing-Berater für Kunden.
+ * - Berät zu allen Nexvia-Leistungsbereichen (Security Agent, KI-Agenten, Automatisierung, Web, Social)
+ * - Beantwortet Fragen nach dem konkreten Nutzen („Was bringt mir ein Security Agent?“, „Warum RAG?“)
  * - Erkennt Fragennummern (z.B. „Frage 4“, „4“, „#3: Was bedeutet RAG?“)
  * - Ordnet Fragen dynamisch der tatsächlichen Kundenansicht zu
- * - Erklärt Fachbegriffe (RAG, Zero-Touch, Human-in-the-Loop, Sicherheits-Agent etc.)
- * - Bietet direkte „Im Formular auswählen“-Aktionen
+ * - Bietet direkte „Im Formular auswählen“-Aktionen für maximale Conversion
  * ============================================================================
  */
 
 (function() {
   'use strict';
 
-  // ── 1. Lokale Wissensbasis aller 31 Fragen & Fachbegriffe ────────────────────
+  // ── 1. Sektoren- & Lösungs-Wissen (Beratung: „Was bringt mir X?“) ─────────────
+  const SECTOR_CONSULTING = [
+    {
+      id: 'security_agent',
+      keywords: ['securit', 'sicherheits', 'sicherheit', 'cyber', 'angriff', 'hacker', 'compliance', 'wächter', 'it-schutz'],
+      title: '🛡️ Was bringt Ihnen ein lokaler Sicherheits-Agent?',
+      answerHtml: `
+        <strong>Ein lokaler Sicherheits-Agent ist der 24/7-Wächter für Ihre gesamte Firmen-IT.</strong><br><br>
+        <strong>1. Das Problem in den meisten Betrieben:</strong><br>
+        Cyber-Angriffe, Ransomware und unberechtigte Datenabflüsse treffen heute überwiegend kleine und mittelständische Unternehmen. Häufig wird ein Sicherheitsvorfall erst bemerkt, wenn Daten bereits verschlüsselt oder sensible Kundendaten im Netz gelandet sind.<br><br>
+        <strong>2. Die 3 messbaren Kernvorteile:</strong>
+        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
+          <li><strong>Echtzeit-Überwachung (24/7):</strong> Analysiert Server-Logs, Netzwerkverkehr und Login-Aktivitäten rund um die Uhr. Verdächtige Verhaltensmuster werden in Millisekunden aufgespürt.</li>
+          <li><strong>100% DSGVO & Compliance-Schutz:</strong> Erkennt unberechtigte Datenzugriffe sofort und protokolliert Vorfälle revisionssicher für Datenschutzbehörden und Wirtschaftsprüfer.</li>
+          <li><strong>Automatisierte Sofort-Abwehr:</strong> Blockiert kompromittierte Konten oder verdächtige IP-Adressen sofort und alarmiert die Geschäftsleitung per Push-Benachrichtigung, bevor ein echter Schaden entsteht.</li>
+        </ul>
+        💡 <strong>Praxis-Beispiel:</strong> Ein Mitarbeiter klickt abends versehentlich auf einen Phishing-Link oder ein Account versucht nachts, 500 Kundenakten herunterzuladen -> Der Sicherheits-Agent kappt die Verbindung sofort und schlägt Alarm!
+      `,
+      formTarget: {
+        sectionId: 'agent_zweck',
+        optionName: 'Sicherheits-Agent (IT-Security, Compliance & Systemüberwachung)'
+      },
+      pills: [
+        { text: '„Sicherheits-Agent“ im Formular auswählen', action: (apply) => apply('agent_zweck', 'Sicherheits-Agent (IT-Security, Compliance & Systemüberwachung)') },
+        { text: 'Brauche ich dafür teure Hardware?', action: (ask) => ask('hardware') },
+        { text: 'Was bringt ein lokaler KI-Wissensagent?', action: (ask) => ask('was bringt ein lokaler ki agent') }
+      ]
+    },
+    {
+      id: 'local_ai_rag',
+      keywords: ['rag', 'lokal', 'ki-agent', 'ki agent', 'firmengedächtnis', 'mitarbeiter-assistent', 'mitarbeiter assistent', 'dokumentenanalyse', 'chatgpt'],
+      title: '🤖 Was bringt ein Lokaler KI-Agent & RAG (Firmengedächtnis)?',
+      answerHtml: `
+        <strong>Ein lokaler KI-Agent ist das private, digitale Wissenszentrum Ihres Unternehmens.</strong><br><br>
+        <strong>1. Warum nicht einfach normales ChatGPT?</strong><br>
+        Wenn Mitarbeiter interne Angebote, Kundenverträge, Source Code oder Finanzdaten in ChatGPT eingeben, fließen diese Daten in US-Clouds. Das verletzt die DSGVO und gefährdet Betriebsgeheimnisse. Zudem neigt ChatGPT zu Halluzinationen.<br><br>
+        <strong>2. Was der lokale Nexvia-Agent für Sie leistet:</strong>
+        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
+          <li><strong>Verbindet Ihr echtes Firmenwissen:</strong> Durchsucht Tausende PDFs, Handbücher, Verträge und Notizen und liefert präzise Antworten inklusive Quellenseite in unter 2 Sekunden.</li>
+          <li><strong>Spart bis zu 1,8 Arbeitsstunden/Tag pro Mitarbeiter:</strong> Niemand muss mehr stundenlang nach alten Dokumenten, Preisen oder Richtlinien suchen.</li>
+          <li><strong>Turbo-Einarbeitung (Onboarding):</strong> Neue Mitarbeiter können sofort selbstständig arbeiten und müssen Senior-Kollegen nicht permanent mit Routinefragen unterbrechen.</li>
+          <li><strong>100% datenschutzsicher:</strong> Läuft wahlweise komplett On-Premise in Ihren Räumen (Air-Gapped) – kein Byte verlässt Ihr Haus!</li>
+        </ul>
+      `,
+      formTarget: {
+        sectionId: 'agent_zweck',
+        optionName: 'Lokale Dokumentenanalyse & RAG (PDFs, Verträge, Handbücher)'
+      },
+      pills: [
+        { text: '„RAG & Dokumentenanalyse“ auswählen', action: (apply) => apply('agent_zweck', 'Lokale Dokumentenanalyse & RAG (PDFs, Verträge, Handbücher)') },
+        { text: '„Mitarbeiter-Assistent“ auswählen', action: (apply) => apply('agent_zweck', 'Interner Mitarbeiter-Assistent für Unternehmenswissen') },
+        { text: 'Was bringt mir ein Sicherheits-Agent?', action: (ask) => ask('was bringt ein security agent') }
+      ]
+    },
+    {
+      id: 'automation',
+      keywords: ['automati', 'workflow', 'prozess', 'schnittstelle', 'make', 'zapier', 'n8n', 'zeitfresser', 'papierkram', 'excel'],
+      title: '⚙️ Was bringt Workflow-Automatisierung für Ihr Unternehmen?',
+      answerHtml: `
+        <strong>Automatisierung ersetzt manuelle Büro-Routinen durch intelligente Software-Pipelines.</strong><br><br>
+        <strong>1. Wo heute die meiste Arbeitszeit verloren geht:</strong><br>
+        Kundendaten aus E-Mails manuell ins CRM abtippen, Rechnungen händisch anlegen, Zahlungseingänge abgleichen oder Excel-Listen pflegen. Das kostet pro Woche viele Stunden und birgt ständige Fehlerquellen.<br><br>
+        <strong>2. Die messbaren Resultate:</strong>
+        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
+          <li><strong>5 bis 15 Stunden Zeitersparnis pro Mitarbeiter und Woche:</strong> Ihr Team gewinnt wertvolle Zeit für Kundenberatung, Vertrieb und Kernaufgaben.</li>
+          <li><strong>Reaktionszeit unter 2 Sekunden:</strong> Neue Anfragen werden sofort erfasst, automatisch vorqualifiziert und bestätigt.</li>
+          <li><strong>0% Fehlerquote:</strong> Keine Zahlendreher mehr in Rechnungen, keine vergessenen Termine und kein Informationsverlust zwischen Programmen.</li>
+        </ul>
+        💡 <strong>Praxis-Beispiel:</strong> Ein Kunde bucht auf Ihrer Website einen Termin -> Nexvia-Automation trägt den Termin in den Kalender ein, legt den Kunden im CRM an, generiert einen Projektordner und sendet dem Kunden eine WhatsApp-Bestätigung mit Vorab-Infos – vollautomatisch in 3 Sekunden!
+      `,
+      formTarget: {
+        sectionId: 'auto_grad',
+        optionName: 'Vollautomatisiert im Hintergrund (Zero-Touch)'
+      },
+      pills: [
+        { text: '„Zero-Touch“ im Formular auswählen', action: (apply) => apply('auto_grad', 'Vollautomatisiert im Hintergrund (Zero-Touch)') },
+        { text: '„Vertrieb & CRM“ auswählen', action: (apply) => apply('auto_bereiche', 'Vertrieb & Lead-Management (CRM)') },
+        { text: 'Was ist Human-in-the-Loop?', action: (ask) => ask('human in the loop') }
+      ]
+    },
+    {
+      id: 'website_webapp',
+      keywords: ['webseite', 'website', 'web-app', 'web app', 'homepage', 'landingpage', 'online-shop', 'relaunch'],
+      title: '🌐 Was bringt eine High-End-Webseite oder Web-App von Nexvia?',
+      answerHtml: `
+        <strong>Aus einer passiven „digitalen Visitenkarte“ wird ein 24/7-Neukundengewinner.</strong><br><br>
+        <strong>1. Das Problem herkömmlicher Websites & Baukästen:</strong><br>
+        Besucher springen auf dem Smartphone nach wenigen Sekunden ab, wenn die Seite langsam lädt oder nicht sofort überzeugt. Viele Betriebe verlieren dadurch jeden Monat unbemerkt lukrative Aufträge an Mitbewerber.<br><br>
+        <strong>2. Was Nexvia auszeichnet:</strong>
+        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
+          <li><strong>Verkaufspsychologischer Aufbau:</strong> Strukturierte Nutzerführung, die Vertrauen aufbaut und Besucher gezielt zu qualifizierten Kundenanfragen konvertiert.</li>
+          <li><strong>Ladezeiten unter 1 Sekunde:</strong> High-Speed Hosting in Deutschland für Top-Google-Rankings und flüssige mobile Bedienung.</li>
+          <li><strong>Web Apps digitalisieren Geschäftsprozesse:</strong> Kunden können eigene Portale nutzen, Angebote berechnen, Dokumente einsehen oder online bezahlen.</li>
+        </ul>
+      `,
+      formTarget: {
+        sectionId: 'web_ziel',
+        optionName: 'Qualifizierte Kundenanfragen generieren (Leads)'
+      },
+      pills: [
+        { text: '„Kundenanfragen (Leads)“ auswählen', action: (apply) => apply('web_ziel', 'Qualifizierte Kundenanfragen generieren (Leads)') },
+        { text: '„Online-Terminkalender“ auswählen', action: (apply) => apply('web_funktionen', 'Online-Terminkalender / Buchung') },
+        { text: 'Was bringt Social Media?', action: (ask) => ask('social media') }
+      ]
+    },
+    {
+      id: 'social_media',
+      keywords: ['social media', 'social-media', 'instagram', 'linkedin', 'tiktok', 'performance ads', 'ads', 'werbung', 'mitarbeitergewinnung', 'recruiting'],
+      title: '📱 Was bringt aktives Social Media Management & Performance Ads?',
+      answerHtml: `
+        <strong>Social Media ist heute der stärkste Kanal für Markenbekanntheit und Mitarbeitergewinnung.</strong><br><br>
+        <strong>1. Warum auch B2B- & Handwerksbetriebe aktiv sein müssen:</strong><br>
+        Kunden und Fachkräfte googeln Firmen nicht mehr nur – sie prüfen Instagram und LinkedIn. Ein verlassenes oder unprofessionelles Profil schreckt Bewerber und Neukunden ab. Wer modern auftritt, gewinnt das Vertrauen.<br><br>
+        <strong>2. Die 3 großen Hebel:</strong>
+        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
+          <li><strong>Fachkräfte gewinnen (Employer Branding):</strong> Zeigt authentische Einblicke und begeistert Bewerber, die gar nicht aktiv auf Jobportalen suchen.</li>
+          <li><strong>Planbare Neukunden durch Performance Ads:</strong> Gezielte Werbeanzeigen auf Meta & LinkedIn werden millimetergenau nur an Ihre Wunschkunden in der Region ausgespielt.</li>
+          <li><strong>Rundum-Sorglos-Betreuung:</strong> Nexvia übernimmt Strategie, Grafiken, Schnitt, Texting und Veröffentlichung schlüsselfertig.</li>
+        </ul>
+      `,
+      formTarget: {
+        sectionId: 'sm_ziele',
+        optionName: 'Employer Branding / Mitarbeitergewinnung'
+      },
+      pills: [
+        { text: '„Mitarbeitergewinnung“ auswählen', action: (apply) => apply('sm_ziele', 'Employer Branding / Mitarbeitergewinnung') },
+        { text: '„Performance Ads“ auswählen', action: (apply) => apply('sm_leistungen', 'Performance Ads (Meta / LinkedIn)') },
+        { text: 'Was bringt Automatisierung?', action: (ask) => ask('automatisierung') }
+      ]
+    }
+  ];
+
+  // ── 2. Lokale Wissensbasis aller 31 Fragen des Baukastens ─────────────────────
   const QUESTION_KNOWLEDGE = {
     // 🌐 Webseiten & Web Apps
     web_typ: {
@@ -212,7 +345,7 @@
     }
   };
 
-  // ── 2. Allgemeine FAQ & Begriffserklärungen ──────────────────────────────────
+  // ── 3. Allgemeine FAQ & Begriffserklärungen ──────────────────────────────────
   const GENERAL_KNOWLEDGE = [
     {
       keywords: ['rag', 'retrieval', 'vektordatenbank', 'dokumentensuche'],
@@ -228,11 +361,6 @@
       keywords: ['human in the loop', 'hitl', 'freigabe', 'menschliche freigabe'],
       title: 'Was bedeutet „Human-in-the-Loop“?',
       answer: 'Bei <strong>Human-in-the-Loop</strong> bereitet die Automatisierung oder KI alle aufwendigen Schritte vor (z.B. den Text einer Antwortmail oder eine Rechnung), aber ein Mitarbeiter muss kurz auf **„Bestätigen / Freigeben“** klicken, bevor die Aktion endgültig ausgeführt wird. Das verbindet maximale Zeitersparnis mit 100%iger Fehlerkontrolle.'
-    },
-    {
-      keywords: ['sicherheits agent', 'sicherheits-agent', 'security', 'compliance'],
-      title: 'Was macht ein Sicherheits-Agent?',
-      answer: 'Ein <strong>Sicherheits-Agent</strong> ist ein lokaler KI-Wächter, der Ihre IT-Infrastruktur überwacht. Er analysiert kontinuierlich Server-Logs, prüft interne Zugriffsrechte, warnt vor verdächtigen Login-Versuchen und stellt sicher, dass Datenschutz- und Compliance-Vorschriften eingehalten werden.'
     },
     {
       keywords: ['on premise', 'on-premise', 'lokal', 'air gapped', 'air-gapped', 'server'],
@@ -251,15 +379,12 @@
     }
   ];
 
-  // ── 3. State & Kunden-Fragen-Mapping ─────────────────────────────────────────
+  // ── 4. State & Kunden-Fragen-Mapping ─────────────────────────────────────────
   let activeQuestions = []; // Array von { num, id, title, subtitle, options, categoryId }
   let currentFocusedQuestion = null; // { num, id, ... }
   let isChatOpen = false;
 
-  // ── 4. Hilfsfunktionen zur Fragenerkennung ────────────────────────────────────
-  /**
-   * Durchsucht den Text nach einer Fragennummer (z.B. "Frage 4", "4:", "#3", "bei 2")
-   */
+  // ── 5. Hilfsfunktionen zur Fragenerkennung ────────────────────────────────────
   function extractQuestionNumber(text) {
     if (!text) return null;
     const clean = text.trim();
@@ -292,20 +417,20 @@
     return activeQuestions.find(q => q.id === id) || null;
   }
 
-  // ── 5. Chat UI Erzeugung ─────────────────────────────────────────────────────
+  // ── 6. Chat UI Erzeugung ─────────────────────────────────────────────────────
   function injectChatWidget() {
     if (document.getElementById('nexvia-ai-widget')) return;
 
     const widget = document.createElement('div');
     widget.id = 'nexvia-ai-widget';
     widget.innerHTML = `
-      <!-- Floating Trigger Button -->
-      <button id="ai-trigger-btn" class="ai-trigger-btn" onclick="window.BriefingAI.toggleChat()" title="Nexvia KI-Support öffnen">
+      <!-- Floating Trigger Button: Alex – KI-Berater -->
+      <button id="ai-trigger-btn" class="ai-trigger-btn" onclick="window.BriefingAI.toggleChat()" title="Alex – Nexvia KI-Berater öffnen">
         <div class="ai-trigger-glow"></div>
         <div class="ai-trigger-icon">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 3.3 2 6.2 5 7.4V20a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.6c3-1.2 5-4.1 5-7.4a8 8 0 0 0-8-8z"/><path d="M9 21h6"/><path d="M10 17h4"/></svg>
         </div>
-        <span class="ai-trigger-text">KI-Support</span>
+        <span class="ai-trigger-text">Alex – KI-Berater</span>
         <span class="ai-pulse-dot"></span>
       </button>
 
@@ -318,8 +443,8 @@
               <span class="ai-online-dot"></span>
             </div>
             <div>
-              <div class="ai-header-title">Nexvia Briefing-Support</div>
-              <div class="ai-header-subtitle">100% lokaler KI-Assistent · Alex</div>
+              <div class="ai-header-title">Alex · Nexvia KI-Berater</div>
+              <div class="ai-header-subtitle">Ihr digitaler Strategie- &amp; Briefing-Experte</div>
             </div>
           </div>
           <button class="ai-close-btn" onclick="window.BriefingAI.toggleChat(false)" title="Schließen">✕</button>
@@ -339,7 +464,7 @@
 
         <!-- Input Area -->
         <div class="ai-input-area">
-          <input type="text" id="ai-input" class="ai-input" placeholder="Z.B. „Frage 4: Was bedeutet RAG?“ oder nur „2“..." onkeydown="if(event.key==='Enter') window.BriefingAI.sendMessage()">
+          <input type="text" id="ai-input" class="ai-input" placeholder="Fragen Sie mich alles (z.B. „Was bringt ein Security Agent?“ oder „Frage 4“)..." onkeydown="if(event.key==='Enter') window.BriefingAI.sendMessage()">
           <button id="ai-send-btn" class="ai-send-btn" onclick="window.BriefingAI.sendMessage()" title="Senden">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
@@ -360,14 +485,17 @@
     if (!messages || messages.children.length > 0) return;
 
     const html = `
-      Hallo! Ich bin <strong>Alex</strong>, Ihr digitaler Assistent für dieses Briefing.<br><br>
-      Falls Ihnen eine Frage oder ein Fachbegriff unklar ist, tippen Sie einfach die <strong>Fragennummer</strong> (z.B. <em>„4“</em> oder <em>„Frage 3: Was bedeutet RAG?“</em>) – oder klicken Sie direkt neben der Frage im Formular auf <strong>„Frage unklar?“</strong>.
+      Hallo! Ich bin <strong>Alex</strong>, Ihr persönlicher Nexvia KI-Berater.<br><br>
+      Ich berate Sie gerne zu unseren Leistungsbereichen und helfe Ihnen beim Ausfüllen dieses Briefings. Fragen Sie mich z.B.:<br>
+      • <em>„Was bringt mir ein Security Agent?“</em><br>
+      • <em>„Warum sollte ich Prozesse automatisieren?“</em><br>
+      • <em>„Frage 4: Was bedeutet RAG?“</em> (oder einfach nur die Zahl <em>„4“</em>)
     `;
 
     const pills = [
-      { text: 'Was ist RAG?', action: () => handleGeneralAnswer('rag') },
-      { text: 'Was ist Zero-Touch?', action: () => handleGeneralAnswer('zero touch') },
-      { text: 'Was macht ein Sicherheits-Agent?', action: () => handleGeneralAnswer('sicherheits agent') },
+      { text: 'Was bringt ein Security Agent?', action: () => processUserInput('was bringt ein security agent') },
+      { text: 'Was bringt ein lokaler KI-Agent?', action: () => processUserInput('was bringt ein lokaler ki agent') },
+      { text: 'Was bringt Automatisierung?', action: () => processUserInput('was bringt automatisierung') },
       { text: 'Fragen-Übersicht', action: () => showQuestionsOverview() }
     ];
 
@@ -404,7 +532,7 @@
     appendBotMessage('Hier sind alle Fragen Ihres Briefings:', pills);
   }
 
-  // ── 6. Nachrichten senden & verarbeiten ───────────────────────────────────────
+  // ── 7. Nachrichten senden & verarbeiten ───────────────────────────────────────
   function sendMessage() {
     const input = document.getElementById('ai-input');
     if (!input) return;
@@ -423,7 +551,14 @@
   function processUserInput(text) {
     const clean = text.toLowerCase().trim();
 
-    // 1. Prüfen ob eine Fragennummer genannt wurde
+    // ── STUFE 1: Sektoren- & Strategieberatung („Was bringt X?“, „Warum brauche ich Y?“) ──
+    const matchedSector = findSectorConsulting(clean);
+    if (matchedSector) {
+      deliverSectorConsulting(matchedSector);
+      return;
+    }
+
+    // ── STUFE 2: Fragennummer-Erkennung (z.B. „4“, „Frage 4“, „#3: Was bedeutet...“) ──
     const num = extractQuestionNumber(text);
     if (num) {
       const q = getQuestionByNum(num);
@@ -437,14 +572,13 @@
       }
     }
 
-    // 2. Wenn eine Frage bereits fokussiert ist und der Nutzer etwas dazu fragt
+    // ── STUFE 3: Nachfragen zur aktuell fokussierten Frage ──
     if (currentFocusedQuestion) {
-      // Prüfen ob Nutzer nach einer konkreten Option der aktuellen Frage fragt
       const matchedOpt = currentFocusedQuestion.options.find(opt => clean.includes(opt.toLowerCase().slice(0, 8)));
       if (matchedOpt) {
         appendBotMessage(
           `Zu der Option <strong>„${escHtml(matchedOpt)}“</strong> bei Frage ${currentFocusedQuestion.num}:<br>` +
-          `Diese Option passt hervorragend, wenn dieser Bereich für Sie relevant ist.`,
+          `Diese Option passt hervorragend, wenn dieser Bereich für Ihr Vorhaben wichtig ist.`,
           [
             { text: `„${matchedOpt}“ im Formular auswählen`, action: () => applyOptionToForm(currentFocusedQuestion.id, matchedOpt) },
             { text: 'Zurück zur Fragenübersicht', action: () => showQuestionsOverview() }
@@ -454,7 +588,7 @@
       }
     }
 
-    // 3. Allgemeine Begriffsabfrage durchsuchen
+    // ── STUFE 4: Allgemeine Begriffserklärungen (RAG, Zero-Touch, On-Premise etc.) ──
     const matchedGeneral = GENERAL_KNOWLEDGE.find(item =>
       item.keywords.some(kw => clean.includes(kw))
     );
@@ -463,14 +597,14 @@
       appendBotMessage(
         `<strong>${matchedGeneral.title}</strong><br><br>${matchedGeneral.answer}`,
         [
-          { text: 'Zu einer Frage springen', action: () => showQuestionsOverview() },
+          { text: 'Fragen-Übersicht', action: () => showQuestionsOverview() },
           { text: 'Zurück zum Formular', action: () => toggleChat(false) }
         ]
       );
       return;
     }
 
-    // 4. Nach Kategorien oder Schlagwörtern suchen (z.B. "Webseite", "Social Media", "Automation", "Agent")
+    // ── STUFE 5: Schlagwörter gegen Fragen & Optionen matchen ──
     const matchedCategoryQuestion = activeQuestions.find(q =>
       clean.includes(q.title.toLowerCase()) ||
       (q.subtitle && clean.includes(q.subtitle.toLowerCase().slice(0, 10))) ||
@@ -483,41 +617,99 @@
       return;
     }
 
-    // 5. Fallback bei allgemeinem Gruß oder unklarer Eingabe
+    // ── STUFE 6: Begrüßungen ──
     if (clean.includes('hallo') || clean.includes('hi') || clean.includes('hey') || clean.includes('guten tag')) {
       appendBotMessage(
-        `Hallo! Wie kann ich Ihnen beim Ausfüllen des Briefings behilflich sein? Nennen Sie mir einfach eine Fragennummer (z.B. <em>„4“</em>) oder tippen Sie Ihren Begriff ein.`,
+        `Hallo! Ich berate Sie gerne zu allen Themen rund um <strong>Sicherheits-Agenten, lokale KI, Automatisierung, Webseiten und Social Media</strong>.<br><br>Was möchten Sie wissen?`,
         [
-          { text: 'Fragen-Übersicht', action: () => showQuestionsOverview() },
-          { text: 'Was ist RAG?', action: () => handleGeneralAnswer('rag') },
-          { text: 'Was ist Zero-Touch?', action: () => handleGeneralAnswer('zero touch') }
+          { text: 'Was bringt ein Security Agent?', action: () => processUserInput('was bringt ein security agent') },
+          { text: 'Was bringt ein lokaler KI-Agent?', action: () => processUserInput('was bringt ein lokaler ki agent') },
+          { text: 'Was bringt Automatisierung?', action: () => processUserInput('was bringt automatisierung') },
+          { text: 'Fragen-Übersicht öffnen', action: () => showQuestionsOverview() }
         ]
       );
       return;
     }
 
-    // 6. Allgemeine Hilfe-Antwort mit Vorschlägen
+    // ── STUFE 7: Fallback mit klaren Aktionsvorschlägen ──
     appendBotMessage(
-      `Ich helfe Ihnen gerne weiter! Sie können mich zu jeder beliebigen Frage fragen, indem Sie einfach die <strong>Nummer</strong> eingeben (z.B. <em>„Frage 3“</em> oder nur <em>„3“</em>).`,
+      `Ich helfe Ihnen gerne als digitaler Berater weiter!<br><br>` +
+      `Fragen Sie mich nach dem <strong>konkreten Nutzen</strong> unserer Lösungen (z.B. <em>„Was bringt ein Security Agent?“</em>) oder nennen Sie mir einfach eine <strong>Fragennummer</strong> aus dem Formular (z.B. <em>„Frage 4“</em> oder <em>„4“</em>).`,
       [
-        { text: 'Fragen-Auswahl öffnen', action: () => showQuestionsOverview() },
-        { text: 'Was ist RAG?', action: () => handleGeneralAnswer('rag') },
-        { text: 'Was ist Zero-Touch?', action: () => handleGeneralAnswer('zero touch') },
-        { text: 'Was macht ein Sicherheits-Agent?', action: () => handleGeneralAnswer('sicherheits agent') }
+        { text: 'Was bringt ein Security Agent?', action: () => processUserInput('was bringt ein security agent') },
+        { text: 'Was bringt ein lokaler KI-Agent?', action: () => processUserInput('was bringt ein lokaler ki agent') },
+        { text: 'Was bringt Automatisierung?', action: () => processUserInput('was bringt automatisierung') },
+        { text: 'Fragen-Übersicht', action: () => showQuestionsOverview() }
       ]
     );
   }
 
-  function handleGeneralAnswer(keyword) {
-    const item = GENERAL_KNOWLEDGE.find(k => k.keywords.includes(keyword));
-    if (item) {
-      appendBotMessage(`<strong>${item.title}</strong><br><br>${item.answer}`, [
-        { text: 'Fragen-Übersicht', action: () => showQuestionsOverview() }
-      ]);
+  /**
+   * Intelligenter Matcher für Sektorenberatung („Was bringt X?“, „Warum X?“)
+   */
+  function findSectorConsulting(cleanText) {
+    // Liste von Signalwörtern, die nach Nutzen, Sinn oder Erklärung fragen
+    const benefitSignals = ['bringt', 'warum', 'vorteil', 'nutzen', 'wieso', 'sinn', 'wozu', 'haben', 'brauche', 'was ist', 'rechnet', 'lohnt', 'funktion', 'unterschied'];
+    const hasBenefitSignal = benefitSignals.some(sig => cleanText.includes(sig));
+
+    for (const sector of SECTOR_CONSULTING) {
+      const keywordHit = sector.keywords.some(kw => cleanText.includes(kw));
+      // Treffer, wenn Keyword und (Nutzenfrage ODER starkes Keyword wie "security" / "automatisierung") vorhanden ist
+      if (keywordHit) {
+        return sector;
+      }
     }
+    return null;
   }
 
-  // ── 7. Erklärung einer konkreten Frage ─────────────────────────────────────────
+  function deliverSectorConsulting(sector) {
+    const pills = [];
+
+    // Pill: Direkt im Formular ankreuzen (wenn Target existiert)
+    if (sector.formTarget) {
+      const q = getQuestionById(sector.formTarget.sectionId);
+      const qNumLabel = q ? ` (Frage ${q.num})` : '';
+      pills.push({
+        text: `✓ „${sector.formTarget.optionName.slice(0, 24)}…“${qNumLabel} auswählen`,
+        action: () => applyOptionToForm(sector.formTarget.sectionId, sector.formTarget.optionName)
+      });
+      if (q) {
+        pills.push({
+          text: `📌 Zu Frage ${q.num} im Formular springen`,
+          action: () => scrollToQuestion(q.num)
+        });
+      }
+    }
+
+    // Weitere Beratungs-Pills anbinden
+    if (sector.pills) {
+      sector.pills.forEach(p => {
+        // Nicht duplizieren
+        if (!pills.some(existing => existing.text.slice(0, 15) === p.text.slice(0, 15))) {
+          pills.push({
+            text: p.text,
+            action: () => {
+              if (typeof p.action === 'function') {
+                p.action(
+                  (sid, opt) => applyOptionToForm(sid, opt),
+                  (query) => processUserInput(query)
+                );
+              } else {
+                processUserInput(p.text);
+              }
+            }
+          });
+        }
+      });
+    }
+
+    appendBotMessage(
+      `<strong>${sector.title}</strong><br><br>${sector.answerHtml}`,
+      pills
+    );
+  }
+
+  // ── 8. Erklärung einer konkreten Frage ─────────────────────────────────────────
   function explainQuestion(q, originalQuery = '') {
     const info = QUESTION_KNOWLEDGE[q.id];
 
@@ -531,20 +723,18 @@
     if (info) {
       html += `${info.detail}<br><br>`;
       if (info.tips) {
-        html += `<div style="padding:8px 12px;border-radius:8px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);font-size:12px;color:var(--text-2);margin-bottom:8px;">💡 <strong>Praxis-Tipp:</strong> ${info.tips}</div>`;
+        html += `<div style="padding:8px 12px;border-radius:8px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);font-size:12px;color:var(--text-2);margin-bottom:8px;">💡 <strong>Alex' Praxis-Tipp:</strong> ${info.tips}</div>`;
       }
     } else {
       html += `Hier können Sie die zutreffenden Optionen auswählen oder Ihre individuellen Anforderungen notieren.`;
     }
 
-    // Optionen als direkte Auswahl-Buttons anbieten
     const pills = [];
     if (q.options && q.options.length > 0) {
       pills.push({
         text: `📌 Zu Frage ${q.num} im Formular springen`,
         action: () => scrollToQuestion(q.num)
       });
-      // Erste 3-4 Optionen zum schnellen Ankreuzen
       q.options.slice(0, 4).forEach(opt => {
         pills.push({
           text: `+ „${opt.slice(0, 26)}${opt.length > 26 ? '…' : ''}“ auswählen`,
@@ -565,7 +755,7 @@
     appendBotMessage(html, pills);
   }
 
-  // ── 8. Direkte Interaktion mit dem Formular ───────────────────────────────────
+  // ── 9. Direkte Interaktion mit dem Formular ───────────────────────────────────
   function scrollToQuestion(num) {
     const sections = document.querySelectorAll('.form-section');
     sections.forEach(sec => {
@@ -595,10 +785,10 @@
     chips.forEach(chip => {
       if (chip.textContent.trim().toLowerCase() === optionText.trim().toLowerCase()) {
         if (!chip.classList.contains('active')) {
-          chip.click(); // toggleChip auslösen
+          chip.click();
           found = true;
         } else {
-          found = true; // bereits aktiv
+          found = true;
         }
       }
     });
@@ -607,7 +797,7 @@
 
     if (found) {
       appendBotMessage(
-        `✓ <strong>„${escHtml(optionText)}“</strong> wurde für Sie im Formular markiert!`,
+        `✓ <strong>„${escHtml(optionText)}“</strong> wurde für Sie im Formular ausgewählt!`,
         [
           { text: 'Nächste Frage ansehen', action: () => {
             const current = getQuestionById(sectionId);
@@ -625,7 +815,7 @@
     }
   }
 
-  // ── 9. Fokus & Steuerung ─────────────────────────────────────────────────────
+  // ── 10. Fokus & Steuerung ────────────────────────────────────────────────────
   function setQuestionFocus(q) {
     currentFocusedQuestion = q;
     const bar = document.getElementById('ai-focus-bar');
@@ -658,7 +848,6 @@
 
   function toggleChat(forceState) {
     const win = document.getElementById('ai-chat-window');
-    const btn = document.getElementById('ai-trigger-btn');
     if (!win) return;
 
     isChatOpen = (typeof forceState === 'boolean') ? forceState : (win.style.display === 'none');
@@ -674,7 +863,7 @@
     }
   }
 
-  // ── 10. UI Message Rendering ─────────────────────────────────────────────────
+  // ── 11. UI Message Rendering ─────────────────────────────────────────────────
   function appendUserMessage(text) {
     const messages = document.getElementById('ai-messages');
     if (!messages) return;
@@ -717,7 +906,6 @@
     messages.appendChild(el);
     messages.scrollTop = messages.scrollHeight;
 
-    // Klick-Handler für Pills anbinden
     if (pills && pills.length > 0) {
       const btns = el.querySelectorAll('.ai-pill-btn');
       btns.forEach(b => {
@@ -734,7 +922,7 @@
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // ── 11. Globale Schnittstelle für form.js ─────────────────────────────────────
+  // ── 12. Globale Schnittstelle für form.js ────────────────────────────────────
   window.BriefingAI = {
     init: injectChatWidget,
     toggleChat: toggleChat,
