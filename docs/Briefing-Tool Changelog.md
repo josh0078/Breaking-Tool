@@ -19,6 +19,24 @@ Alle Verbesserungen und neuen Features die am **24/7 ON Briefing-Tool** umgesetz
 
 ## ✅ Umgesetzte Features
 
+### 9. Modulares Kategoriensystem & Fragen-Überarbeitung (2026-09-23)
+
+- [x] **4 Fach-Kategorien + Rahmenbedingungen (`sections.js`)**:
+  - 🌐 **Webseiten & Web Apps:** Art des Projekts, Ziel & Zweck, Zielgruppe & Markt, Seiten & Bereiche, Design, Spezielle Funktionen & Schnittstellen, Domain & Hosting.
+  - 📱 **Social Media:** Plattformen, Leistungsart, Ziele, Vorhandenes Material & Guidelines, Posting-Frequenz.
+  - ⚙️ **Automatisierungen:** Einsatzbereiche, Software-/Tool-Stack, manuelle Engpässe & Prozesse (Freitext), Automatisierungsgrad.
+  - 🤖 **Individueller Lokaler KI Agent:** Einsatzzweck, Datenschutz & On-Premise-Hosting, Datenquellen, Hardware- & Serverstatus, Nutzerkreis & Berechtigungen.
+  - 📋 **Projekt-Rahmenbedingungen:** Materialien & Datei-Upload, Budget-Rahmen, Wunsch-Timeline, Mitbewerber/Referenzen, Anmerkungen.
+- [x] **Admin-Baukasten mit Akkordeon & Kategorien-Schaltern (`index.html`, `admin.js`)**:
+  - Jede Kategorie kann mit einem Hauptschalter komplett an- oder abgewählt werden.
+  - Live-Zähler (`x / y`) und aufklappbare Einzel-Fragenauswahl pro Kategorie.
+- [x] **Dynamisches Kundenformular (`form.html`, `form.js`)**:
+  - Hero-Banner und farbige Kategorie-Header gliedern das Formular übersichtlich.
+  - Abgewählte Kategorien und Abschnitte werden automatisch ausgeblendet, verbleibende Abschnitte lückenlos nummeriert.
+  - Zero-Code-Duplikation: Formularabschnitte und Optionen werden direkt aus `sections.js` bezogen.
+- [x] **E-Mail- & PDF-Briefing-Dokument strukturiert (`form.js`, `admin.js`)**:
+  - Ausgefüllte Briefings werden im generierten HTML/PDF in die aktiven Kategorien gruppiert.
+
 ### 8. Aktualisierung der E-Mail-Adresse auf info@nexvia-we.de (2026-09-22)
 
 - [x] **Admin-Benachrichtigungsadresse (`form.js`)**: Empfänger für ausgefüllte Kundenbriefings auf `info@nexvia-we.de` aktualisiert.

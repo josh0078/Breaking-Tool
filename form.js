@@ -1,5 +1,6 @@
 /* ============================================
-   FORM.JS — Kunden-Formular Logik
+   FORM.JS — Kunden-Formular Logik & Briefing-Generierung
+   Nexvia Briefing Suite
    ============================================ */
 
 // ── EmailJS Config ───────────────────────────
@@ -15,12 +16,18 @@ let lastSubmittedHtml = null;
 
 /* Welche Abschnitte dieser Kunde sieht und welche eigenen Fragen dazukommen.
    enabledSections === null bedeutet "noch nicht geladen" oder "keine
-   Konfiguration hinterlegt" — in beiden Fällen wird alles angezeigt.
-   Damit funktionieren auch Kunden, die vor diesem Feature angelegt wurden. */
+   Konfiguration hinterlegt" — in beiden Fällen wird alles angezeigt. */
 let formConfig = { enabledSections: null, customQuestions: [] };
 
 function isSectionEnabled(sid) {
-  return !formConfig.enabledSections || formConfig.enabledSections.includes(sid);
+  if (!formConfig.enabledSections) return true;
+  if (formConfig.enabledSections.includes(sid)) return true;
+  if (typeof LEGACY_SECTION_MAP !== 'undefined') {
+    for (const [legacyId, newId] of Object.entries(LEGACY_SECTION_MAP)) {
+      if (newId === sid && formConfig.enabledSections.includes(legacyId)) return true;
+    }
+  }
+  return false;
 }
 
 // ── Init ─────────────────────────────────────
@@ -44,19 +51,25 @@ function initForm() {
   }
 
   try {
-    const payload = JSON.parse(decodeURIComponent(escape(atob(token))));
-    const now     = new Date();
-    const expires = new Date(payload.expiresAt);
+    const jsonStr = decodeURIComponent(escape(atob(token)));
+    const payload = JSON.parse(jsonStr);
 
-    if (expires <= now) {
+    if (!payload.id || !payload.name || !payload.expiresAt) {
       showExpired();
       return;
     }
 
-    // Check if already submitted
-    const submittedKey = 'submitted_' + payload.id;
-    if (localStorage.getItem(submittedKey)) {
+    // Check expiry
+    const now     = new Date();
+    const expires = new Date(payload.expiresAt);
+    if (now > expires) {
       showExpired();
+      return;
+    }
+
+    // Check submitted
+    if (localStorage.getItem('submitted_' + payload.id)) {
+      showSubmitted();
       return;
     }
 
@@ -70,8 +83,7 @@ function initForm() {
 }
 
 /* Lädt die Fragenauswahl aus briefing_forms/{id} und wendet sie an.
-   Der Formularkörper bleibt so lange ausgeblendet, damit der Kunde nicht
-   erst alle Abschnitte sieht und sie ihm dann wegspringen. */
+   Der Formularkörper bleibt so lange ausgeblendet, bis alles fertig gerendert ist. */
 async function applyFormConfig(customerId) {
   const body = document.querySelector('.form-body');
   if (body) body.style.opacity = '0';
@@ -84,39 +96,125 @@ async function applyFormConfig(customerId) {
       if (Array.isArray(cfg.customQuestions)) formConfig.customQuestions = cfg.customQuestions;
     }
   } catch (e) {
-    // Kein Dokument, keine Berechtigung, offline → vollständiges Formular.
     console.warn('Fragenauswahl nicht ladbar, zeige alle Abschnitte:', e);
   }
 
-  applySectionVisibility();
-  renderCustomQuestions();
+  renderFormSections();
   if (body) body.style.opacity = '1';
 }
 
-/* Blendet abgewählte Abschnitte aus und nummeriert die übrigen neu durch,
-   sonst stünde im Formular z.B. 1, 2, 5, 9. */
-function applySectionVisibility() {
-  let n = 0;
-  FORM_SECTIONS.forEach(s => {
-    const el = document.querySelector(`.form-section[data-sid="${s.id}"]`);
-    if (!el) return;
-    if (!isSectionEnabled(s.id)) { el.style.display = 'none'; return; }
-    n++;
-    const numEl = el.querySelector('.section-num');
-    if (numEl) numEl.textContent = n;
+/* Rendert die Abschnitte dynamisch nach Kategorien strukturiert. */
+function renderFormSections() {
+  const container = document.getElementById('form-sections-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  let globalNum = 0;
+
+  FORM_CATEGORIES.forEach(cat => {
+    // Prüfen ob mindestens ein Abschnitt dieser Kategorie aktiv ist
+    const activeInCat = cat.sections.filter(s => isSectionEnabled(s.id));
+    if (activeInCat.length === 0) return;
+
+    // Kategorie-Banner erzeugen
+    const banner = document.createElement('div');
+    banner.className = 'category-banner';
+    banner.setAttribute('data-cat', cat.id);
+    banner.innerHTML = `
+      <div class="category-banner-icon">${cat.icon}</div>
+      <div>
+        <div class="category-banner-subtitle">LEISTUNGSBEREICH</div>
+        <h2 class="category-banner-title">${escHtml(cat.title)}</h2>
+        <p class="category-banner-desc">${escHtml(cat.description)}</p>
+      </div>
+    `;
+    container.appendChild(banner);
+
+    // Abschnitte dieser Kategorie rendern
+    activeInCat.forEach(s => {
+      globalNum++;
+      const secEl = document.createElement('div');
+      secEl.className = 'form-section';
+      secEl.setAttribute('data-sid', s.id);
+      secEl.style.animationDelay = `${(globalNum * 0.04).toFixed(2)}s`;
+
+      let innerHtml = '';
+
+      // Chips
+      if (s.options && s.options.length > 0) {
+        innerHtml += `
+          <div class="chips-wrap" data-section="${escHtml(s.id)}">
+            ${s.options.map(opt => `<div class="chip" onclick="toggleChip(this)">${escHtml(opt)}</div>`).join('')}
+          </div>
+        `;
+      }
+
+      // Datei-Upload Zone bei Material & Upload
+      if (s.hasUpload) {
+        innerHtml += `
+          <div style="margin-top:20px;">
+            <label style="margin-bottom:10px;font-weight:600;font-size:13px;display:block;">Dateien hochladen (Logo, Fotos, Referenzen, Dokumente)</label>
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+              <input type="file" id="file-input" multiple accept="image/*,.pdf" onchange="handleFiles(this.files)">
+              <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:8px;color:var(--cyan);opacity:0.75;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div><strong style="color:var(--text-2);">Dateien hierher ziehen</strong> oder klicken zum Auswählen</div>
+              <div style="margin-top:4px;font-size:11px;color:var(--text-3);">Bilder (JPG, PNG, SVG) · PDF · max. 5 MB pro Datei</div>
+            </div>
+            <div class="upload-previews" id="upload-previews"></div>
+            <div id="upload-size-warning" style="display:none;color:var(--warning);font-size:12px;margin-top:8px;">
+              ℹ Große Bilder werden automatisch optimiert, damit das Briefing zuverlässig übermittelt wird.
+            </div>
+          </div>
+        `;
+      }
+
+      // Freitext / Notizen
+      const placeholder = s.placeholder || (s.options && s.options.length > 0 ? 'Weitere Anmerkungen hierzu (optional) …' : 'Ihre Angaben hierzu …');
+      const minHeight = (s.textOnly || s.id === 'auto_problem' || s.id === 'konkurrenz' || s.id === 'anmerkungen') ? 'min-height:96px;' : '';
+
+      innerHtml += `
+        <textarea class="input" style="margin-top:14px;${minHeight}" placeholder="${escHtml(placeholder)}" data-field="${escHtml(s.id)}_text"></textarea>
+      `;
+
+      secEl.innerHTML = `
+        <div class="section-head">
+          <div class="section-num">${globalNum}</div>
+          <div class="section-title-wrap">
+            <h3>${escHtml(s.title)}</h3>
+            <div class="section-subtitle">${escHtml(s.subtitle || 'Mehrfachauswahl möglich')}</div>
+          </div>
+        </div>
+        ${innerHtml}
+      `;
+
+      container.appendChild(secEl);
+    });
   });
-  return n;
+
+  renderCustomQuestions(globalNum);
 }
 
-/* Hängt die individuellen Fragen als weitere Abschnitte an. Sie nutzen
-   dieselben Chips und dasselbe data-section wie die festen Abschnitte,
-   damit getChipValues() ohne Sonderfall funktioniert. */
-function renderCustomQuestions() {
+/* Hängt die individuellen Fragen als weitere Abschnitte an. */
+function renderCustomQuestions(startNum) {
   const box = document.getElementById('custom-questions');
   if (!box) return;
   box.innerHTML = '';
 
-  let n = FORM_SECTIONS.filter(s => isSectionEnabled(s.id)).length;
+  if (!formConfig.customQuestions || formConfig.customQuestions.length === 0) return;
+
+  let n = startNum || 0;
+
+  const banner = document.createElement('div');
+  banner.className = 'category-banner';
+  banner.innerHTML = `
+    <div class="category-banner-icon">✨</div>
+    <div>
+      <div class="category-banner-subtitle">INDIVIDUELL</div>
+      <h2 class="category-banner-title">Spezifische Fragen für Ihr Projekt</h2>
+      <p class="category-banner-desc">Individuelle Zusatzfragen Ihres Ansprechpartners</p>
+    </div>
+  `;
+  box.appendChild(banner);
 
   formConfig.customQuestions.forEach(q => {
     n++;
@@ -133,6 +231,7 @@ function renderCustomQuestions() {
       <div class="chips-wrap" data-section="${escHtml(q.id)}">
         ${q.options.map(o => `<div class="chip" onclick="toggleChip(this)">${escHtml(o)}</div>`).join('')}
       </div>
+      <textarea class="input" style="margin-top:14px;" placeholder="Weitere Anmerkungen hierzu (optional) …" data-field="${escHtml(q.id)}_text"></textarea>
     `;
     box.appendChild(el);
   });
@@ -148,17 +247,20 @@ function renderFormHeader() {
   document.getElementById('expires-display').textContent = expires.toLocaleDateString('de-DE', {
     day: '2-digit', month: 'long', year: 'numeric'
   });
-
-  if (customerData.showIndividualAutomation) {
-    document.getElementById('ki-individual-wrap').style.display = 'block';
-  }
 }
 
 function showExpired() {
   document.getElementById('form-screen').style.display   = 'none';
   document.getElementById('success-screen').style.display = 'none';
   const exp = document.getElementById('expired-screen');
-  exp.style.display = 'flex';
+  if (exp) exp.style.display = 'flex';
+}
+
+function showSubmitted() {
+  document.getElementById('form-screen').style.display    = 'none';
+  document.getElementById('expired-screen').style.display = 'none';
+  const succ = document.getElementById('success-screen');
+  if (succ) succ.style.display = 'flex';
 }
 
 // ── Chip toggle ──────────────────────────────
@@ -180,27 +282,22 @@ function getFieldValue(field) {
 // ── File Upload ──────────────────────────────
 function handleDragOver(e) {
   e.preventDefault();
-  document.getElementById('upload-zone').classList.add('dragover');
+  const zone = document.getElementById('upload-zone');
+  if (zone) zone.classList.add('dragover');
 }
 
 function handleDragLeave(e) {
-  document.getElementById('upload-zone').classList.remove('dragover');
+  const zone = document.getElementById('upload-zone');
+  if (zone) zone.classList.remove('dragover');
 }
 
 function handleDrop(e) {
   e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('dragover');
+  const zone = document.getElementById('upload-zone');
+  if (zone) zone.classList.remove('dragover');
   handleFiles(e.dataTransfer.files);
 }
 
-/* ── Bildverkleinerung ────────────────────────
-   Das komplette Briefing inklusive aller Bilder wird als ein einziges
-   Firestore-Dokument gespeichert, und dort ist bei 1 MiB Schluss. Base64
-   kostet zusätzlich +33 %. Ein Handyfoto allein sprengt das also schon.
-
-   Deshalb: nur was über SHRINK_ABOVE_KB liegt, wird verkleinert. Logos,
-   Icons und kleine Grafiken bleiben damit bitgenau im Original erhalten
-   und lassen sich im Admin unverändert wieder herunterladen. */
 const SHRINK_ABOVE_KB = 400;   // darunter wird nichts angefasst
 const MAX_EDGE_PX     = 1600;  // längste Kante nach dem Verkleinern
 const JPEG_QUALITY    = 0.82;
@@ -210,19 +307,18 @@ function shrinkImage(dataUrl, mime) {
     const img = new Image();
     img.onload = () => {
       const factor = MAX_EDGE_PX / Math.max(img.width, img.height);
-      if (factor >= 1) { resolve(dataUrl); return; }   // Auflösung reicht schon
+      if (factor >= 1) { resolve(dataUrl); return; }
 
       const canvas  = document.createElement('canvas');
       canvas.width  = Math.round(img.width  * factor);
       canvas.height = Math.round(img.height * factor);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Typ beibehalten — PNG nach JPEG würde Transparenz schwarz füllen.
       resolve(mime === 'image/png'
         ? canvas.toDataURL('image/png')
         : canvas.toDataURL('image/jpeg', JPEG_QUALITY));
     };
-    img.onerror = () => resolve(dataUrl);   // im Zweifel das Original behalten
+    img.onerror = () => resolve(dataUrl);
     img.src = dataUrl;
   });
 }
@@ -246,27 +342,23 @@ function handleFiles(fileList) {
     const reader = new FileReader();
     reader.onload = async (e) => {
       let dataUrl = e.target.result;
+      const originalKb = Math.round(file.size / 1024);
 
-      const isImage = file.type.startsWith('image/');
-      const tooBig  = file.size > SHRINK_ABOVE_KB * 1024;
-
-      if (isImage && tooBig) {
-        const shrunk = await shrinkImage(dataUrl, file.type);
-        if (shrunk.length < dataUrl.length) {   // nur wenn es wirklich hilft
-          dataUrl   = shrunk;
-          shrunkAny = true;
-        }
+      if (file.type.startsWith('image/') && originalKb > SHRINK_ABOVE_KB) {
+        dataUrl = await shrinkImage(dataUrl, file.type);
+        shrunkAny = true;
       }
 
       uploadedFiles.push({
-        name:     file.name,
-        type:     file.type,
-        dataUrl:  dataUrl,
-        sizeKb:   dataUrlKb(dataUrl),
-        origKb:   Math.round(file.size / 1024)
+        name:    file.name,
+        type:    file.type,
+        dataUrl: dataUrl,
+        sizeKb:  dataUrlKb(dataUrl)
       });
       renderPreviews();
-      if (shrunkAny) document.getElementById('upload-size-warning').style.display = 'block';
+
+      const warning = document.getElementById('upload-size-warning');
+      if (shrunkAny && warning) warning.style.display = 'block';
     };
     reader.readAsDataURL(file);
   });
@@ -275,28 +367,25 @@ function handleFiles(fileList) {
 function removeFile(index) {
   uploadedFiles.splice(index, 1);
   renderPreviews();
-  if (uploadedFiles.every(f => f.sizeKb < 500)) {
-    document.getElementById('upload-size-warning').style.display = 'none';
-  }
 }
 
 function renderPreviews() {
   const container = document.getElementById('upload-previews');
+  if (!container) return;
   container.innerHTML = '';
-  uploadedFiles.forEach((f, i) => {
+  uploadedFiles.forEach((file, i) => {
     const item = document.createElement('div');
-    item.className = 'upload-preview-item';
-    if (f.type.startsWith('image/')) {
+    item.className = 'preview-item';
+    if (file.type.startsWith('image/')) {
       item.innerHTML = `
-        <img src="${f.dataUrl}" alt="${f.name}">
+        <img src="${file.dataUrl}" alt="${escHtml(file.name)}">
+        <div class="preview-name">${escHtml(file.name)}</div>
         <div class="remove-file" onclick="removeFile(${i})">×</div>
       `;
     } else {
       item.innerHTML = `
-        <div class="file-icon">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          ${f.name.slice(0, 12)}
-        </div>
+        <div class="file-icon">📄</div>
+        <div class="preview-name">${escHtml(file.name)}</div>
         <div class="remove-file" onclick="removeFile(${i})">×</div>
       `;
     }
@@ -306,38 +395,29 @@ function renderPreviews() {
 
 // ── Collect data ─────────────────────────────
 function collectFormData() {
+  const sectionsData = {};
+  FORM_SECTIONS.forEach(s => {
+    if (isSectionEnabled(s.id)) {
+      sectionsData[s.id] = {
+        id: s.id,
+        title: s.title,
+        categoryId: s.categoryId,
+        chips: getChipValues(s.id),
+        text: getFieldValue(s.id + '_text') || getFieldValue(s.id)
+      };
+    }
+  });
+
   return {
-    typ:           getChipValues('typ'),
-    typ_text:      getFieldValue('typ_text'),
-    ziel:          getChipValues('ziel'),
-    ziel_text:     getFieldValue('ziel_text'),
-    zielgruppe:    getChipValues('zielgruppe'),
-    zielgruppe_text: getFieldValue('zielgruppe_text'),
-    seiten:        getChipValues('seiten'),
-    seiten_text:   getFieldValue('seiten_text'),
-    design:        getChipValues('design'),
-    design_text:   getFieldValue('design_text'),
-    inhalte:       getChipValues('inhalte'),
-    inhalte_text:  getFieldValue('inhalte_text'),
-    funktionen:    getChipValues('funktionen'),
-    funktionen_text: getFieldValue('funktionen_text'),
-    ki_erweiterung: getChipValues('ki_erweiterung'),
-    ki_individual_text: getFieldValue('ki_individual_text'),
-    socialmedia_art:      getChipValues('socialmedia_art'),
-    socialmedia_plattform: getChipValues('socialmedia_plattform'),
-    socialmedia_text:     getFieldValue('socialmedia_text'),
-    budget:        getChipValues('budget'),
-    deadline:      getChipValues('deadline'),
-    deadline_text: getFieldValue('deadline_text'),
-    konkurrenz:    getFieldValue('konkurrenz_text'),
-    domain:        getChipValues('domain'),
-    domain_text:   getFieldValue('domain_text'),
-    anmerkungen:   getFieldValue('anmerkungen_text'),
-    custom:        formConfig.customQuestions.map(q => ({
-                     id: q.id, title: q.title, options: q.options,
-                     answers: getChipValues(q.id)
-                   })),
-    files:         uploadedFiles.map(f => ({ name: f.name, type: f.type, sizeKb: f.sizeKb, dataUrl: f.dataUrl }))
+    sections: sectionsData,
+    custom: formConfig.customQuestions.map(q => ({
+      id: q.id,
+      title: q.title,
+      options: q.options,
+      answers: getChipValues(q.id),
+      text: getFieldValue(q.id + '_text')
+    })),
+    files: uploadedFiles.map(f => ({ name: f.name, type: f.type, sizeKb: f.sizeKb, dataUrl: f.dataUrl }))
   };
 }
 
@@ -348,29 +428,19 @@ function buildEmailHtml(data) {
   const fmtTime = d => d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
 
   const chipHtml = (items, allOptions) => {
-    if (!allOptions) {
-      return items.length > 0
+    if (!allOptions || allOptions.length === 0) {
+      return items && items.length > 0
         ? items.map(i => `<span style="display:inline-block;padding:4px 12px;margin:3px;border-radius:20px;font-size:12px;font-weight:500;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.4);color:#15803d;">${escHtml(i)}</span>`).join('')
         : '<span style="color:#aaa;font-size:12px;font-style:italic;">Keine Auswahl</span>';
     }
     return allOptions.map(opt => {
-      const sel = items.includes(opt);
+      const sel = (items || []).includes(opt);
       return `<span style="display:inline-block;padding:4px 12px;margin:3px;border-radius:20px;font-size:12px;font-weight:${sel?'600':'400'};background:${sel?'rgba(34,197,94,0.12)':'#f5f5f8'};border:1px solid ${sel?'rgba(34,197,94,0.4)':'#e5e5ea'};color:${sel?'#15803d':'#aaa'};">${sel?'✓ ':''} ${escHtml(opt)}</span>`;
     }).join('');
   };
 
-  const textRow = (label, val) => val
-    ? `<tr><td colspan="2" style="padding:8px 0;"><p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#888;">${escHtml(label)}</p><p style="margin:0;font-size:13px;color:#333;background:#f9f9fc;border-left:3px solid #22c55e;padding:8px 12px;border-radius:0 6px 6px 0;">${escHtml(val).replace(/\n/g,'<br>')}</p></td></tr>`
-    : '';
-
-  /* Nummerierung richtet sich nach den tatsächlich aktiven Abschnitten,
-     sonst entstehen im Dokument Lücken (1, 2, 4, 7 …). */
-  const activeSections = FORM_SECTIONS.filter(s => isSectionEnabled(s.id));
-  const numOf = {};
-  activeSections.forEach((s, i) => { numOf[s.id] = i + 1; });
-
   const sectionShell = (num, title, bodyHtml, text) => `
-    <tr><td colspan="2" style="padding:16px 0 0;">
+    <tr><td colspan="2" style="padding:14px 0 0;">
       <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
         <tr style="background:linear-gradient(135deg,#f0fdf4,#f0fdfa);">
           <td style="padding:12px 16px;">
@@ -386,30 +456,22 @@ function buildEmailHtml(data) {
     </td></tr>
   `;
 
-  /* Titel und Optionen kommen aus sections.js — nicht mehr pro Aufruf
-     wiederholen. Abgewählte Abschnitte liefern einen leeren String. */
-  const sectionHtml = (sid, chips, text) => {
-    if (!numOf[sid]) return '';
-    const def = FORM_SECTIONS.find(s => s.id === sid);
-    return sectionShell(numOf[sid], def.title, chipHtml(chips, def.options), text);
-  };
+  const categoryBannerHtml = (cat) => `
+    <tr><td colspan="2" style="padding:28px 0 6px;">
+      <table width="100%" style="border-collapse:collapse;background:linear-gradient(135deg,#060b14,#0c1930);border-radius:10px;border-left:4px solid #22c55e;">
+        <tr><td style="padding:14px 20px;">
+          <table style="border-collapse:collapse;"><tr>
+            <td style="font-size:22px;padding-right:12px;vertical-align:middle;">${cat.icon}</td>
+            <td>
+              <div style="font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#06b6d4;font-weight:700;">LEISTUNGSBEREICH</div>
+              <div style="font-family:sans-serif;font-size:16px;font-weight:800;color:white;">${escHtml(cat.title)}</div>
+            </td>
+          </tr></table>
+        </td></tr>
+      </table>
+    </td></tr>
+  `;
 
-  // Reine Freitext-Abschnitte (Mitbewerber, Anmerkungen)
-  const textSectionHtml = (sid, text) => {
-    if (!numOf[sid]) return '';
-    const def  = FORM_SECTIONS.find(s => s.id === sid);
-    const body = text
-      ? `<span style="font-size:13px;color:#333;">${escHtml(text).replace(/\n/g,'<br>')}</span>`
-      : '<span style="color:#aaa;font-size:12px;font-style:italic;">Keine Angabe</span>';
-    return sectionShell(numOf[sid], def.title, body, '');
-  };
-
-  // Individuelle Fragen — hängen hinten an und zählen weiter
-  const customSectionsHtml = (data.custom || []).map((q, i) =>
-    sectionShell(activeSections.length + i + 1, q.title, chipHtml(q.answers, q.options), '')
-  ).join('');
-
-  /* Dateien zu je zwei pro Zeile. */
   const fileRows = [];
   for (let i = 0; i < data.files.length; i += 2) fileRows.push(data.files.slice(i, i + 2));
 
@@ -422,14 +484,13 @@ function buildEmailHtml(data) {
          <div style="width:100%;max-width:260px;background:#f5f5f8;border:1px solid #eee;border-radius:6px;font-size:11px;color:#888;text-align:center;padding:24px 8px;font-family:sans-serif;">${escHtml(f.name)}<br><span style="font-size:10px;">(${f.sizeKb} KB) · zum Öffnen klicken</span></div>
        </a>`;
 
-  // Images to embed
-  const imageSection = data.files.length > 0 ? `
-    <tr><td colspan="2" style="padding:16px 0 0;">
+  const imageSectionHtml = (files) => `
+    <tr><td colspan="2" style="padding:14px 0 0;">
       <table width="100%" style="border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
         <tr style="background:linear-gradient(135deg,#f0fdf4,#f0fdfa);">
           <td style="padding:12px 16px;">
             <table><tr>
-              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);text-align:center;vertical-align:middle;color:#040912;font-weight:700;font-size:12px;font-family:sans-serif;">${data.files.length}</td>
+              <td style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);text-align:center;vertical-align:middle;color:#040912;font-weight:700;font-size:12px;font-family:sans-serif;">${files.length}</td>
               <td style="padding-left:10px;font-family:sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:0.8px;">HOCHGELADENE DATEIEN</td>
             </tr></table>
           </td>
@@ -444,11 +505,67 @@ function buildEmailHtml(data) {
         </td></tr>
       </table>
     </td></tr>
-  ` : '';
+  `;
 
-  // Admin-Panel liegt immer neben form.html — nicht fest verdrahten,
-  // sonst zeigt der Link nach einem Hosting-Wechsel ins Leere.
+  let sectionCounter = 0;
+  let sectionsHtml = '';
+
+  FORM_CATEGORIES.forEach(cat => {
+    const activeInCat = cat.sections.filter(s => isSectionEnabled(s.id));
+    if (activeInCat.length === 0) return;
+
+    sectionsHtml += categoryBannerHtml(cat);
+
+    activeInCat.forEach(s => {
+      sectionCounter++;
+      const sData = (data.sections && data.sections[s.id]) ? data.sections[s.id] : { chips: [], text: '' };
+
+      let body = '';
+      if (s.options && s.options.length > 0) {
+        body = chipHtml(sData.chips, s.options);
+      } else if (sData.text) {
+        body = `<span style="font-size:13px;color:#333;">${escHtml(sData.text).replace(/\n/g,'<br>')}</span>`;
+      } else {
+        body = '<span style="color:#aaa;font-size:12px;font-style:italic;">Keine Angabe</span>';
+      }
+
+      const noteText = (s.options && s.options.length > 0) ? sData.text : '';
+      sectionsHtml += sectionShell(sectionCounter, s.title, body, noteText);
+
+      if (s.hasUpload && data.files && data.files.length > 0) {
+        sectionsHtml += imageSectionHtml(data.files);
+      }
+    });
+  });
+
+  // Custom sections
+  if (data.custom && data.custom.length > 0) {
+    sectionsHtml += `
+      <tr><td colspan="2" style="padding:28px 0 6px;">
+        <table width="100%" style="border-collapse:collapse;background:linear-gradient(135deg,#060b14,#0c1930);border-radius:10px;border-left:4px solid #06b6d4;">
+          <tr><td style="padding:14px 20px;">
+            <table style="border-collapse:collapse;"><tr>
+              <td style="font-size:22px;padding-right:12px;vertical-align:middle;">✨</td>
+              <td>
+                <div style="font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#06b6d4;font-weight:700;">INDIVIDUELL</div>
+                <div style="font-family:sans-serif;font-size:16px;font-weight:800;color:white;">Spezifische Fragen</div>
+              </td>
+            </tr></table>
+          </td></tr>
+        </table>
+      </td></tr>
+    `;
+    data.custom.forEach(q => {
+      sectionCounter++;
+      sectionsHtml += sectionShell(sectionCounter, q.title, chipHtml(q.answers, q.options), q.text || '');
+    });
+  }
+
   const adminUrl = new URL('index.html', window.location.href).href;
+
+  const cName  = escHtml((customerData && customerData.name) || 'Kunde');
+  const cEmail = escHtml((customerData && customerData.email) || '—');
+  const cId    = escHtml((customerData && customerData.id) || '—');
 
   return `
 <!DOCTYPE html>
@@ -460,7 +577,7 @@ function buildEmailHtml(data) {
   <!-- Notification Banner -->
   <tr><td style="background:#16a34a;padding:14px 40px;">
     <table width="100%"><tr>
-      <td style="font-family:sans-serif;font-size:14px;font-weight:700;color:white;">✅ Neues Nexvia Briefing eingegangen — ${escHtml(customerData.name)}</td>
+      <td style="font-family:sans-serif;font-size:14px;font-weight:700;color:white;">✅ Neues Nexvia Briefing eingegangen — ${cName}</td>
       <td align="right" style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,0.8);">${fmtDate(now)}, ${fmtTime(now)}</td>
     </tr></table>
   </td></tr>
@@ -468,7 +585,7 @@ function buildEmailHtml(data) {
   <!-- Header -->
   <tr><td style="background:linear-gradient(135deg,#060b14 0%,#0c1930 50%,#081426 100%);padding:36px 40px;">
     <p style="margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#22c55e;font-family:sans-serif;font-weight:700;">NEXVIA · Next Vision Intelligence Automation</p>
-    <h1 style="margin:0 0 6px;font-size:28px;color:white;font-family:sans-serif;">Briefing: <span style="color:#22c55e;">${escHtml(customerData.name)}</span></h1>
+    <h1 style="margin:0 0 6px;font-size:28px;color:white;font-family:sans-serif;">Briefing: <span style="color:#22c55e;">${cName}</span></h1>
     <p style="margin:0 0 28px;font-size:13px;color:rgba(255,255,255,0.5);font-family:sans-serif;">Ausgefüllt am ${fmtDate(now)} um ${fmtTime(now)}</p>
 
     <!-- PDF Download CTA -->
@@ -483,9 +600,9 @@ function buildEmailHtml(data) {
 
     <table style="border-collapse:collapse;">
       <tr>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Kunde</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.name)}</p></td>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.email || '—')}</p></td>
-        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Formular-ID</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${escHtml(customerData.id)}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Kunde</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${cName}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">E-Mail</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${cEmail}</p></td>
+        <td style="padding-right:32px;"><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Formular-ID</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${cId}</p></td>
         <td><p style="margin:0 0 4px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;font-family:sans-serif;font-weight:600;">Abgesendet</p><p style="margin:0;font-size:13px;color:rgba(255,255,255,0.9);font-weight:500;font-family:sans-serif;">${fmtDate(now)}, ${fmtTime(now)}</p></td>
       </tr>
     </table>
@@ -494,30 +611,15 @@ function buildEmailHtml(data) {
   <!-- Body -->
   <tr><td style="padding:32px 40px;">
     <table width="100%" style="border-collapse:collapse;">
-      ${sectionHtml('typ', data.typ, data.typ_text)}
-      ${sectionHtml('ziel', data.ziel, data.ziel_text)}
-      ${sectionHtml('zielgruppe', data.zielgruppe, data.zielgruppe_text)}
-      ${sectionHtml('seiten', data.seiten, data.seiten_text)}
-      ${sectionHtml('design', data.design, data.design_text)}
-      ${sectionHtml('inhalte', data.inhalte, data.inhalte_text)}
-      ${imageSection}
-      ${sectionHtml('funktionen', data.funktionen, data.funktionen_text)}
-      ${sectionHtml('ki_erweiterung', data.ki_erweiterung, customerData.showIndividualAutomation && data.ki_individual_text ? 'Individuelle Automatisierung: ' + data.ki_individual_text : (customerData.showIndividualAutomation ? 'Individuelle Automatisierung: Keine Angabe' : ''))}
-      ${sectionHtml('socialmedia', data.socialmedia_art, (data.socialmedia_plattform.length > 0 ? 'Plattformen: ' + data.socialmedia_plattform.join(', ') : '') + (data.socialmedia_text ? '\n' + data.socialmedia_text : ''))}
-      ${sectionHtml('budget', data.budget, '')}
-      ${sectionHtml('deadline', data.deadline, data.deadline_text)}
-      ${textSectionHtml('konkurrenz', data.konkurrenz)}
-      ${sectionHtml('domain', data.domain, data.domain_text)}
-      ${textSectionHtml('anmerkungen', data.anmerkungen)}
-      ${customSectionsHtml}
+      ${sectionsHtml}
     </table>
   </td></tr>
 
   <!-- Footer -->
-  <tr><td style="background:linear-gradient(135deg,#060b14,#0c1930);padding:20px 40px;display:flex;justify-content:space-between;">
+  <tr><td style="background:linear-gradient(135deg,#060b14,#0c1930);padding:20px 40px;">
     <table width="100%"><tr>
       <td style="font-size:11px;color:#22c55e;font-family:sans-serif;font-weight:700;">NEXVIA · Next Vision Intelligence Automation</td>
-      <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:sans-serif;">${escHtml(customerData.id)} · ${fmtDate(now)}</td>
+      <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);font-family:sans-serif;">${cId} · ${fmtDate(now)}</td>
     </tr></table>
   </td></tr>
 
@@ -586,50 +688,70 @@ async function submitForm() {
 
     // Show success
     document.getElementById('form-screen').style.display = 'none';
-    const s = document.getElementById('success-screen');
-    s.style.display = 'flex';
+    const successScreen = document.getElementById('success-screen');
+    successScreen.style.display = 'flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
   } catch (err) {
-    console.error('Fehler beim Absenden des Briefings:', err);
-    showToast('Fehler beim Speichern. Bitte prüfen Sie, ob der Link abgelaufen ist oder versuchen Sie es erneut.', 'error');
+    showToast('Fehler beim Absenden: ' + err.message, 'error');
     btn.disabled = false;
     btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Briefing absenden`;
   }
 }
 
-// ── PDF Download ──────────────────────────────
+// ── PDF Download (Erfolgsseite) ───────────────
 function downloadBriefingPdf() {
   if (!lastSubmittedHtml) return;
   const btn = document.getElementById('pdf-download-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Wird erstellt …'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'PDF wird erstellt …'; }
 
-  const name = customerData ? customerData.name.replace(/\s+/g, '_') : 'Briefing';
   const parser = new DOMParser();
-  const parsed = parser.parseFromString(lastSubmittedHtml, 'text/html');
-  const bodyHtml = parsed.body.innerHTML;
+  const doc = parser.parseFromString(lastSubmittedHtml, 'text/html');
 
-  html2pdf().set({
-    margin: 0,
-    filename: `Nexvia_Briefing_${name}.pdf`,
+  // CTA-Download-Button im PDF entfernen
+  const ctaLinks = doc.querySelectorAll('a');
+  ctaLinks.forEach(a => {
+    if (a.textContent.includes('PDF')) a.closest('table')?.remove();
+  });
+
+  const opt = {
+    margin: [8, 8, 8, 8],
+    filename: `Briefing_${customerData.name.replace(/\s+/g, '_')}.pdf`,
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 3, useCORS: true, backgroundColor: '#f0f0f5' },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).from(bodyHtml).save().finally(() => {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Briefing als PDF herunterladen'; }
+  };
+
+  html2pdf().set(opt).from(doc.body.innerHTML).save().then(() => {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Briefing als PDF herunterladen`; }
+  }).catch(() => {
+    if (btn) { btn.disabled = false; btn.textContent = 'Fehler — bitte nochmal versuchen'; }
   });
 }
 
 // ── Toast ─────────────────────────────────────
 function showToast(msg, type = 'success') {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<span style="color:${type==='success'?'var(--success)':'var(--danger)'};font-weight:700;">${type==='success'?'✓':'✕'}</span> ${msg}`;
-  c.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(8px)'; t.style.transition='0.3s'; setTimeout(()=>t.remove(),300); }, 4000);
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(8px)';
+    toast.style.transition = '0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
 }
 
-// ── Utils ─────────────────────────────────────
+// ── HTML Escape Helper ────────────────────────
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (typeof str !== 'string') return String(str || '');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

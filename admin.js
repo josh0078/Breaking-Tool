@@ -261,18 +261,92 @@ function generateLink(customer) {
 // ── Formular-Konfiguration (Abschnitte + eigene Fragen) ──
 
 function renderSectionPicker() {
-  document.getElementById('section-picker').innerHTML = FORM_SECTIONS.map(s => `
-    <label style="display:flex;align-items:center;gap:9px;padding:5px 2px;cursor:pointer;user-select:none;font-size:13px;">
-      <input type="checkbox" class="section-toggle" value="${s.id}" checked
-             style="accent-color:var(--green);width:15px;height:15px;flex-shrink:0;">
-      <span style="color:var(--text-3);min-width:20px;">${s.num}</span>
-      <span style="color:var(--text-1);">${escHtml(s.title)}</span>
-    </label>
-  `).join('');
+  const container = document.getElementById('section-picker');
+  if (!container) return;
+
+  container.innerHTML = FORM_CATEGORIES.map(cat => {
+    const total = cat.sections.length;
+    return `
+      <div class="cat-card" data-cat-id="${cat.id}" style="border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.02);overflow:hidden;">
+        <div class="cat-header" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:rgba(255,255,255,0.03);">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;user-select:none;margin:0;" onclick="event.stopPropagation();">
+            <input type="checkbox" class="cat-toggle" value="${cat.id}" checked
+                   onchange="toggleCategory('${cat.id}', this.checked)"
+                   style="accent-color:var(--green);width:16px;height:16px;flex-shrink:0;">
+            <span style="font-size:16px;">${cat.icon}</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-1);">${escHtml(cat.title)}</div>
+              <div style="font-size:11px;color:var(--text-3);">${escHtml(cat.description)}</div>
+            </div>
+          </label>
+          <div style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;" onclick="toggleCatAccordion('${cat.id}')">
+            <span id="badge-${cat.id}" style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(34,197,94,0.15);color:var(--green);font-weight:600;">${total}/${total}</span>
+            <span id="arrow-${cat.id}" style="font-size:11px;color:var(--text-3);transition:transform 0.2s;">▼</span>
+          </div>
+        </div>
+        <div id="body-${cat.id}" style="padding:6px 12px 10px 38px;display:flex;flex-direction:column;gap:3px;border-top:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.18);">
+          ${cat.sections.map(s => `
+            <label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;user-select:none;font-size:12px;">
+              <input type="checkbox" class="section-toggle" data-cat="${cat.id}" value="${s.id}" checked
+                     onchange="onSectionChange('${cat.id}')"
+                     style="accent-color:var(--green);width:14px;height:14px;flex-shrink:0;">
+              <span style="color:var(--text-2);">${escHtml(s.title)}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCategory(catId, on) {
+  document.querySelectorAll(`.section-toggle[data-cat="${catId}"]`).forEach(cb => cb.checked = on);
+  updateCatBadge(catId);
+}
+
+function onSectionChange(catId) {
+  const allInCat = [...document.querySelectorAll(`.section-toggle[data-cat="${catId}"]`)];
+  const checkedInCat = allInCat.filter(cb => cb.checked);
+  const master = document.querySelector(`.cat-toggle[value="${catId}"]`);
+  if (master) {
+    master.checked = checkedInCat.length > 0;
+    master.indeterminate = (checkedInCat.length > 0 && checkedInCat.length < allInCat.length);
+  }
+  updateCatBadge(catId);
+}
+
+function updateCatBadge(catId) {
+  const allInCat = [...document.querySelectorAll(`.section-toggle[data-cat="${catId}"]`)];
+  const checkedInCat = allInCat.filter(cb => cb.checked);
+  const badge = document.getElementById(`badge-${catId}`);
+  if (badge) {
+    badge.textContent = `${checkedInCat.length}/${allInCat.length}`;
+    if (checkedInCat.length === 0) {
+      badge.style.background = 'rgba(255,255,255,0.05)';
+      badge.style.color = 'var(--text-3)';
+    } else {
+      badge.style.background = 'rgba(34,197,94,0.15)';
+      badge.style.color = 'var(--green)';
+    }
+  }
+}
+
+function toggleCatAccordion(catId) {
+  const body = document.getElementById(`body-${catId}`);
+  const arrow = document.getElementById(`arrow-${catId}`);
+  if (!body) return;
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? 'flex' : 'none';
+  if (arrow) arrow.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
 }
 
 function toggleAllSections(on) {
-  document.querySelectorAll('#section-picker .section-toggle').forEach(cb => cb.checked = on);
+  document.querySelectorAll('.cat-toggle').forEach(cb => {
+    cb.checked = on;
+    cb.indeterminate = false;
+  });
+  document.querySelectorAll('.section-toggle').forEach(cb => cb.checked = on);
+  FORM_CATEGORIES.forEach(cat => updateCatBadge(cat.id));
 }
 
 function addCustomQuestion() {
@@ -330,7 +404,7 @@ async function createCustomer() {
   const name                 = document.getElementById('new-name').value.trim();
   const email                = document.getElementById('new-email').value.trim();
   const note                 = document.getElementById('new-note').value.trim();
-  const showIndividualAutomation = document.getElementById('new-individual-automation').checked;
+  const showIndividualAutomation = document.getElementById('new-individual-automation')?.checked || false;
 
   if (!name) { showToast('Bitte einen Namen eingeben.', 'error'); return; }
 
@@ -636,8 +710,8 @@ function renderArchive() {
 function openNewModal() {
   document.getElementById('new-name').value  = '';
   document.getElementById('new-email').value = '';
-  document.getElementById('new-note').value  = '';
-  document.getElementById('new-individual-automation').checked = false;
+  const indAuto = document.getElementById('new-individual-automation');
+  if (indAuto) indAuto.checked = false;
   document.getElementById('custom-q-list').innerHTML = '';
   renderSectionPicker();   // setzt alle Häkchen zurück auf "an"
   document.getElementById('generated-link-box').style.display = 'none';
