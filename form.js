@@ -110,6 +110,7 @@ function renderFormSections() {
   container.innerHTML = '';
 
   let globalNum = 0;
+  const activeQuestionsList = [];
 
   FORM_CATEGORIES.forEach(cat => {
     // Prüfen ob mindestens ein Abschnitt dieser Kategorie aktiv ist
@@ -133,6 +134,15 @@ function renderFormSections() {
     // Abschnitte dieser Kategorie rendern
     activeInCat.forEach(s => {
       globalNum++;
+      activeQuestionsList.push({
+        num: globalNum,
+        id: s.id,
+        title: s.title,
+        subtitle: s.subtitle,
+        options: s.options || [],
+        categoryId: cat.id
+      });
+
       const secEl = document.createElement('div');
       secEl.className = 'form-section';
       secEl.setAttribute('data-sid', s.id);
@@ -179,10 +189,14 @@ function renderFormSections() {
       secEl.innerHTML = `
         <div class="section-head">
           <div class="section-num">${globalNum}</div>
-          <div class="section-title-wrap">
+          <div class="section-title-wrap" style="flex:1;">
             <h3>${escHtml(s.title)}</h3>
             <div class="section-subtitle">${escHtml(s.subtitle || 'Mehrfachauswahl möglich')}</div>
           </div>
+          <button type="button" class="btn-ask-ai" onclick="openAiHelpForQuestion(${globalNum}, '${escHtml(s.id)}')" title="Frage ${globalNum} unklar? Alex fragen">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 3.3 2 6.2 5 7.4V20a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.6c3-1.2 5-4.1 5-7.4a8 8 0 0 0-8-8z"/><path d="M9 21h6"/><path d="M10 17h4"/></svg>
+            <span>Frage unklar?</span>
+          </button>
         </div>
         ${innerHtml}
       `;
@@ -191,11 +205,16 @@ function renderFormSections() {
     });
   });
 
-  renderCustomQuestions(globalNum);
+  renderCustomQuestions(globalNum, activeQuestionsList);
+
+  // Synchronisation mit dem lokalen KI-Briefing-Assistenten
+  if (window.BriefingAI) {
+    window.BriefingAI.syncActiveSections(activeQuestionsList);
+  }
 }
 
 /* Hängt die individuellen Fragen als weitere Abschnitte an. */
-function renderCustomQuestions(startNum) {
+function renderCustomQuestions(startNum, activeQuestionsList = []) {
   const box = document.getElementById('custom-questions');
   if (!box) return;
   box.innerHTML = '';
@@ -218,15 +237,29 @@ function renderCustomQuestions(startNum) {
 
   formConfig.customQuestions.forEach(q => {
     n++;
+    activeQuestionsList.push({
+      num: n,
+      id: q.id,
+      title: q.title,
+      subtitle: 'Individuelle Frage',
+      options: q.options || [],
+      categoryId: 'custom'
+    });
+
     const el = document.createElement('div');
     el.className = 'form-section';
+    el.setAttribute('data-sid', q.id);
     el.innerHTML = `
       <div class="section-head">
         <div class="section-num">${n}</div>
-        <div class="section-title-wrap">
+        <div class="section-title-wrap" style="flex:1;">
           <h3>${escHtml(q.title)}</h3>
           <div class="section-subtitle">Mehrfachauswahl möglich</div>
         </div>
+        <button type="button" class="btn-ask-ai" onclick="openAiHelpForQuestion(${n}, '${escHtml(q.id)}')" title="Frage ${n} unklar? Alex fragen">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 3.3 2 6.2 5 7.4V20a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.6c3-1.2 5-4.1 5-7.4a8 8 0 0 0-8-8z"/><path d="M9 21h6"/><path d="M10 17h4"/></svg>
+          <span>Frage unklar?</span>
+        </button>
       </div>
       <div class="chips-wrap" data-section="${escHtml(q.id)}">
         ${q.options.map(o => `<div class="chip" onclick="toggleChip(this)">${escHtml(o)}</div>`).join('')}
@@ -235,6 +268,12 @@ function renderCustomQuestions(startNum) {
     `;
     box.appendChild(el);
   });
+}
+
+function openAiHelpForQuestion(num, sid) {
+  if (window.BriefingAI) {
+    window.BriefingAI.openHelpForQuestion(num, sid);
+  }
 }
 
 function renderFormHeader() {
