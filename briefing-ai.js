@@ -1,36 +1,58 @@
 /**
  * ============================================================================
- * BRIEFING-AI.JS — Nexvia KI-Berater („Alex“)
+ * BRIEFING-AI.JS — Alex • KI-Problemberater (Nexvia)
  * ============================================================================
- * 100% lokaler, DSGVO-konformer KI-Strategie- & Briefing-Berater für Kunden.
- * - Berät zu allen Nexvia-Leistungsbereichen (Security Agent, KI-Agenten, Automatisierung, Web, Social)
- * - Beantwortet Fragen nach dem konkreten Nutzen („Was bringt mir ein Security Agent?“, „Warum RAG?“)
- * - Erkennt Fragennummern (z.B. „Frage 4“, „4“, „#3: Was bedeutet RAG?“)
- * - Ordnet Fragen dynamisch der tatsächlichen Kundenansicht zu
- * - Bietet direkte „Im Formular auswählen“-Aktionen für maximale Conversion
+ * 100% lokaler, DSGVO-konformer KI-Strategie- & Problemberater.
+ * - Exaktes Nexvia-Design (Pill-Button „Alex • KI-Problemberater“ + High-End Modal)
+ * - Vollumfassende Beratung für alle Sektoren:
+ *     • Sicherheits-Agent (24/7 Wächter, IT-Security, DSGVO, Abwehr)
+ *     • Lokaler KI-Agent & RAG (Firmengedächtnis, Dokumentenanalyse, kein ChatGPT)
+ *     • Workflow-Automatisierung (Make, n8n, Zapier, Zero-Touch, Fehlerfreiheit)
+ *     • Verkaufsstarke Webseiten & Web Apps (Conversion, Ladezeit, Portale)
+ *     • Social Media Management & Performance Ads (Mitarbeiter, Sichtbarkeit)
+ * - Intelligente Spracherkennung (versteht Tippfehler, Umgangssprache & „Was bringt mir X?“)
+ * - Live-Fragennummer-Erkennung (z.B. „Frage 4“, „4: Was bedeutet RAG?“, „2“)
+ * - Direkte Ein-Klick-Übernahme ins Formular („Im Formular auswählen“)
  * ============================================================================
  */
 
 (function() {
   'use strict';
 
-  // ── 1. Sektoren- & Lösungs-Wissen (Beratung: „Was bringt mir X?“) ─────────────
+  // ── 1. Vollumfassende Sektoren- & Lösungsberatung („Was bringt mir X?“) ──────
   const SECTOR_CONSULTING = [
     {
       id: 'security_agent',
-      keywords: ['securit', 'sicherheits', 'sicherheit', 'cyber', 'angriff', 'hacker', 'compliance', 'wächter', 'it-schutz'],
-      title: '🛡️ Was bringt Ihnen ein lokaler Sicherheits-Agent?',
+      // Erkennt „was bringt ein security agent“, „warum security“, „sicherheits ageten“, „it schutz“, „hacker abwehr“
+      keywords: [
+        'securit', 'sekurit', 'sicherheits', 'sicherheit', 'cyber', 'angriff', 'hacker', 'compliance',
+        'wächter', 'it-schutz', 'phishing', 'ransomware', 'datenleck', 'datenabfluss', 'firewall',
+        'antivirus', 'antiviren', 'schadsoftware', 'it security', 'it-security', 'it sicherheit'
+      ],
+      title: '🛡️ Warum ein lokaler Sicherheits-Agent für jedes Unternehmen entscheidend ist',
       answerHtml: `
-        <strong>Ein lokaler Sicherheits-Agent ist der 24/7-Wächter für Ihre gesamte Firmen-IT.</strong><br><br>
-        <strong>1. Das Problem in den meisten Betrieben:</strong><br>
-        Cyber-Angriffe, Ransomware und unberechtigte Datenabflüsse treffen heute überwiegend kleine und mittelständische Unternehmen. Häufig wird ein Sicherheitsvorfall erst bemerkt, wenn Daten bereits verschlüsselt oder sensible Kundendaten im Netz gelandet sind.<br><br>
-        <strong>2. Die 3 messbaren Kernvorteile:</strong>
-        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
-          <li><strong>Echtzeit-Überwachung (24/7):</strong> Analysiert Server-Logs, Netzwerkverkehr und Login-Aktivitäten rund um die Uhr. Verdächtige Verhaltensmuster werden in Millisekunden aufgespürt.</li>
-          <li><strong>100% DSGVO & Compliance-Schutz:</strong> Erkennt unberechtigte Datenzugriffe sofort und protokolliert Vorfälle revisionssicher für Datenschutzbehörden und Wirtschaftsprüfer.</li>
-          <li><strong>Automatisierte Sofort-Abwehr:</strong> Blockiert kompromittierte Konten oder verdächtige IP-Adressen sofort und alarmiert die Geschäftsleitung per Push-Benachrichtigung, bevor ein echter Schaden entsteht.</li>
-        </ul>
-        💡 <strong>Praxis-Beispiel:</strong> Ein Mitarbeiter klickt abends versehentlich auf einen Phishing-Link oder ein Account versucht nachts, 500 Kundenakten herunterzuladen -> Der Sicherheits-Agent kappt die Verbindung sofort und schlägt Alarm!
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Ein lokaler Sicherheits-Agent ist der 24/7-Wächter für Ihre gesamte Firmen-IT.</strong><br><br>
+          
+          <div style="padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);margin-bottom:10px;">
+            ⚠️ <strong>Das reale Problem in Unternehmen heute:</strong><br>
+            Cyber-Angriffe, Phishing und Erpressungs-Trojaner (Ransomware) zielen heute vor allem auf mittelständische Betriebe und Dienstleister. Ein Sicherheitsvorfall wird im Schnitt erst nach <strong>200 Tagen</strong> bemerkt – wenn Kundendaten bereits im Darknet sind oder der Betrieb stillsteht. Hinzu kommen strenge gesetzliche Haftungsrisiken für Geschäftsführer (DSGVO & NIS-2).
+          </div>
+
+          <strong>Die 4 zentralen Schutz-Säulen des Nexvia Sicherheits-Agenten:</strong>
+          <ul style="margin:8px 0 12px 18px;padding:0;line-height:1.65;">
+            <li><strong>1. Echtzeit-Verhaltensanalyse (24/7):</strong> Überwacht Server-Logs, Login-Aktivitäten und Netzwerkverkehr rund um die Uhr. Ungewöhnliche Datenabflüsse oder Angriffe werden in Millisekunden aufgespürt.</li>
+            <li><strong>2. Sofortige automatisierte Gefahrenabwehr:</strong> Blockiert kompromittierte Konten oder verdächtige IP-Adressen sofort automatisch und alarmiert die Geschäftsleitung via Push/SMS, bevor ein Schaden entsteht.</li>
+            <li><strong>3. 100% DSGVO & Compliance-Schutz:</strong> Protokolliert Zugriffsrechte revisionssicher für Wirtschaftsprüfer und Datenschutzbehörden.</li>
+            <li><strong>4. 100% lokal im eigenen Haus:</strong> Der Agent läuft autark auf Ihren Servern. Keine sensiblen Sicherheitsdaten fließen in externe US-Clouds!</li>
+          </ul>
+
+          <div style="padding:10px 12px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);margin-bottom:10px;">
+            💡 <strong>Praxis-Beispiel:</strong> Ein Mitarbeiter klickt abends versehentlich auf einen Phishing-Link oder ein Konto versucht nachts um 03:00 Uhr, 500 Kundenverträge herunterzuladen -> Der Sicherheits-Agent kappt die Session in 0,2 Sekunden, sperrt das Profil und meldet den Vorfall an die Geschäftsleitung!
+          </div>
+
+          💰 <strong>Wirtschaftlicher Nutzen:</strong> Verhindert existenzbedrohende Betriebsausfälle und DSGVO-Bußgelder – schützt Ihr Unternehmen schon ab dem ersten Tag.
+        </div>
       `,
       formTarget: {
         sectionId: 'agent_zweck',
@@ -38,25 +60,41 @@
       },
       pills: [
         { text: '„Sicherheits-Agent“ im Formular auswählen', action: (apply) => apply('agent_zweck', 'Sicherheits-Agent (IT-Security, Compliance & Systemüberwachung)') },
-        { text: 'Brauche ich dafür teure Hardware?', action: (ask) => ask('hardware') },
-        { text: 'Was bringt ein lokaler KI-Wissensagent?', action: (ask) => ask('was bringt ein lokaler ki agent') }
+        { text: 'Welche Hardware wird benötigt?', action: (ask) => ask('hardware für sicherheits agent') },
+        { text: 'Was bringt ein lokaler KI-Wissensagent (RAG)?', action: (ask) => ask('was bringt ein lokaler ki agent') }
       ]
     },
+
     {
       id: 'local_ai_rag',
-      keywords: ['rag', 'lokal', 'ki-agent', 'ki agent', 'firmengedächtnis', 'mitarbeiter-assistent', 'mitarbeiter assistent', 'dokumentenanalyse', 'chatgpt'],
+      // Erkennt „was bringt ein lokaler ki agent“, „warum rag“, „warum nicht chatgpt“, „firmengedächtnis“
+      keywords: [
+        'rag', 'lokal', 'ki-agent', 'ki agent', 'firmengedächtnis', 'mitarbeiter-assistent', 'mitarbeiter assistent',
+        'dokumentenanalyse', 'chatgpt', 'wissensmanagement', 'firmenwissen', 'ki berater', 'ki-berater',
+        'wissensagent', 'dokumenten agent', 'pdf agent', 'firmendaten', 'ai agent', 'ki assistent',
+        'ki-assistent', 'sprachmodell', 'llm', 'ollama', 'lokale ki', 'lokaler ki'
+      ],
       title: '🤖 Was bringt ein Lokaler KI-Agent & RAG (Firmengedächtnis)?',
       answerHtml: `
-        <strong>Ein lokaler KI-Agent ist das private, digitale Wissenszentrum Ihres Unternehmens.</strong><br><br>
-        <strong>1. Warum nicht einfach normales ChatGPT?</strong><br>
-        Wenn Mitarbeiter interne Angebote, Kundenverträge, Source Code oder Finanzdaten in ChatGPT eingeben, fließen diese Daten in US-Clouds. Das verletzt die DSGVO und gefährdet Betriebsgeheimnisse. Zudem neigt ChatGPT zu Halluzinationen.<br><br>
-        <strong>2. Was der lokale Nexvia-Agent für Sie leistet:</strong>
-        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
-          <li><strong>Verbindet Ihr echtes Firmenwissen:</strong> Durchsucht Tausende PDFs, Handbücher, Verträge und Notizen und liefert präzise Antworten inklusive Quellenseite in unter 2 Sekunden.</li>
-          <li><strong>Spart bis zu 1,8 Arbeitsstunden/Tag pro Mitarbeiter:</strong> Niemand muss mehr stundenlang nach alten Dokumenten, Preisen oder Richtlinien suchen.</li>
-          <li><strong>Turbo-Einarbeitung (Onboarding):</strong> Neue Mitarbeiter können sofort selbstständig arbeiten und müssen Senior-Kollegen nicht permanent mit Routinefragen unterbrechen.</li>
-          <li><strong>100% datenschutzsicher:</strong> Läuft wahlweise komplett On-Premise in Ihren Räumen (Air-Gapped) – kein Byte verlässt Ihr Haus!</li>
-        </ul>
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Ein lokaler KI-Agent ist das zentrale, intelligente Wissenszentrum Ihres Unternehmens.</strong><br><br>
+          
+          <div style="padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);margin-bottom:10px;">
+            ⚠️ <strong>Warum normales ChatGPT für Firmen gefährlich ist:</strong><br>
+            Wenn Mitarbeiter Angebote, Kundenverträge, Quellcode oder Finanzdaten in öffentliches ChatGPT eingeben, landen diese Daten auf US-Servern (großer DSGVO-Verstoß & Spionagegefahr). Zudem erfindet ChatGPT bei Fachfragen oft frei Fakten („Halluzinationen“).
+          </div>
+
+          <strong>Was der lokale RAG-Agent von Nexvia leistet:</strong>
+          <ul style="margin:8px 0 12px 18px;padding:0;line-height:1.65;">
+            <li><strong>Greift auf Ihre echten Firmendaten zu:</strong> Liest Tausende PDFs, Handbücher, Verträge, Notizen und SharePoint-Dateien ein und beantwortet Fragen in 2 Sekunden inklusive genauer Quellenseite.</li>
+            <li><strong>Spart bis zu 1,8 Arbeitsstunden/Tag pro Mitarbeiter:</strong> Nie wieder stundenlang in alten Ordnern, E-Mails oder Datenbanken nach Preisen, Klauseln oder Anleitungen suchen.</li>
+            <li><strong>Turbo-Onboarding:</strong> Neue Mitarbeiter fragen einfach den Bot, statt erfahrene Kollegen ständig im Arbeitsfluss zu unterbrechen.</li>
+            <li><strong>Stoppt Wissensverlust:</strong> Wenn Mitarbeiter in Rente gehen oder wechseln, bleibt ihr dokumentiertes Expertenwissen im Betrieb erhalten.</li>
+            <li><strong>100% datenschutzsicher:</strong> Läuft wahlweise komplett On-Premise (Air-Gapped) in Ihren eigenen Räumen – kein einziges Byte verlässt Ihr Haus!</li>
+          </ul>
+
+          💡 <strong>Praxis-Beispiel:</strong> Ein Vertriebler fragt den Bot: <em>„Dürfen wir Kunden XY 15% Rabatt gewähren?“</em> -> Der Agent antwortet in 2 Sekunden: <em>„Laut Rahmenvertrag von 2024 (Seite 4) sind maximal 10% Skonto vereinbart, es sei denn, die Geschäftsführung stimmt schriftlich zu.“</em>
+        </div>
       `,
       formTarget: {
         sectionId: 'agent_zweck',
@@ -68,21 +106,34 @@
         { text: 'Was bringt mir ein Sicherheits-Agent?', action: (ask) => ask('was bringt ein security agent') }
       ]
     },
+
     {
       id: 'automation',
-      keywords: ['automati', 'workflow', 'prozess', 'schnittstelle', 'make', 'zapier', 'n8n', 'zeitfresser', 'papierkram', 'excel'],
+      // Erkennt „was bringt automatisierung“, „prozesse automatisieren“, „warum make zapier n8n“
+      keywords: [
+        'automati', 'workflow', 'prozess', 'schnittstelle', 'make', 'zapier', 'n8n', 'zeitfresser',
+        'papierkram', 'excel', 'crm-automation', 'rechnungsworkflow', 'abtippen', 'händisch',
+        'manuell', 'zeit sparen', 'routineaufgabe', 'routinen'
+      ],
       title: '⚙️ Was bringt Workflow-Automatisierung für Ihr Unternehmen?',
       answerHtml: `
-        <strong>Automatisierung ersetzt manuelle Büro-Routinen durch intelligente Software-Pipelines.</strong><br><br>
-        <strong>1. Wo heute die meiste Arbeitszeit verloren geht:</strong><br>
-        Kundendaten aus E-Mails manuell ins CRM abtippen, Rechnungen händisch anlegen, Zahlungseingänge abgleichen oder Excel-Listen pflegen. Das kostet pro Woche viele Stunden und birgt ständige Fehlerquellen.<br><br>
-        <strong>2. Die messbaren Resultate:</strong>
-        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
-          <li><strong>5 bis 15 Stunden Zeitersparnis pro Mitarbeiter und Woche:</strong> Ihr Team gewinnt wertvolle Zeit für Kundenberatung, Vertrieb und Kernaufgaben.</li>
-          <li><strong>Reaktionszeit unter 2 Sekunden:</strong> Neue Anfragen werden sofort erfasst, automatisch vorqualifiziert und bestätigt.</li>
-          <li><strong>0% Fehlerquote:</strong> Keine Zahlendreher mehr in Rechnungen, keine vergessenen Termine und kein Informationsverlust zwischen Programmen.</li>
-        </ul>
-        💡 <strong>Praxis-Beispiel:</strong> Ein Kunde bucht auf Ihrer Website einen Termin -> Nexvia-Automation trägt den Termin in den Kalender ein, legt den Kunden im CRM an, generiert einen Projektordner und sendet dem Kunden eine WhatsApp-Bestätigung mit Vorab-Infos – vollautomatisch in 3 Sekunden!
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Automatisierung ersetzt manuelle Büro-Routinen durch intelligente Software-Pipelines.</strong><br><br>
+          
+          <div style="padding:10px 12px;border-radius:10px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);margin-bottom:10px;">
+            📊 <strong>Typische Zeitfresser in Betrieben heute:</strong><br>
+            Kundendaten manuell aus Mails ins CRM abtippen, Rechnungen händisch erstellen, Zahlungseingänge abgleichen oder Excel-Listen pflegen. Das raubt wöchentlich 5–15 Stunden Arbeitszeit pro Kopf und führt regelmäßig zu Tippfehlern.
+          </div>
+
+          <strong>Die 3 messbaren Kernvorteile:</strong>
+          <ul style="margin:8px 0 12px 18px;padding:0;line-height:1.65;">
+            <li><strong>Enorme Zeit- & Kostenersparnis:</strong> Ihr Team gewinnt wertvolle Stunden für Kundenberatung, Vertrieb und Kernaufgaben.</li>
+            <li><strong>Reaktionszeit unter 2 Sekunden:</strong> Neue Anfragen werden sofort erfasst, automatisch vorqualifiziert und bestätigt – während die Konkurrenz noch Tage braucht.</li>
+            <li><strong>0% Fehlerquote:</strong> Keine Zahlendreher mehr in Rechnungen, keine verlorenen Leads und keine vergessenen Termine.</li>
+          </ul>
+
+          💡 <strong>Praxis-Beispiel:</strong> Ein Kunde bucht auf Ihrer Website einen Termin -> Nexvia-Automation trägt den Termin in den Kalender ein, legt den Kunden im CRM an, generiert einen Projektordner und sendet automatisch eine WhatsApp-Bestätigung mit Vorab-Infos – vollautomatisch in 3 Sekunden!
+        </div>
       `,
       formTarget: {
         sectionId: 'auto_grad',
@@ -94,20 +145,34 @@
         { text: 'Was ist Human-in-the-Loop?', action: (ask) => ask('human in the loop') }
       ]
     },
+
     {
       id: 'website_webapp',
-      keywords: ['webseite', 'website', 'web-app', 'web app', 'homepage', 'landingpage', 'online-shop', 'relaunch'],
+      // Erkennt „was bringt eine webseite“, „warum web app“, „unterschied homepage webseite“
+      keywords: [
+        'webseite', 'website', 'web-app', 'web app', 'homepage', 'landingpage', 'online-shop',
+        'relaunch', 'baukasten', 'wix', 'wordpress', 'internetseite', 'webauftritt', 'webdesign',
+        'neue seite', 'portal', 'kundenportal'
+      ],
       title: '🌐 Was bringt eine High-End-Webseite oder Web-App von Nexvia?',
       answerHtml: `
-        <strong>Aus einer passiven „digitalen Visitenkarte“ wird ein 24/7-Neukundengewinner.</strong><br><br>
-        <strong>1. Das Problem herkömmlicher Websites & Baukästen:</strong><br>
-        Besucher springen auf dem Smartphone nach wenigen Sekunden ab, wenn die Seite langsam lädt oder nicht sofort überzeugt. Viele Betriebe verlieren dadurch jeden Monat unbemerkt lukrative Aufträge an Mitbewerber.<br><br>
-        <strong>2. Was Nexvia auszeichnet:</strong>
-        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
-          <li><strong>Verkaufspsychologischer Aufbau:</strong> Strukturierte Nutzerführung, die Vertrauen aufbaut und Besucher gezielt zu qualifizierten Kundenanfragen konvertiert.</li>
-          <li><strong>Ladezeiten unter 1 Sekunde:</strong> High-Speed Hosting in Deutschland für Top-Google-Rankings und flüssige mobile Bedienung.</li>
-          <li><strong>Web Apps digitalisieren Geschäftsprozesse:</strong> Kunden können eigene Portale nutzen, Angebote berechnen, Dokumente einsehen oder online bezahlen.</li>
-        </ul>
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Aus einer passiven „digitalen Visitenkarte“ wird ein 24/7-Neukundengewinner.</strong><br><br>
+          
+          <div style="padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);margin-bottom:10px;">
+            ⚠️ <strong>Das Problem herkömmlicher Websites & Baukästen:</strong><br>
+            Besucher springen auf dem Smartphone nach wenigen Sekunden ab, wenn die Seite langsam lädt oder unübersichtlich ist. Viele Betriebe verlieren dadurch jeden Monat unbemerkt lukrative Aufträge an Mitbewerber.
+          </div>
+
+          <strong>Was Nexvia Webseiten & Web Apps auszeichnet:</strong>
+          <ul style="margin:8px 0 12px 18px;padding:0;line-height:1.65;">
+            <li><strong>Verkaufspsychologischer Aufbau:</strong> Strukturierte Nutzerführung, die Vertrauen schafft und Besucher gezielt zu qualifizierten Kundenanfragen konvertiert.</li>
+            <li><strong>Ladezeiten unter 1 Sekunde:</strong> High-Speed Hosting in Deutschland für Top-Google-Rankings und flüssige mobile Bedienung.</li>
+            <li><strong>Web Apps digitalisieren Geschäftsprozesse:</strong> Kunden können eigene Portale nutzen, Angebote berechnen, Dokumente einsehen oder online bezahlen.</li>
+          </ul>
+
+          💡 <strong>Unterschied Webseite vs. Web App:</strong> Eine Website informiert und gewinnt Anfragen. Eine Web-App (Portal/SaaS) digitalisiert echte Arbeitsprozesse (z.B. Kundenlogins, Auftragsverwaltung, Online-Rechner).
+        </div>
       `,
       formTarget: {
         sectionId: 'web_ziel',
@@ -119,20 +184,32 @@
         { text: 'Was bringt Social Media?', action: (ask) => ask('social media') }
       ]
     },
+
     {
       id: 'social_media',
-      keywords: ['social media', 'social-media', 'instagram', 'linkedin', 'tiktok', 'performance ads', 'ads', 'werbung', 'mitarbeitergewinnung', 'recruiting'],
-      title: '📱 Was bringt aktives Social Media Management & Performance Ads?',
+      // Erkennt „was bringt social media“, „warum instagram“, „mitarbeitergewinnung“, „performance ads“
+      keywords: [
+        'social media', 'social-media', 'socialmedia', 'instagram', 'linkedin', 'tiktok',
+        'performance ads', 'ads', 'werbung', 'mitarbeitergewinnung', 'recruiting', 'fachkräftemangel',
+        'facebook', 'reels', 'postings', 'follower', 'sichtbarkeit', 'personal gewinnen', 'social'
+      ],
+      title: '📱 Was bringt professionelles Social Media & Performance Ads?',
       answerHtml: `
-        <strong>Social Media ist heute der stärkste Kanal für Markenbekanntheit und Mitarbeitergewinnung.</strong><br><br>
-        <strong>1. Warum auch B2B- & Handwerksbetriebe aktiv sein müssen:</strong><br>
-        Kunden und Fachkräfte googeln Firmen nicht mehr nur – sie prüfen Instagram und LinkedIn. Ein verlassenes oder unprofessionelles Profil schreckt Bewerber und Neukunden ab. Wer modern auftritt, gewinnt das Vertrauen.<br><br>
-        <strong>2. Die 3 großen Hebel:</strong>
-        <ul style="margin:6px 0 10px 18px;padding:0;line-height:1.6;">
-          <li><strong>Fachkräfte gewinnen (Employer Branding):</strong> Zeigt authentische Einblicke und begeistert Bewerber, die gar nicht aktiv auf Jobportalen suchen.</li>
-          <li><strong>Planbare Neukunden durch Performance Ads:</strong> Gezielte Werbeanzeigen auf Meta & LinkedIn werden millimetergenau nur an Ihre Wunschkunden in der Region ausgespielt.</li>
-          <li><strong>Rundum-Sorglos-Betreuung:</strong> Nexvia übernimmt Strategie, Grafiken, Schnitt, Texting und Veröffentlichung schlüsselfertig.</li>
-        </ul>
+        <div style="line-height:1.65;font-size:12.5px;">
+          <strong>Social Media ist heute der stärkste Kanal für Markenbekanntheit und Mitarbeitergewinnung.</strong><br><br>
+          
+          <div style="padding:10px 12px;border-radius:10px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);margin-bottom:10px;">
+            💼 <strong>Warum auch B2B- & Handwerksbetriebe aktiv sein müssen:</strong><br>
+            Kunden und Fachkräfte googeln Firmen nicht mehr nur – sie prüfen Instagram und LinkedIn. Ein verlassenes oder unprofessionelles Profil schreckt Bewerber und Neukunden ab. Wer modern auftritt, gewinnt das Vertrauen.
+          </div>
+
+          <strong>Die 3 großen Hebel von Nexvia Social Media:</strong>
+          <ul style="margin:8px 0 12px 18px;padding:0;line-height:1.65;">
+            <li><strong>Fachkräfte gewinnen (Employer Branding):</strong> Zeigt authentische Einblicke und begeistert Bewerber, die gar nicht aktiv auf Jobportalen suchen.</li>
+            <li><strong>Planbare Neukunden durch Performance Ads:</strong> Gezielte Werbeanzeigen auf Meta & LinkedIn werden millimetergenau nur an Ihre Wunschkunden in der Region ausgespielt.</li>
+            <li><strong>Rundum-Sorglos-Betreuung:</strong> Nexvia übernimmt Strategie, Grafiken, Schnitt, Texting und Veröffentlichung schlüsselfertig.</li>
+          </ul>
+        </div>
       `,
       formTarget: {
         sectionId: 'sm_ziele',
@@ -146,7 +223,7 @@
     }
   ];
 
-  // ── 2. Lokale Wissensbasis aller 31 Fragen des Baukastens ─────────────────────
+  // ── 2. Wissensbasis aller 31 Fragen des Baukastens ────────────────────────────
   const QUESTION_KNOWLEDGE = {
     // 🌐 Webseiten & Web Apps
     web_typ: {
@@ -305,6 +382,12 @@
       tips: 'Mittlerweile genügen schon moderne Office-Workstations oder Mac Studio Geräte für erstaunlich leistungsfähige lokale KI-Modelle.',
       quickPills: ['Brauche ich teure Server?', 'Was ist eine Testinstanz?']
     },
+    agent_zugriff: {
+      shortExplain: 'Wer in Ihrer Firma soll auf den KI-Agenten zugreifen dürfen?',
+      detail: 'Darf nur die <strong>Geschäftsführung</strong> sensible Kennzahlen abfragen, oder soll die <strong>gesamte Belegschaft</strong> Handbücher und Vorlagen durchsuchen? Mit einem <strong>Rollen- & Rechtekonzept</strong> steuern wir präzise, wer welche Dokumente sehen darf.',
+      tips: 'Ein Mitarbeiter im Vertrieb sieht z.B. nur Verkaufsunterlagen, während Personalakten für ihn gesperrt bleiben.',
+      quickPills: ['Kann man Rechte einschränken?', 'Können Mitarbeiter alles sehen?']
+    },
     agent_zielgruppe: {
       shortExplain: 'Wer in Ihrer Firma soll auf den KI-Agenten zugreifen dürfen?',
       detail: 'Darf nur die <strong>Geschäftsführung</strong> sensible Kennzahlen abfragen, oder soll die <strong>gesamte Belegschaft</strong> Handbücher und Vorlagen durchsuchen? Mit einem <strong>Rollen- & Rechtekonzept</strong> steuern wir präzise, wer welche Dokumente sehen darf.',
@@ -381,10 +464,19 @@
 
   // ── 4. State & Kunden-Fragen-Mapping ─────────────────────────────────────────
   let activeQuestions = []; // Array von { num, id, title, subtitle, options, categoryId }
-  let currentFocusedQuestion = null; // { num, id, ... }
+  let currentFocusedQuestion = null;
   let isChatOpen = false;
+  let isThinking = false;
 
-  // ── 5. Hilfsfunktionen zur Fragenerkennung ────────────────────────────────────
+  // ── 5. Robuste Normalisierung & Fragennummer-Erkennung ─────────────────────────
+  function normalizeText(str) {
+    if (!str) return '';
+    return str.toLowerCase()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function extractQuestionNumber(text) {
     if (!text) return null;
     const clean = text.trim();
@@ -417,86 +509,109 @@
     return activeQuestions.find(q => q.id === id) || null;
   }
 
-  // ── 6. Chat UI Erzeugung ─────────────────────────────────────────────────────
+  // ── 6. UI Erzeugung: Pill-Button & High-End Modal ─────────────────────────────
   function injectChatWidget() {
-    if (document.getElementById('nexvia-ai-widget')) return;
+    if (document.getElementById('alex-chat-widget')) return;
 
     const widget = document.createElement('div');
-    widget.id = 'nexvia-ai-widget';
+    widget.id = 'alex-chat-widget';
     widget.innerHTML = `
-      <!-- Floating Trigger Button: Alex – KI-Berater -->
-      <button id="ai-trigger-btn" class="ai-trigger-btn" onclick="window.BriefingAI.toggleChat()" title="Alex – Nexvia KI-Berater öffnen">
-        <div class="ai-trigger-glow"></div>
-        <div class="ai-trigger-icon">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 3.3 2 6.2 5 7.4V20a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.6c3-1.2 5-4.1 5-7.4a8 8 0 0 0-8-8z"/><path d="M9 21h6"/><path d="M10 17h4"/></svg>
-        </div>
-        <span class="ai-trigger-text">Alex – KI-Berater</span>
-        <span class="ai-pulse-dot"></span>
+      <!-- Floating Trigger Button: Exakt wie Screenshot („Alex • KI-Problemberater“) -->
+      <button id="alex-trigger-btn" type="button" onclick="window.BriefingAI.toggleChat()" aria-label="Alex • KI-Problemberater öffnen">
+        <span class="alex-ping-wrap">
+          <span class="alex-ping-outer"></span>
+          <span class="alex-ping-inner"></span>
+        </span>
+        <span class="alex-bot-icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+        </span>
+        <span class="alex-btn-label">Alex <span class="alex-accent">• KI-Problemberater</span></span>
       </button>
 
-      <!-- Chat Drawer / Window -->
-      <div id="ai-chat-window" class="ai-chat-window" style="display:none;">
-        <div class="ai-chat-header">
-          <div class="ai-header-info">
-            <div class="ai-avatar">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-              <span class="ai-online-dot"></span>
+      <!-- Floating Chat Modal: High-End Nexvia Glassmorphism -->
+      <div id="alex-chat-modal" style="display:none;" role="dialog" aria-modal="true">
+        <!-- Header -->
+        <div class="alex-modal-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="alex-modal-avatar">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
             </div>
             <div>
-              <div class="ai-header-title">Alex · Nexvia KI-Berater</div>
-              <div class="ai-header-subtitle">Ihr digitaler Strategie- &amp; Briefing-Experte</div>
+              <div class="alex-modal-title">
+                Alex <span class="alex-modal-badge">Nexvia KI-Berater</span>
+              </div>
+              <div class="alex-modal-sub">
+                <span class="alex-sub-dot"></span>
+                <span>Problemanalyse &amp; Empfehlung • 100% DSGVO</span>
+              </div>
             </div>
           </div>
-          <button class="ai-close-btn" onclick="window.BriefingAI.toggleChat(false)" title="Schließen">✕</button>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button id="alex-reset-btn" type="button" class="alex-header-icon-btn" onclick="window.BriefingAI.resetChat()" title="Chat neustarten">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+            <button id="alex-close-btn" type="button" class="alex-header-icon-btn" onclick="window.BriefingAI.toggleChat(false)" title="Schließen">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
         </div>
 
         <!-- Fokus-Banner (wenn eine Frage gezielt aufgerufen wurde) -->
-        <div id="ai-focus-bar" class="ai-focus-bar" style="display:none;">
-          <div class="ai-focus-content">
-            <span class="ai-focus-num" id="ai-focus-num">Frage 1</span>
-            <span class="ai-focus-title" id="ai-focus-title">...</span>
+        <div id="alex-focus-bar" class="alex-focus-bar" style="display:none;">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+            <span class="alex-focus-num" id="alex-focus-num">Frage 1</span>
+            <span class="alex-focus-title" id="alex-focus-title">...</span>
           </div>
-          <button class="ai-focus-clear" onclick="window.BriefingAI.clearQuestionFocus()" title="Fokus aufheben">✕</button>
+          <button class="alex-focus-clear" onclick="window.BriefingAI.clearQuestionFocus()" title="Fokus aufheben">✕</button>
         </div>
 
-        <!-- Chat Messages -->
-        <div id="ai-messages" class="ai-messages"></div>
+        <!-- Chat Messages Body -->
+        <div id="alex-messages" class="alex-messages-body"></div>
 
-        <!-- Input Area -->
-        <div class="ai-input-area">
-          <input type="text" id="ai-input" class="ai-input" placeholder="Fragen Sie mich alles (z.B. „Was bringt ein Security Agent?“ oder „Frage 4“)..." onkeydown="if(event.key==='Enter') window.BriefingAI.sendMessage()">
-          <button id="ai-send-btn" class="ai-send-btn" onclick="window.BriefingAI.sendMessage()" title="Senden">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <!-- Typing Indicator -->
+        <div id="alex-typing" class="alex-typing" style="display:none;">
+          <span class="alex-typing-dot"></span>
+          <span class="alex-typing-dot" style="animation-delay:0.2s;"></span>
+          <span class="alex-typing-dot" style="animation-delay:0.4s;"></span>
+          <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Alex analysiert Ihr Anliegen...</span>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="alex-input-form" class="alex-input-form" onsubmit="event.preventDefault(); window.BriefingAI.sendMessage();">
+          <input type="text" id="alex-input-field" class="alex-input-field" placeholder="Fragen Sie mich alles (z.B. „Was bringt ein Security Agent?“)..." autocomplete="off">
+          <button type="submit" id="alex-send-btn" class="alex-send-btn" title="Nachricht senden">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
           </button>
-        </div>
+        </form>
       </div>
     `;
 
     document.body.appendChild(widget);
 
-    // Initial greeting if empty
     setTimeout(() => {
-      appendBotGreeting();
+      resetChat();
     }, 100);
   }
 
-  function appendBotGreeting() {
-    const messages = document.getElementById('ai-messages');
-    if (!messages || messages.children.length > 0) return;
+  function resetChat() {
+    const messages = document.getElementById('alex-messages');
+    if (!messages) return;
+    messages.innerHTML = '';
+    currentFocusedQuestion = null;
+    const bar = document.getElementById('alex-focus-bar');
+    if (bar) bar.style.display = 'none';
 
     const html = `
-      Hallo! Ich bin <strong>Alex</strong>, Ihr persönlicher Nexvia KI-Berater.<br><br>
-      Ich berate Sie gerne zu unseren Leistungsbereichen und helfe Ihnen beim Ausfüllen dieses Briefings. Fragen Sie mich z.B.:<br>
-      • <em>„Was bringt mir ein Security Agent?“</em><br>
-      • <em>„Warum sollte ich Prozesse automatisieren?“</em><br>
-      • <em>„Frage 4: Was bedeutet RAG?“</em> (oder einfach nur die Zahl <em>„4“</em>)
+      Hallo! Ich bin <strong>Alex</strong>, Ihr persönlicher KI-Problemberater bei Nexvia.<br><br>
+      Egal ob E-Mail-Überlastung, IT-Sicherheit, Zeitmangel oder Website-Relaunch: <strong>Beschreiben Sie mir einfach kurz Ihr Anliegen oder Ihre Frage in eigenen Worten.</strong> Ich erkläre Ihnen den konkreten Nutzen und empfehle Ihnen die passende Lösung!<br><br>
+      Sie können mich auch zu jeder beliebigen <strong>Fragennummer</strong> fragen (z.B. <em>„4“</em> oder <em>„Frage 4: Was bedeutet RAG?“</em>).
     `;
 
     const pills = [
       { text: 'Was bringt ein Security Agent?', action: () => processUserInput('was bringt ein security agent') },
       { text: 'Was bringt ein lokaler KI-Agent?', action: () => processUserInput('was bringt ein lokaler ki agent') },
       { text: 'Was bringt Automatisierung?', action: () => processUserInput('was bringt automatisierung') },
-      { text: 'Fragen-Übersicht', action: () => showQuestionsOverview() }
+      { text: 'Fragen-Übersicht des Briefings', action: () => showQuestionsOverview() }
     ];
 
     appendBotMessage(html, pills);
@@ -516,7 +631,7 @@
 
     if (activeQuestions.length > 10) {
       pills.push({
-        text: 'Weitere Fragen...',
+        text: 'Weitere Fragen anzeigen...',
         action: () => showAllQuestionsPills()
       });
     }
@@ -534,37 +649,50 @@
 
   // ── 7. Nachrichten senden & verarbeiten ───────────────────────────────────────
   function sendMessage() {
-    const input = document.getElementById('ai-input');
+    const input = document.getElementById('alex-input-field');
     if (!input) return;
     const text = input.value.trim();
-    if (!text) return;
+    if (!text || isThinking) return;
 
     input.value = '';
     appendUserMessage(text);
+    showTyping(true);
 
-    // Nachdenk-Verzögerung für natürliches Chat-Gefühl (150ms)
     setTimeout(() => {
+      showTyping(false);
       processUserInput(text);
-    }, 150);
+    }, 250);
   }
 
-  function processUserInput(text) {
-    const clean = text.toLowerCase().trim();
+  function showTyping(show) {
+    isThinking = show;
+    const t = document.getElementById('alex-typing');
+    if (t) t.style.display = show ? 'flex' : 'none';
+    const msgs = document.getElementById('alex-messages');
+    if (msgs && show) msgs.scrollTop = msgs.scrollHeight;
+  }
 
-    // ── STUFE 1: Sektoren- & Strategieberatung („Was bringt X?“, „Warum brauche ich Y?“) ──
-    const matchedSector = findSectorConsulting(clean);
-    if (matchedSector) {
-      deliverSectorConsulting(matchedSector);
-      return;
+  function matchesKeyword(text, kw) {
+    if (!text || !kw) return false;
+    if (kw.length <= 4) {
+      const escaped = kw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const regex = new RegExp('(?:^|\\s)' + escaped + '(?:$|\\s)', 'i');
+      return regex.test(text);
     }
+    return text.includes(kw);
+  }
 
-    // ── STUFE 2: Fragennummer-Erkennung (z.B. „4“, „Frage 4“, „#3: Was bedeutet...“) ──
-    const num = extractQuestionNumber(text);
-    if (num) {
+  function processUserInput(rawText) {
+    const clean = normalizeText(rawText);
+
+    // ── STUFE 0: Reine Fragennummer-Eingabe (z.B. „4“, „Frage 4“, „#4“) ──
+    const pureNumMatch = rawText.trim().match(/^(?:frage|nr\.?|#)?\s*(\d{1,2})$/i);
+    if (pureNumMatch && pureNumMatch[1]) {
+      const num = parseInt(pureNumMatch[1], 10);
       const q = getQuestionByNum(num);
       if (q) {
         setQuestionFocus(q);
-        explainQuestion(q, text);
+        explainQuestion(q, rawText);
         return;
       } else {
         appendBotMessage(`Frage ${num} gibt es in Ihrem individuellen Briefing leider nicht. Ihr Formular umfasst die Fragen 1 bis ${activeQuestions.length}.`);
@@ -572,9 +700,27 @@
       }
     }
 
+    // ── STUFE 1: Sektoren- & Nutzen-Beratung („Was bringt mir ein Security Agent?“) ──
+    const matchedSector = findSectorConsulting(clean);
+    if (matchedSector) {
+      deliverSectorConsulting(matchedSector);
+      return;
+    }
+
+    // ── STUFE 2: Fragennummer-Erkennung im Satz (z.B. „Frage 4: Was bedeutet...“) ──
+    const num = extractQuestionNumber(rawText);
+    if (num) {
+      const q = getQuestionByNum(num);
+      if (q) {
+        setQuestionFocus(q);
+        explainQuestion(q, rawText);
+        return;
+      }
+    }
+
     // ── STUFE 3: Nachfragen zur aktuell fokussierten Frage ──
     if (currentFocusedQuestion) {
-      const matchedOpt = currentFocusedQuestion.options.find(opt => clean.includes(opt.toLowerCase().slice(0, 8)));
+      const matchedOpt = currentFocusedQuestion.options.find(opt => clean.includes(normalizeText(opt).slice(0, 8)));
       if (matchedOpt) {
         appendBotMessage(
           `Zu der Option <strong>„${escHtml(matchedOpt)}“</strong> bei Frage ${currentFocusedQuestion.num}:<br>` +
@@ -590,7 +736,7 @@
 
     // ── STUFE 4: Allgemeine Begriffserklärungen (RAG, Zero-Touch, On-Premise etc.) ──
     const matchedGeneral = GENERAL_KNOWLEDGE.find(item =>
-      item.keywords.some(kw => clean.includes(kw))
+      item.keywords.some(kw => matchesKeyword(clean, kw))
     );
 
     if (matchedGeneral) {
@@ -606,14 +752,14 @@
 
     // ── STUFE 5: Schlagwörter gegen Fragen & Optionen matchen ──
     const matchedCategoryQuestion = activeQuestions.find(q =>
-      clean.includes(q.title.toLowerCase()) ||
-      (q.subtitle && clean.includes(q.subtitle.toLowerCase().slice(0, 10))) ||
-      q.options.some(o => clean.includes(o.toLowerCase().slice(0, 10)))
+      clean.includes(normalizeText(q.title)) ||
+      (q.subtitle && clean.includes(normalizeText(q.subtitle).slice(0, 10))) ||
+      q.options.some(o => clean.includes(normalizeText(o).slice(0, 10)))
     );
 
     if (matchedCategoryQuestion) {
       setQuestionFocus(matchedCategoryQuestion);
-      explainQuestion(matchedCategoryQuestion, text);
+      explainQuestion(matchedCategoryQuestion, rawText);
       return;
     }
 
@@ -645,16 +791,12 @@
   }
 
   /**
-   * Intelligenter Matcher für Sektorenberatung („Was bringt X?“, „Warum X?“)
+   * Intelligenter Matcher für Sektorenberatung
+   * Erkennt auch Tippfehler wie „ageten“ oder „securit“
    */
   function findSectorConsulting(cleanText) {
-    // Liste von Signalwörtern, die nach Nutzen, Sinn oder Erklärung fragen
-    const benefitSignals = ['bringt', 'warum', 'vorteil', 'nutzen', 'wieso', 'sinn', 'wozu', 'haben', 'brauche', 'was ist', 'rechnet', 'lohnt', 'funktion', 'unterschied'];
-    const hasBenefitSignal = benefitSignals.some(sig => cleanText.includes(sig));
-
     for (const sector of SECTOR_CONSULTING) {
-      const keywordHit = sector.keywords.some(kw => cleanText.includes(kw));
-      // Treffer, wenn Keyword und (Nutzenfrage ODER starkes Keyword wie "security" / "automatisierung") vorhanden ist
+      const keywordHit = sector.keywords.some(kw => matchesKeyword(cleanText, kw));
       if (keywordHit) {
         return sector;
       }
@@ -665,7 +807,7 @@
   function deliverSectorConsulting(sector) {
     const pills = [];
 
-    // Pill: Direkt im Formular ankreuzen (wenn Target existiert)
+    // Pill: Direkt im Formular ankreuzen
     if (sector.formTarget) {
       const q = getQuestionById(sector.formTarget.sectionId);
       const qNumLabel = q ? ` (Frage ${q.num})` : '';
@@ -681,10 +823,8 @@
       }
     }
 
-    // Weitere Beratungs-Pills anbinden
     if (sector.pills) {
       sector.pills.forEach(p => {
-        // Nicht duplizieren
         if (!pills.some(existing => existing.text.slice(0, 15) === p.text.slice(0, 15))) {
           pills.push({
             text: p.text,
@@ -818,9 +958,9 @@
   // ── 10. Fokus & Steuerung ────────────────────────────────────────────────────
   function setQuestionFocus(q) {
     currentFocusedQuestion = q;
-    const bar = document.getElementById('ai-focus-bar');
-    const numEl = document.getElementById('ai-focus-num');
-    const titleEl = document.getElementById('ai-focus-title');
+    const bar = document.getElementById('alex-focus-bar');
+    const numEl = document.getElementById('alex-focus-num');
+    const titleEl = document.getElementById('alex-focus-title');
     if (bar && numEl && titleEl) {
       numEl.textContent = `Frage ${q.num}`;
       titleEl.textContent = q.title;
@@ -830,7 +970,7 @@
 
   function clearQuestionFocus() {
     currentFocusedQuestion = null;
-    const bar = document.getElementById('ai-focus-bar');
+    const bar = document.getElementById('alex-focus-bar');
     if (bar) bar.style.display = 'none';
   }
 
@@ -847,17 +987,17 @@
   }
 
   function toggleChat(forceState) {
-    const win = document.getElementById('ai-chat-window');
-    if (!win) return;
+    const modal = document.getElementById('alex-chat-modal');
+    if (!modal) return;
 
-    isChatOpen = (typeof forceState === 'boolean') ? forceState : (win.style.display === 'none');
-    win.style.display = isChatOpen ? 'flex' : 'none';
+    isChatOpen = (typeof forceState === 'boolean') ? forceState : (modal.style.display === 'none');
+    modal.style.display = isChatOpen ? 'flex' : 'none';
 
     if (isChatOpen) {
       setTimeout(() => {
-        const input = document.getElementById('ai-input');
+        const input = document.getElementById('alex-input-field');
         if (input) input.focus();
-        const msgs = document.getElementById('ai-messages');
+        const msgs = document.getElementById('alex-messages');
         if (msgs) msgs.scrollTop = msgs.scrollHeight;
       }, 50);
     }
@@ -865,40 +1005,40 @@
 
   // ── 11. UI Message Rendering ─────────────────────────────────────────────────
   function appendUserMessage(text) {
-    const messages = document.getElementById('ai-messages');
+    const messages = document.getElementById('alex-messages');
     if (!messages) return;
 
     const el = document.createElement('div');
-    el.className = 'ai-msg ai-msg-user';
+    el.className = 'alex-msg alex-msg-user';
     el.innerHTML = `
-      <div class="ai-msg-bubble">${escHtml(text)}</div>
+      <div class="alex-msg-bubble">${escHtml(text)}</div>
     `;
     messages.appendChild(el);
     messages.scrollTop = messages.scrollHeight;
   }
 
   function appendBotMessage(html, pills = []) {
-    const messages = document.getElementById('ai-messages');
+    const messages = document.getElementById('alex-messages');
     if (!messages) return;
 
     const el = document.createElement('div');
-    el.className = 'ai-msg ai-msg-bot';
+    el.className = 'alex-msg alex-msg-bot';
 
     let pillsHtml = '';
     if (pills && pills.length > 0) {
       pillsHtml = `
-        <div class="ai-pills-wrap">
-          ${pills.map((p, idx) => `<button type="button" class="ai-pill-btn" data-pill-idx="${idx}">${escHtml(p.text)}</button>`).join('')}
+        <div class="alex-pills-wrap">
+          ${pills.map((p, idx) => `<button type="button" class="alex-pill-btn" data-pill-idx="${idx}">${escHtml(p.text)}</button>`).join('')}
         </div>
       `;
     }
 
     el.innerHTML = `
-      <div class="ai-msg-avatar">
+      <div class="alex-msg-avatar">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
       </div>
-      <div class="ai-msg-content">
-        <div class="ai-msg-bubble">${html}</div>
+      <div class="alex-msg-content">
+        <div class="alex-msg-bubble">${html}</div>
         ${pillsHtml}
       </div>
     `;
@@ -907,7 +1047,7 @@
     messages.scrollTop = messages.scrollHeight;
 
     if (pills && pills.length > 0) {
-      const btns = el.querySelectorAll('.ai-pill-btn');
+      const btns = el.querySelectorAll('.alex-pill-btn');
       btns.forEach(b => {
         const idx = parseInt(b.getAttribute('data-pill-idx'), 10);
         b.addEventListener('click', () => {
@@ -922,10 +1062,11 @@
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // ── 12. Globale Schnittstelle für form.js ────────────────────────────────────
+  // ── 12. Globale Schnittstelle ────────────────────────────────────────────────
   window.BriefingAI = {
     init: injectChatWidget,
     toggleChat: toggleChat,
+    resetChat: resetChat,
     openHelpForQuestion: openHelpForQuestion,
     clearQuestionFocus: clearQuestionFocus,
     sendMessage: sendMessage,
@@ -935,7 +1076,6 @@
     }
   };
 
-  // Auto-Initialisierung nach DOM-Ready
   document.addEventListener('DOMContentLoaded', () => {
     injectChatWidget();
   });
