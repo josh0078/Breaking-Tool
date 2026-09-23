@@ -188,8 +188,8 @@ const FORM_CATEGORIES = [
     sections: [
       {
         id: 'auto_bereiche',
-        title: 'Einsatzbereiche der Automatisierung',
-        subtitle: 'In welchen Unternehmensbereichen möchten Sie Zeit sparen?',
+        title: 'Einsatzbereiche & Geschäftsprozesse',
+        subtitle: 'In welchen Unternehmensbereichen möchten Sie Routineaufgaben automatisieren?',
         options: [
           'Vertrieb & Lead-Management (CRM)',
           'E-Mail- & Posteingangs-Workflows',
@@ -200,19 +200,47 @@ const FORM_CATEGORIES = [
         ]
       },
       {
-        id: 'auto_tools',
-        title: 'Bestehende Software & Tools',
-        subtitle: 'Welche Tools sind bei Ihnen aktuell im Einsatz?',
+        id: 'auto_plattformen',
+        title: 'Genutzte Plattformen & Arbeitsumgebung',
+        subtitle: 'Welche Plattformen und Kommunikationskanäle nutzen Sie im Betriebsalltag?',
         options: [
-          'HubSpot / Salesforce / Pipedrive',
-          'Google Workspace / Gmail',
-          'Microsoft 365 / Outlook',
+          'Microsoft 365 (Outlook, Teams, OneDrive/SharePoint)',
+          'Google Workspace (Gmail, Drive, Meet, Docs)',
+          'Slack',
+          'WhatsApp Business / Meta Business Suite',
+          'Discord / Telegram',
+          'Apple / macOS Ökosystem',
+          'Lokale Windows-Server / On-Premise'
+        ]
+      },
+      {
+        id: 'auto_tools',
+        title: 'Bestehende Software, CRM & Tools',
+        subtitle: 'Welche Fach- und Verwaltungsprogramme sind bei Ihnen im Einsatz?',
+        options: [
+          'HubSpot',
+          'Salesforce',
+          'Pipedrive',
           'Sevdesk / Lexoffice',
-          'Slack / Microsoft Teams',
+          'Datev',
+          'Stripe / PayPal',
           'Notion / Airtable',
-          'Zapier / Make / n8n',
-          'Stripe / Zahlungsanbieter',
-          'Eigene API / Datenbank'
+          'Asana / Monday.com / ClickUp',
+          'Shopify / WooCommerce',
+          'Eigene Branchensoftware / API'
+        ]
+      },
+      {
+        id: 'auto_engine',
+        title: 'Vorhandene Automations-Tools',
+        subtitle: 'Haben Sie bereits Automatisierungs-Plattformen im Einsatz oder Präferenzen?',
+        options: [
+          'Noch keine / Empfehlung durch Nexvia gewünscht',
+          'Make (Integromat)',
+          'Zapier',
+          'n8n (Self-Hosted oder Cloud)',
+          'Microsoft Power Automate',
+          'Eigene Python- / NodeJS-Skripte'
         ]
       },
       {
@@ -244,13 +272,52 @@ const FORM_CATEGORIES = [
       {
         id: 'agent_zweck',
         title: 'Haupteinsatzzweck des KI-Agenten',
-        subtitle: 'Welche Hauptaufgabe soll der lokale Agent übernehmen?',
+        subtitle: 'Welche Hauptaufgabe soll der lokale Agent für Ihr Unternehmen übernehmen?',
         options: [
           'Interner Mitarbeiter-Assistent für Unternehmenswissen',
           'Lokale Dokumentenanalyse & RAG (PDFs, Verträge, Handbücher)',
           'Automatisierte Recherche & Berichterstellung',
           'Intelligenter Kundenservice- / Support-Agent',
           'Automatisierte Daten- & Textverarbeitung'
+        ]
+      },
+      {
+        id: 'agent_plattformen',
+        title: 'Genutzte Betriebssysteme & IT-Infrastruktur',
+        subtitle: 'Auf welchen Betriebssystemen arbeiten Ihre Mitarbeiter und Server?',
+        options: [
+          'Windows 10 / 11',
+          'macOS (Apple Mac / MacBook)',
+          'Linux (Ubuntu / Debian Server)',
+          'Microsoft Windows Server',
+          'Virtuelle Maschinen / Docker / Proxmox'
+        ]
+      },
+      {
+        id: 'agent_speicher',
+        title: 'Speicherort Ihrer Firmendaten & Dokumente',
+        subtitle: 'Wo liegen die Dokumente und Daten, auf die der Agent zugreifen soll?',
+        options: [
+          'Lokaler Dateiserver / NAS (Synology, QNAP etc.)',
+          'Microsoft SharePoint / OneDrive',
+          'Google Drive',
+          'Nextcloud / ownCloud',
+          'Lokale Festplatten der Mitarbeiter',
+          'Interne SQL- / PostgreSQL- / NoSQL-Datenbanken',
+          'Notion / Confluence / internes Wiki'
+        ]
+      },
+      {
+        id: 'agent_interface',
+        title: 'Gewünschte Bedienung & Chat-Plattform',
+        subtitle: 'Über welche Oberfläche sollen Ihre Mitarbeiter mit dem KI-Agenten interagieren?',
+        options: [
+          'Eigene Web-Oberfläche im Browser (wie ChatGPT, nur 100% lokal)',
+          'Integration direkt in Microsoft Teams',
+          'Integration direkt in Slack',
+          'Desktop-App für Mac & Windows',
+          'E-Mail-Assistent (KI antwortet auf interne E-Mails)',
+          'API-Schnittstelle / Entwickler-Zugang'
         ]
       },
       {
@@ -262,18 +329,6 @@ const FORM_CATEGORIES = [
           'Lokaler On-Premise Server im Firmennetzwerk',
           'Hybride Cloud mit EU-Rechenzentrum & Verschlüsselung',
           'Vorhandene Firmenrichtlinien müssen eingehalten werden'
-        ]
-      },
-      {
-        id: 'agent_quellen',
-        title: 'Anzuschließende Datenquellen',
-        subtitle: 'Aus welchen Quellen soll der Agent Wissen beziehen?',
-        options: [
-          'Lokale Verzeichnisse (PDFs, Word, Excel, CSV)',
-          'Interne SQL- / NoSQL-Datenbanken',
-          'Intranet / Notion / Confluence / Wiki',
-          'E-Mail-Postfächer / Ticketarchive',
-          'CRM- / ERP-Systeme'
         ]
       },
       {

@@ -24,8 +24,8 @@ Alle Verbesserungen und neuen Features die am **24/7 ON Briefing-Tool** umgesetz
 - [x] **4 Fach-Kategorien + Rahmenbedingungen (`sections.js`)**:
   - 🌐 **Webseiten & Web Apps:** Art des Projekts, Ziel & Zweck, Zielgruppe & Markt, Seiten & Bereiche, Design, Spezielle Funktionen & Schnittstellen, Domain & Hosting.
   - 📱 **Social Media:** Plattformen, Leistungsart, Ziele, Vorhandenes Material & Guidelines, Posting-Frequenz.
-  - ⚙️ **Automatisierungen:** Einsatzbereiche, Software-/Tool-Stack, manuelle Engpässe & Prozesse (Freitext), Automatisierungsgrad.
-  - 🤖 **Individueller Lokaler KI Agent:** Einsatzzweck, Datenschutz & On-Premise-Hosting, Datenquellen, Hardware- & Serverstatus, Nutzerkreis & Berechtigungen.
+  - ⚙️ **Automatisierungen (6 Fragen):** Einsatzbereiche, Plattformen & Workspace (M365, Google Workspace, Slack, Teams, WhatsApp Business), Fachsoftware/CRM (HubSpot, Salesforce, Sevdesk, Lexoffice, Datev etc.), vorhandene Automations-Engines (Make, Zapier, n8n, Power Automate), Engpässe & manuelle Prozesse (Freitext), Automatisierungsgrad.
+  - 🤖 **Individueller Lokaler KI Agent (7 Fragen):** Einsatzzweck, Betriebssysteme & IT-Infrastruktur (Windows, macOS, Linux Server, Windows Server, Docker), Speicherort der Firmendaten (NAS/Synology, SharePoint, Google Drive, Nextcloud, Datenbanken, Wiki), gewünschte Chat-Oberfläche & Integration (Web-Chat, MS Teams, Slack, Desktop-App, E-Mail-Bot, API), Datenschutz & On-Premise, Hardware-/GPU-Status, Nutzerkreis & Berechtigungen.
   - 📋 **Projekt-Rahmenbedingungen:** Materialien & Datei-Upload, Budget-Rahmen, Wunsch-Timeline, Mitbewerber/Referenzen, Anmerkungen.
 - [x] **Admin-Baukasten mit Akkordeon & Kategorien-Schaltern (`index.html`, `admin.js`)**:
   - Jede Kategorie kann mit einem Hauptschalter komplett an- oder abgewählt werden.
