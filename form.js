@@ -700,26 +700,40 @@ async function submitForm() {
     });
 
     // 2. Benachrichtigungs-Mail an den Admin versenden
-    try {
-      const mailRes = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type:    'submission',
-          source:  'briefing-form',
-          to:      ADMIN_EMAIL,
-          to_name: 'Joshua',
-          subject: `✅ Nexvia Briefing von ${safeName} (${safeId})`,
-          html:    htmlBody
-        })
-      });
-      if (!mailRes.ok) {
-        console.warn('Briefing in DB gespeichert, E-Mail-Worker Status:', mailRes.status);
+    const mailPayload = {
+      type:    'submission',
+      source:  'briefing-form',
+      to:      ADMIN_EMAIL,
+      to_name: 'Joshua',
+      subject: `✅ Nexvia Briefing von ${safeName} (${safeId})`,
+      html:    htmlBody
+    };
+
+    const endpoints = [
+      '/api/send-invitation',
+      'https://send-invitation.majosh2026we.workers.dev/'
+    ];
+
+    let mailSent = false;
+    for (const url of endpoints) {
+      try {
+        const mailRes = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(mailPayload)
+        });
+        if (mailRes.ok) {
+          mailSent = true;
+          break;
+        }
+      } catch (mailErr) {
+        console.warn(`Mail-Versand über ${url} fehlgeschlagen:`, mailErr);
       }
-    } catch (mailErr) {
-      console.warn('Briefing in Datenbank gespeichert, aber E-Mail-Zustellung fehlgeschlagen:', mailErr);
+    }
+    if (!mailSent) {
+      console.warn('Briefing in Datenbank gespeichert, aber E-Mail-Zustellung fehlgeschlagen.');
     }
 
     // Mark as submitted

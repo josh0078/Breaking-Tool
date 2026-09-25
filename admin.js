@@ -416,9 +416,18 @@ async function createCustomer() {
   const showIndividualAutomation = document.getElementById('new-individual-automation')?.checked || false;
 
   if (!name) { showToast('Bitte einen Namen eingeben.', 'error'); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('Bitte eine gültige E-Mail-Adresse eingeben (z.B. kunde@beispiel.de) oder das Feld leer lassen.', 'error');
+    return;
+  }
 
   const config = collectFormConfig();
   if (!config) return;   // Baukasten unvollständig — collectFormConfig() hat gemeckert
+
+  const btn = document.getElementById('create-link-btn');
+  btn.disabled = true;
+  const originalBtnText = btn.innerHTML;
+  btn.innerHTML = `<span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:6px;"></span> Link wird erstellt …`;
 
   const now     = new Date();
   const expires = addBusinessDays(now, 7);
@@ -451,22 +460,27 @@ async function createCustomer() {
     const link   = generateLink(customer);
     document.getElementById('generated-link-text').textContent = link;
     document.getElementById('generated-link-box').style.display = 'block';
-    document.getElementById('create-link-btn').style.display = 'none';
+    btn.style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = originalBtnText;
     document.getElementById('fertig-btn').style.display = '';
 
     if (email) {
       const left     = businessDaysLeft(customer.expiresAt);
       const htmlBody = buildInvitationEmailHtml(name, link, left);
+      showToast(`Link erstellt. E-Mail wird an ${email} gesendet …`, 'success');
       sendInvitationEmail(email, name, `Nexvia Website-Briefing`, htmlBody)
-        .then(() => showToast(`✓ Einladungsmail an ${email} gesendet!`, 'success'))
+        .then(() => showToast(`✓ Einladungsmail an ${email} erfolgreich zugestellt!`, 'success'))
         .catch(err => {
           console.error(err);
           showToast(`Kunde erstellt, aber E-Mail fehlgeschlagen: ${err.message || 'Verbindungsfehler'}`, 'error');
         });
     } else {
-      showToast(`Link für ${name} erstellt!`, 'success');
+      showToast(`Link für ${name} erfolgreich erstellt!`, 'success');
     }
   } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = originalBtnText;
     showToast('Fehler beim Speichern: ' + err.message, 'error');
   }
 }
@@ -770,25 +784,47 @@ async function sendInvitationEmail(to, name, subject, html) {
     console.warn('Konnte ID-Token nicht ermitteln:', e);
   }
 
-  const res = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      type:      'invitation',
-      source:    'admin-panel',
-      authToken: authToken,
-      to:        to,
-      to_name:   name,
-      subject:   subject,
-      html:      html
-    })
-  });
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    throw new Error(`Worker-Fehler (${res.status}): ${errText}`);
+  const payload = {
+    type:      'invitation',
+    source:    'admin-panel',
+    authToken: authToken,
+    to:        to,
+    to_name:   name,
+    subject:   subject,
+    html:      html
+  };
+
+  // Duale Route:
+  // 1. First-Party Netlify Proxy (/api/send-invitation) verhindert alle CORS- und Adblocker-Konflikte.
+  // 2. Direkter Fallback auf Cloudflare Worker, falls Proxy lokal nicht verfügbar ist.
+  const endpoints = [
+    '/api/send-invitation',
+    'https://send-invitation.majosh2026we.workers.dev/'
+  ];
+
+  let lastError = null;
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        return; // Erfolgreich!
+      }
+      const errData = await res.json().catch(() => null);
+      const errMsg = errData?.message || errData?.error || (await res.text().catch(() => ''));
+      lastError = new Error(`Worker (${res.status}): ${typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg}`);
+    } catch (netErr) {
+      console.warn(`Versand über ${url} fehlgeschlagen, versuche nächste Route:`, netErr);
+      lastError = netErr;
+    }
   }
+
+  throw lastError || new Error('E-Mail-Dienst nicht erreichbar');
 }
 
 // ── PDF Download ──────────────────────────────
