@@ -701,20 +701,23 @@ async function submitForm() {
 
     // 2. Benachrichtigungs-Mail an den Admin versenden
     try {
-      await fetch('https://send-invitation.majosh2026we.workers.dev/', {
+      const mailRes = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-Nexvia-Source': 'briefing-form'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           type:    'submission',
+          source:  'briefing-form',
           to:      ADMIN_EMAIL,
           to_name: 'Joshua',
           subject: `✅ Nexvia Briefing von ${safeName} (${safeId})`,
           html:    htmlBody
         })
       });
+      if (!mailRes.ok) {
+        console.warn('Briefing in DB gespeichert, E-Mail-Worker Status:', mailRes.status);
+      }
     } catch (mailErr) {
       console.warn('Briefing in Datenbank gespeichert, aber E-Mail-Zustellung fehlgeschlagen:', mailErr);
     }

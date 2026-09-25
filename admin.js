@@ -459,7 +459,10 @@ async function createCustomer() {
       const htmlBody = buildInvitationEmailHtml(name, link, left);
       sendInvitationEmail(email, name, `Nexvia Website-Briefing`, htmlBody)
         .then(() => showToast(`✓ Einladungsmail an ${email} gesendet!`, 'success'))
-        .catch(() => showToast('Kunde erstellt, aber E-Mail fehlgeschlagen. Manuell senden.', 'error'));
+        .catch(err => {
+          console.error(err);
+          showToast(`Kunde erstellt, aber E-Mail fehlgeschlagen: ${err.message || 'Verbindungsfehler'}`, 'error');
+        });
     } else {
       showToast(`Link für ${name} erstellt!`, 'success');
     }
@@ -541,7 +544,10 @@ function sendLinkEmail(id) {
   const htmlBody = buildInvitationEmailHtml(c.name, link, left);
   sendInvitationEmail(c.email, c.name, `Nexvia Website-Briefing`, htmlBody)
     .then(() => showToast(`Einladungsmail an ${c.email} gesendet!`, 'success'))
-    .catch(() => showToast('Fehler beim Senden.', 'error'));
+    .catch(err => {
+      console.error(err);
+      showToast(`Fehler beim Senden: ${err.message || 'Verbindungsfehler'}`, 'error');
+    });
 }
 
 // ── Tabs ──────────────────────────────────────
@@ -755,36 +761,34 @@ function showToast(msg, type = 'success') {
 
 // ── Invitation E-Mail Versand ──────────────────
 async function sendInvitationEmail(to, name, subject, html) {
-  let authHeader = '';
+  let authToken = '';
   try {
     if (auth && auth.currentUser) {
-      const token = await auth.currentUser.getIdToken();
-      authHeader = `Bearer ${token}`;
+      authToken = await auth.currentUser.getIdToken();
     }
   } catch (e) {
     console.warn('Konnte ID-Token nicht ermitteln:', e);
   }
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-Nexvia-Source': 'admin-panel'
-  };
-  if (authHeader) {
-    headers['Authorization'] = authHeader;
-  }
-
   const res = await fetch('https://send-invitation.majosh2026we.workers.dev/', {
     method: 'POST',
-    headers: headers,
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
-      type:    'invitation',
-      to:      to,
-      to_name: name,
-      subject: subject,
-      html:    html
+      type:      'invitation',
+      source:    'admin-panel',
+      authToken: authToken,
+      to:        to,
+      to_name:   name,
+      subject:   subject,
+      html:      html
     })
   });
-  if (!res.ok) throw new Error('send failed');
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`Worker-Fehler (${res.status}): ${errText}`);
+  }
 }
 
 // ── PDF Download ──────────────────────────────
