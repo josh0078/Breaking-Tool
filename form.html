@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexvia · Website-Briefing</title>
+  <title>Nexvia | Next Vision Intelligence Automation – Briefing</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
   <style>
     body { padding-bottom: 80px; }
@@ -61,103 +64,14 @@
 
     /* ── Form body ── */
     .form-body {
-      max-width: 760px;
+      max-width: 780px;
       margin: 0 auto;
       padding: 0 24px;
     }
 
-    /* ── Section card ── */
-    .form-section {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 18px;
-      transition: border-color 0.2s;
-      animation: fadeUp 0.5s ease both;
-    }
-    .form-section:hover { border-color: var(--border-h); }
-    .section-head {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    .section-num {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--green), var(--cyan));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      color: #040912;
-      flex-shrink: 0;
-      box-shadow: 0 0 14px rgba(34,197,94,0.35);
-    }
-    .section-title-wrap h3 {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-    .section-subtitle {
-      font-size: 12px;
-      color: var(--text-3);
-    }
-
-    /* ── Category Banner ── */
-    .category-banner {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 24px;
-      margin: 36px 0 16px 0;
-      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(6,182,212,0.04));
-      border: 1px solid rgba(34,197,94,0.3);
-      border-radius: var(--radius);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-    .category-banner:first-child {
-      margin-top: 0;
-    }
-    .category-banner-icon {
-      font-size: 26px;
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      background: rgba(34,197,94,0.12);
-      border: 1px solid rgba(34,197,94,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .category-banner-subtitle {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--cyan);
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-    .category-banner-title {
-      font-size: 19px;
-      font-weight: 800;
-      color: var(--text-1);
-      margin: 0 0 2px 0;
-      font-family: var(--font-head);
-    }
-    .category-banner-desc {
-      font-size: 12px;
-      color: var(--text-3);
-      margin: 0;
-    }
-
     /* ── Submit area ── */
     .submit-area {
-      max-width: 760px;
+      max-width: 780px;
       margin: 32px auto 0;
       padding: 0 24px;
       text-align: center;
@@ -678,23 +592,43 @@
   </style>
 </head>
 <body>
-<div class="bg-orbs"></div>
+<!-- Background Tech Grid Pattern & Ambient Glows (Exakt wie nexvia-we.de) -->
+<div class="tech-grid-bg" aria-hidden="true"></div>
+<div class="ambient-glow-green" aria-hidden="true"></div>
+<div class="ambient-glow-cyan" aria-hidden="true"></div>
+
+<!-- Navigation Header mit offiziellem Nexvia Logo (Exakt wie nexvia-we.de) -->
+<header role="banner" class="topbar">
+  <div class="topbar-inner">
+    <a href="https://www.nexvia-we.de" target="_blank" rel="noopener noreferrer" class="topbar-logo-link" title="Nexvia Startseite öffnen">
+      <img src="assets/nexvia-logo-horizontal.png" alt="Nexvia – Next Vision Intelligence Automation" class="topbar-logo">
+    </a>
+    <div class="topbar-badge">
+      <span class="topbar-ping"></span>
+      <span>Projekt-Briefing</span>
+    </div>
+  </div>
+</header>
 
 <!-- ══════════ FORM ══════════ -->
 <div id="form-screen">
   <!-- Hero -->
   <div class="form-hero">
     <div class="form-hero-inner">
-      <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(6,182,212,0.06);border:1px solid var(--border);border-radius:30px;padding:6px 18px 6px 8px;margin-bottom:24px;">
-        <img src="assets/nexvia-logo.jpg" alt="Nexvia" style="width:28px;height:28px;border-radius:50%;object-fit:cover;box-shadow:0 0 10px rgba(34,197,94,0.4);">
-        <span style="font-family:var(--font-head);font-size:14px;font-weight:800;letter-spacing:1.5px;color:#ffffff;">NEXVIA</span>
-        <span style="font-size:11px;color:var(--cyan-bright);letter-spacing:0.8px;font-weight:500;">Next Vision Intelligence Automation</span>
+      <div class="topbar-badge" style="margin-bottom:20px;padding:6px 16px 6px 10px;gap:10px;display:inline-flex;">
+        <img src="assets/nexvia-logo-icon.png" alt="Nexvia" style="width:20px;height:20px;border-radius:5px;object-fit:contain;">
+        <span style="font-size:11px;letter-spacing:1.5px;font-weight:700;color:var(--color-brand-green);text-transform:uppercase;">NEXVIA</span>
+        <span style="font-size:11px;color:#94a3b8;letter-spacing:0.5px;">· Next Vision Intelligence Automation</span>
       </div>
-      <div class="form-greeting" id="greeting-line">Website & Automations-Briefing</div>
-      <h1>Hallo <span class="gradient-text" id="customer-name-display">…</span>,<br>erzählen Sie uns von Ihrem Projekt</h1>
-      <p>Füllen Sie das Formular so vollständig wie möglich aus — je mehr wir über Ihre Anforderungen und Wünsche wissen, desto zielgerichteter können wir Sie beraten und ein passendes Angebot erstellen.</p>
-      <div class="expires-badge">
-        ⏱ Dieser Link ist gültig bis <strong id="expires-display">…</strong>
+      <div class="form-greeting" id="greeting-line" style="font-size:11px;letter-spacing:2.5px;font-weight:700;color:var(--color-brand-cyan);text-transform:uppercase;margin-bottom:12px;">Projekt-Briefing & Bedarfsanalyse</div>
+      <h1 style="font-size:clamp(28px, 5vw, 44px);font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:16px;">
+        Hallo <span class="gradient-text" id="customer-name-display">…</span>,<br>erzählen Sie uns von Ihrem Vorhaben
+      </h1>
+      <p style="font-size:15px;color:#94a3b8;line-height:1.7;max-width:560px;margin:0 auto 24px;">
+        Wählen Sie die für Sie relevanten Optionen aus. Basierend auf Ihren Angaben erstellen wir für Sie ein maßgeschneidertes, wirtschaftlich optimales Konzept.
+      </p>
+      <div class="expires-badge" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:9999px;padding:8px 20px;font-size:13px;color:#94a3b8;display:inline-flex;align-items:center;gap:8px;">
+        ⏱ Dieser persönliche Link ist aktiv bis <strong id="expires-display" style="color:var(--color-brand-green);font-weight:700;">…</strong>
       </div>
     </div>
   </div>

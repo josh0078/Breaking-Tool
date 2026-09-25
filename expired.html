@@ -3,46 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexvia · Link abgelaufen</title>
+  <title>Nexvia | Link abgelaufen</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
   <style>
-    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; text-align: center; }
-    .inner { max-width: 480px; margin: 0 auto; }
-    .exp-icon {
-      width: 90px; height: 90px;
-      border-radius: 50%;
-      background: rgba(248,113,113,0.08);
-      border: 1px solid rgba(248,113,113,0.25);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 40px;
-      margin: 0 auto 32px;
-      box-shadow: 0 0 40px rgba(248,113,113,0.12);
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 24px;
+      text-align: center;
     }
-    h1 { font-size: 32px; color: var(--danger); margin-bottom: 14px; }
-    p  { font-size: 15px; color: var(--text-2); line-height: 1.7; }
-    .contact-hint {
-      margin-top: 32px;
-      padding: 20px 28px;
-      background: rgba(255,255,255,0.03);
+    .inner {
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--color-card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      font-size: 13px;
-      color: var(--text-2);
+      padding: 44px 36px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      position: relative;
+      z-index: 1;
     }
-    .contact-hint strong { color: var(--green); }
+    .exp-icon {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 35px rgba(248, 113, 113, 0.15);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--danger);
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+    .contact-hint {
+      margin-top: 28px;
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .contact-hint strong {
+      color: var(--color-brand-green);
+    }
   </style>
 </head>
 <body>
-<div class="bg-orbs"></div>
+<!-- Background Tech Grid Pattern & Ambient Glows (Exakt wie nexvia-we.de) -->
+<div class="tech-grid-bg" aria-hidden="true"></div>
+<div class="ambient-glow-green" aria-hidden="true"></div>
+<div class="ambient-glow-cyan" aria-hidden="true"></div>
+
 <div class="inner fade-up">
   <div style="margin-bottom: 24px;">
-    <img src="assets/nexvia-logo.jpg" alt="Nexvia" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover; box-shadow: 0 0 16px rgba(34,197,94,0.3);">
+    <a href="https://www.nexvia-we.de" target="_blank" rel="noopener noreferrer">
+      <img src="assets/nexvia-logo-horizontal.png" alt="Nexvia" style="height: 42px; width: auto; object-fit: contain;">
+    </a>
   </div>
   <div class="exp-icon">⏱</div>
   <h1>Link abgelaufen</h1>
-  <p>Dieser Briefing-Link ist leider nicht mehr gültig. Der Link war 7 Werktage aktiv und hat diesen Zeitraum überschritten.</p>
+  <p>Dieser persönliche Briefing-Link ist leider nicht mehr aktiv. Der Link war für 7 Werktage freigeschaltet und ist inzwischen abgelaufen.</p>
   <div class="contact-hint">
-    Bitte wenden Sie sich direkt an <strong>Nexvia (Next Vision Intelligence Automation)</strong>, um einen neuen Link zu erhalten. Wir können Ihnen jederzeit einen frischen Zugangslink generieren.
+    Bitte wenden Sie sich direkt an <strong>Nexvia (Next Vision Intelligence Automation)</strong>. Wir generieren Ihnen gerne umgehend einen neuen, frischen Zugangslink.
   </div>
 </div>
 </body>
